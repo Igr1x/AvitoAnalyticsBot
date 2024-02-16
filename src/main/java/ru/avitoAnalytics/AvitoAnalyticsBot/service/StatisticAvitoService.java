@@ -2,6 +2,8 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
+import ru.avitoAnalytics.AvitoAnalyticsBot.models.Operations;
+import ru.avitoAnalytics.AvitoAnalyticsBot.models.Stats;
 
 import java.util.List;
 

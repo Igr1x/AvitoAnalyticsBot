@@ -2,6 +2,8 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.models;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public class Operations {
     private String operationType;
