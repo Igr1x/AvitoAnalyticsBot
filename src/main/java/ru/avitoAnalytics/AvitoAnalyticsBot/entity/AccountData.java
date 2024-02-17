@@ -1,9 +1,13 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "account_data")
+@Getter
+@Setter
 public class AccountData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,5 +24,5 @@ public class AccountData {
     private String clientSecret;
 
     @Column(name = "shets_ref")
-    private String shets_ref;
+    private String shetsRef;
 }
