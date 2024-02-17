@@ -7,11 +7,19 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponce;
+import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponceOperations;
+import ru.avitoAnalytics.AvitoAnalyticsBot.models.Operations;
+import ru.avitoAnalytics.AvitoAnalyticsBot.models.Stats;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import org.springframework.http.HttpHeaders;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.AvitoParser;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.ContactCost;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StatisticAvitoServiceImpl implements StatisticAvitoService {
