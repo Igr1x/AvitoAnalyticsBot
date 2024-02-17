@@ -1,10 +1,8 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -12,35 +10,33 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import ru.avitoAnalytics.AvitoAnalyticsBot.command.Command;
-import ru.avitoAnalytics.AvitoAnalyticsBot.command.ParsedCommand;
 import ru.avitoAnalytics.AvitoAnalyticsBot.command.Parser;
+import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfig;
+import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
-import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.UserRepository;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.AccountService;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.TelegramChatUtils;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
-    private final String name;
-    private final String token;
 
-    @Autowired
-    Parser parser;
+    private final Parser parser;
+    private final BotConfig botConfig;
+    private final UserService userService;
+    private final AccountService accountService;
 
-    @Autowired
-    UserRepository userRepository;
 
-    public TelegramBot( @Value("${bot.name}") String botUsername, @Value("${bot.token}") String botToken) {
-        this.name = botUsername;
-        this.token = botToken;
-        try {
-            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(this);
-        } catch (TelegramApiException e) {
-        }
+    public TelegramBot(Parser parser, BotConfig botConfig, UserService userService, AccountService accountService) {
+        this.parser = parser;
+        this.botConfig = botConfig;
+        this.userService = userService;
+        this.accountService = accountService;
 
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("/start", ""));
@@ -57,29 +53,45 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
 
-        if (update.getMessage().hasText()) {
+        if (update.hasMessage() && update.getMessage().hasText()) {
             String command = parser.getParsedCommand(update.getMessage().getText()).getCommand().toString();
+            String username = update.getMessage().getChat().getUserName();
+            Long chatId = update.getMessage().getChatId();
+            User user = userService.getUser(chatId).orElseGet(() -> {
+                User added = userService.saveUser(new User(), username, chatId);
+                log.info("Added new user with name {} and id {}", username, chatId);
+                return added;
+            });
+            if (!userService.existsUser(String.valueOf(chatId))) {
+                userService.saveUser(user, username, chatId);
+                log.info("Added new user with name {} and id {}", username, chatId);
+            }
             switch (command) {
-                case "START" : {
-                    String telegramId = update.getMessage().getChat().getUserName();
-                    if (!userRepository.existsByTelegramId(telegramId)) {
-                        User user = new User();
-                        user.setTelegramId(telegramId);
-                        userRepository.save(user);
-                    }
-                    String text = "Привки " + telegramId;
-                    SendMessage sendMessage = createMessage(update.getMessage().getChatId(), text);
+                case "START" -> {
                     try {
-                        this.execute(sendMessage);
+                        TelegramChatUtils.sendMessage(this, chatId, "Привки " + username);
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
+                        log.error("TelegramApiException occurred");
                     }
-                    break;
                 }
-                /*case "ADD" : {
-                    User user = new User();
-                    user.setTelegramId(update.getMessage().getChatId());
-                }*/
+                case "ADD" -> {
+                    try {
+                        TelegramChatUtils.sendMessage(this, chatId, "Введите через пробел:\n 1. client_id;\n" +
+                                " 2. client_secret;\n" + " 3. Ссылку на свою Google.Таблицу;");
+                    } catch (TelegramApiException e) {
+                        log.error("TelegramApiException occurred");
+                    }
+                }
+            }
+            if (update.getMessage().hasText() && update.getMessage().getText().contains(" ")) {
+                String responseUser = update.getMessage().getText();
+                String[] str = responseUser.split(" ");
+                AccountData accountData = new AccountData();
+                accountData.setUser(accountService.getUser(chatId).get());
+                accountData.setClientId(str[0]);
+                accountData.setClientSecret(str[1]);
+                accountData.setShetsRef(str[2]);
+                accountService.saveAccount(accountData);
             }
         }
     }
@@ -89,19 +101,13 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return name;
+        return botConfig.getBotName();
     }
 
     @Override
     public String getBotToken() {
-        return token;
+        return botConfig.getToken();
     }
 
-    private SendMessage createMessage(long chatId, String text) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(text);
-        return sendMessage;
-    }
 }
 

@@ -4,8 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    User findByTelegramId(String telegramId);
+    Optional<User> findByTelegramId(String telegramId);
     boolean existsByTelegramId(String telegramId);
 }
