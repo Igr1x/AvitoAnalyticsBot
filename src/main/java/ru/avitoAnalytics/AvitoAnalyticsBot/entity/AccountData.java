@@ -23,6 +23,6 @@ public class AccountData {
     @Column(name = "client_secret")
     private String clientSecret;
 
-    @Column(name = "shets_ref")
-    private String shetsRef;
+    @Column(name = "sheets_ref")
+    private String sheetsRef;
 }
