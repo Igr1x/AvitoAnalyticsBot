@@ -90,7 +90,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 accountData.setUser(accountService.getUser(chatId).get());
                 accountData.setClientId(str[0]);
                 accountData.setClientSecret(str[1]);
-                accountData.setShetsRef(str[2]);
+                accountData.setSheetsRef(str[2]);
                 accountService.saveAccount(accountData);
             }
         }

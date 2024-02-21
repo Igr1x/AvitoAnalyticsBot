@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.aot.generate.GeneratedTypeReference;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -25,6 +26,12 @@ public class User {
     private String telegramId;
 
     @OneToMany(mappedBy = "user")
-    List<AccountData> accounts;
+    private List<AccountData> accounts;
+
+    @Column(name = "balance", precision = 18, scale = 2)
+    private BigDecimal balance;
+
+    @OneToOne
+    private Rates rate;
 
 }

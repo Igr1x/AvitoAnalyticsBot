@@ -20,8 +20,8 @@ import java.util.List;
 @Service
 public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
-    private static String APPLICATION_NAME = "Google Sheets Example";
-    private static JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String APPLICATION_NAME = "Google Sheets Example";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     @Override
     public void insertStatisticIntoTable(List<List<Object>> data, String range, String sheetId) throws IOException, GeneralSecurityException {
