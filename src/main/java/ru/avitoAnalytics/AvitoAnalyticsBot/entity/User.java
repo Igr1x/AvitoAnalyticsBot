@@ -34,4 +34,8 @@ public class User {
     @OneToOne
     private Rates rate;
 
+    public User(String username, String telegramId) {
+        this.username = username;
+        this.telegramId = telegramId;
+    }
 }

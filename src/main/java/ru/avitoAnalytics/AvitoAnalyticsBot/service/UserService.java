@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface UserService {
 
-    User saveUser(User user, String username, Long telegramId);
+    User saveUser(User user);
     boolean existsUser(String telegramId);
     Optional<User> getUser(Long telegramId);
 
