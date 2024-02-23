@@ -8,6 +8,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.Sheets.Spreadsheets.SheetsOperations.CopyTo;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.GoogleSheetsService;
 
@@ -19,12 +20,26 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@Slf4j
 public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     private static final String APPLICATION_NAME = "Google Sheets Example";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String FROM_SHEETS_ID = "1WJ-Url5L6obzKMUtCUxkk3KKZYeV7NmSuCRP6MAWQR4";
     private static final String PREFIX_SHEETS_REF = "https://docs.google.com/spreadsheets/d/";
+
+    private static Sheets service;
+
+    static {
+        try {
+            GoogleCredential credential = getCredential();
+            service = new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+        } catch (IOException | GeneralSecurityException e) {
+            log.error("Error creating the table server");
+        }
+    }
 
     @Override
     public void insertStatisticIntoTable(List<List<Object>> data, String range, String sheetId) throws IOException, GeneralSecurityException {
@@ -61,6 +76,18 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             request.execute();
         }
         setSheetsTitle(service, toSheetsId);
+    }
+
+    @Override
+    public boolean checkExistSheets(String sheetsRef) {
+        try {
+            if (!sheetsRef.startsWith(PREFIX_SHEETS_REF)) return false;
+            String sheetsId = parseTokenFromSheetsRef(sheetsRef);
+            Spreadsheet spreadsheet = service.spreadsheets().get(sheetsId).execute();
+            return spreadsheet != null;
+        } catch (IOException ex) {
+            return false;
+        }
     }
 
     private void setSheetsTitle(Sheets service, String sheetsId) throws IOException {
@@ -114,8 +141,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                 .build();
     }
 
-    private GoogleCredential getCredential() throws IOException {
-        InputStream io = this.getClass()
+    private static GoogleCredential getCredential() throws IOException {
+        InputStream io = GoogleSheetsServiceImpl.class
                 .getClassLoader()
                 .getResourceAsStream("creds.json");
         return GoogleCredential.fromStream(io)
