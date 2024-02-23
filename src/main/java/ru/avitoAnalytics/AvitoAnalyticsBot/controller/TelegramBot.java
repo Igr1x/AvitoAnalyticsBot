@@ -9,11 +9,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.avitoAnalytics.AvitoAnalyticsBot.command.Command;
+import ru.avitoAnalytics.AvitoAnalyticsBot.command.ParsedCommand;
 import ru.avitoAnalytics.AvitoAnalyticsBot.command.Parser;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfig;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
+import ru.avitoAnalytics.AvitoAnalyticsBot.enums.SurveyStatus;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.RepeatAccountDataException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AccountService;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.GoogleSheetsService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.TelegramChatUtils;
 
@@ -28,22 +33,27 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final BotConfig botConfig;
     private final UserService userService;
     private final AccountService accountService;
+    private final GoogleSheetsService googleSheetsService;
 
+    private static SurveyStatus surveyStatus = SurveyStatus.CLIENT_ID;
+    private AccountData accountData = new AccountData();
 
-    public TelegramBot(Parser parser, BotConfig botConfig, UserService userService, AccountService accountService) {
+    public TelegramBot(Parser parser, BotConfig botConfig, UserService userService, AccountService accountService, GoogleSheetsService googleSheetsService) {
         this.parser = parser;
         this.botConfig = botConfig;
         this.userService = userService;
         this.accountService = accountService;
+        this.googleSheetsService = googleSheetsService;
 
         List<BotCommand> listOfCommand = new ArrayList<>();
-        listOfCommand.add(new BotCommand("/start", ""));
-        listOfCommand.add(new BotCommand("/help", ""));
-        listOfCommand.add(new BotCommand("/add", ""));
-        listOfCommand.add(new BotCommand("/accounts", ""));
+        listOfCommand.add(new BotCommand("/start", "Начало работы"));
+        listOfCommand.add(new BotCommand("/help", "Справка"));
+        listOfCommand.add(new BotCommand("/add", "Добавление аккаунта"));
+        listOfCommand.add(new BotCommand("/accounts", "Работа с аккаунтом"));
         try {
             this.execute(new SetMyCommands(listOfCommand, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
+            log.error("TelegramApiException occurred");
         }
 
     }
@@ -60,41 +70,37 @@ public class TelegramBot extends TelegramLongPollingBot {
                 log.info("Added new user with name {} and id {}", username, chatId);
                 return added;
             });
-            if (!userService.existsUser(String.valueOf(chatId))) {
-                userService.saveUser(user, username, chatId);
-                log.info("Added new user with name {} and id {}", username, chatId);
-            }
             switch (command) {
                 case "START" -> {
-                    try {
-                        TelegramChatUtils.sendMessage(this, chatId, "Привки " + username);
-                    } catch (TelegramApiException e) {
-                        log.error("TelegramApiException occurred");
-                    }
+                    TelegramChatUtils.sendMessage(this, chatId, "Привки " + username);
                 }
                 case "ADD" -> {
+                    TelegramChatUtils.sendMessage(this, chatId, "Введите свой client_id:");
+                }
+                case "NONE" -> {
                     try {
-                        TelegramChatUtils.sendMessage(this, chatId, "Введите через пробел:\n 1. client_id;\n" +
-                                " 2. client_secret;\n" + " 3. Ссылку на свою Google.Таблицу;");
+                        if (!surveyStatus.equals(SurveyStatus.END)) {
+                            surveyStatus = TelegramChatUtils.processingMessage(this, update, accountData,
+                                    surveyStatus, googleSheetsService);
+                            if (surveyStatus.equals(SurveyStatus.END)) {
+                                accountData.setUser(user);
+                                accountService.saveAccount(accountData);
+                                userService.addAccount(user, accountData);
+                                final String responseEndSurvey = "Ваш аккаунт внесен в базу!";
+                                TelegramChatUtils.sendMessage(this, chatId, responseEndSurvey);
+                                accountData = new AccountData();
+                                surveyStatus = SurveyStatus.CLIENT_ID;
+                            }
+                        }
+                    } catch (RepeatAccountDataException e) {
+                        TelegramChatUtils.sendMessage(this, chatId, "У вас уже есть данный аккаунт!");
+                        log.error(e.getMessage());
                     } catch (TelegramApiException e) {
                         log.error("TelegramApiException occurred");
                     }
                 }
             }
-            if (update.getMessage().hasText() && update.getMessage().getText().contains(" ")) {
-                String responseUser = update.getMessage().getText();
-                String[] str = responseUser.split(" ");
-                AccountData accountData = new AccountData();
-                accountData.setUser(accountService.getUser(chatId).get());
-                accountData.setClientId(str[0]);
-                accountData.setClientSecret(str[1]);
-                accountData.setSheetsRef(str[2]);
-                accountService.saveAccount(accountData);
-            }
         }
-    }
-
-    private void registerUser(Message message) {
     }
 
     @Override
