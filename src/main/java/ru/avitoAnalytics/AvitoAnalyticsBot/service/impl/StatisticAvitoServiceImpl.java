@@ -10,15 +10,14 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.AvitoConfiguration;
-import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GetStatisticException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponce;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class StatisticAvitoServiceImpl implements StatisticAvitoService {
@@ -37,37 +36,23 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
 
     @Override
     public List<Items> getStatistic(List<Long> itemsId, String token, String userId, String dateFrom, String dateTo) {
-        String urlRequest = String.format(urlStats, userId);
-
-        final List<AvitoResponce> responses = new ArrayList<>();
-
-        try {
-            CompletableFuture.allOf(
-                            Lists.partition(itemsId, avitoConfiguration.getMaxItemsPerRequest())
-                                    .stream()
-                                    .map(ids -> CompletableFuture.runAsync(() -> {
-                                        RestTemplate rest = new RestTemplate();
-                                        HttpHeaders headers = new HttpHeaders();
-                                        headers.setBearerAuth(token);
-                                        headers.setContentType(MediaType.APPLICATION_JSON);
-                                        Map<String, Object> jsonData = getRequestParams(itemsId, dateFrom, dateTo);
-                                        HttpEntity<Map<String, Object>> request = new HttpEntity<>(jsonData, headers);
-
-                                        AvitoResponce avitoResponce = rest.postForObject(urlRequest, request, AvitoResponce.class);
-                                        responses.add(avitoResponce);
-                                    }))
-                                    .toList()
-                                    .toArray(new CompletableFuture[0]))
-                    .orTimeout(1, TimeUnit.MINUTES)
-                    .get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new GetStatisticException("Ошибка при получении статистики по объявлениям", e);
-        }
-
-
-        return responses.stream()
+        return Lists.partition(itemsId, avitoConfiguration.getMaxItemsPerRequest())
+                .parallelStream()
+                .map(ids -> getAvitoResponse(itemsId, token, dateFrom, dateTo, userId))
                 .flatMap(avitoResponce -> avitoResponce.getResult().getItems().stream())
                 .toList();
+    }
+
+    private static AvitoResponce getAvitoResponse(List<Long> itemsId, String token, String dateFrom, String dateTo, String userId) {
+        String urlRequest = String.format(urlStats, userId);
+        RestTemplate rest = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        Map<String, Object> jsonData = getRequestParams(itemsId, dateFrom, dateTo);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(jsonData, headers);
+
+        return rest.postForObject(urlRequest, request, AvitoResponce.class);
     }
 
     private static Map<String, Object> getRequestParams(List<Long> itemsId, String dateFrom, String dateTo) {
