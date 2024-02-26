@@ -38,7 +38,7 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
     public List<Items> getStatistic(List<Long> itemsId, String token, String userId, String dateFrom, String dateTo) {
         return Lists.partition(itemsId, avitoConfiguration.getMaxItemsPerRequest())
                 .parallelStream()
-                .map(ids -> getAvitoResponse(itemsId, token, dateFrom, dateTo, userId))
+                .map(itemsIds -> getAvitoResponse(itemsIds, token, dateFrom, dateTo, userId))
                 .flatMap(avitoResponce -> avitoResponce.getResult().getItems().stream())
                 .toList();
     }
