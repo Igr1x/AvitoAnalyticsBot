@@ -27,14 +27,26 @@ public class BotButtons {
         return createButtons(BalanceButtons.class);
     }
 
-    public List<List<InlineKeyboardButton>> getAccountsButtons(int quantity, long chatId) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public List<List<InlineKeyboardButton>> getAccountsButtons(int quantity, List<Long> accountsId) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         List<InlineKeyboardButton> rowInLine = new ArrayList<>();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
         for (int i = 0; i < quantity; i++) {
-            rowInLine.add(createButton("Аккаунт №" + (i + 1), chatId + "-" + i + 1));
+            rowInLine.add(createButton("Аккаунт №" + (i + 1), "accountId-" + accountsId.get(i)));
             rowsInLine.add(rowInLine);
             rowInLine = new ArrayList<>();
         }
+        rowsInLine.addAll(getHelpButtons());
+        return rowsInLine;
+    }
+
+    public List<List<InlineKeyboardButton>> getSelectAccountButtons(long chatId, long accountId) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        List<InlineKeyboardButton> rowInLine = new ArrayList<>();
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+        rowInLine.add(createButton("Удалить", "deleteAccountId-" + accountId));
+        rowsInLine.add(rowInLine);
+        rowInLine = new ArrayList<>();
+        rowInLine.add(createButton("Назад", "back-" + chatId));
+        rowsInLine.add(rowInLine);
         rowsInLine.addAll(getHelpButtons());
         return rowsInLine;
     }

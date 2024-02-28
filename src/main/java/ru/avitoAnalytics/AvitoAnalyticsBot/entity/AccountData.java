@@ -25,4 +25,12 @@ public class AccountData {
 
     @Column(name = "sheets_ref")
     private String sheetsRef;
+
+    @Override
+    public String toString() {
+        return "Данные аккаунта:\n" +
+                "clientId - " + clientId + '\n' +
+                "clientSecret - " + clientSecret + '\n' +
+                "Ссылка на таблицу - " + sheetsRef;
+    }
 }

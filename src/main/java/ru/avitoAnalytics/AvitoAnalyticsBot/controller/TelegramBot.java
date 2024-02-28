@@ -38,6 +38,10 @@ public class TelegramBot extends TelegramLongPollingBot {
     private ConnectTariff connectTariff;
     @Autowired
     private AccountsAction accountsAction;
+    @Autowired
+    private SelectAccountAction selectAccountAction;
+    @Autowired
+    private DeleteAccountAction deleteAccount;
 
     private PatternMap<String, Actions> actionsCommand = new PatternMap<>();
     private PatternMap<String, Actions> actionsKeyboard = new PatternMap<>();
@@ -57,6 +61,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         actionsKeyboard.put("/balance", balanceAction);
         actionsKeyboard.put("backToTariffs", new TariffsAction());
         actionsKeyboard.put("/accounts", accountsAction);
+        actionsKeyboard.putPattern(key -> key.startsWith("accountId-"), selectAccountAction);
+        actionsKeyboard.putPattern(key -> key.startsWith("back-"), accountsAction);
+        actionsKeyboard.putPattern(key -> key.startsWith("deleteAccountId-"), deleteAccount);
     }
 
     public TelegramBot(BotConfig botConfig, UserService userService, AccountService accountService) {
@@ -106,7 +113,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         executeAsync((SendDocument) msg);
                         return;
                     }
-                    if (key.equals("connect1") || key.equals("connect2") || key.equals("connect3") || key.equals("/accounts")) {
+                    if (key.equals("connect1") || key.equals("connect2") || key.equals("connect3") || key.equals("/accounts") || key.contains("accountId-") || key.contains("back-") || key.contains("deleteAccountId-")) {
                         executeAsync((SendMessage) msg);
                         return;
                     }

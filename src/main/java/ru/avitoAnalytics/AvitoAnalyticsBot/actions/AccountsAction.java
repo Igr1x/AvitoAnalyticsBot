@@ -13,6 +13,7 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.util.BotButtons;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.TelegramChatUtils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -27,12 +28,14 @@ public class AccountsAction implements Actions<SendMessage>{
         User user = userService.getUser(chatId).orElseThrow();
         List<AccountData> accounts = accountRepository.findByUserId(user.getId());
         StringBuilder text = new StringBuilder();
+        List<Long> accountsId = new ArrayList<>();
         for (int i = 0; i < accounts.size(); i++) {
             text.append("Аккаунт №").append(i + 1).append('\n');
             text.append("Client_id - ").append(accounts.get(i).getClientId()).append('\n');
             text.append("Client_secret - ").append(accounts.get(i).getClientSecret()).append("\n\n");
+            accountsId.add(accounts.get(i).getId());
         }
 
-        return TelegramChatUtils.getMessage(chatId, text.toString(), new InlineKeyboardMarkup(BotButtons.getAccountsButtons(accounts.size(), chatId)));
+        return TelegramChatUtils.getMessage(chatId, text.toString(), new InlineKeyboardMarkup(BotButtons.getAccountsButtons(accounts.size(), accountsId)));
     }
 }
