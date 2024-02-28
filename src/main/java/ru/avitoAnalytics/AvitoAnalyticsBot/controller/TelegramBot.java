@@ -33,31 +33,35 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final AccountsAction accountsAction;
     private final SelectAccountAction selectAccountAction;
     private final DeleteAccountAction deleteAccount;
+    private final StartAction startAction;
+    private final HelpAction helpAction;
+    private final TariffsAction tariffsAction;
+    private final TariffAction tariffAction;
 
-    private PatternMap<String, Actions> actionsCommand = new PatternMap<>();
-    private PatternMap<String, Actions> actionsKeyboard = new PatternMap<>();
+    private final PatternMap<String, Actions<?>> actionsCommand = new PatternMap<>();
+    private final PatternMap<String, Actions<?>> actionsKeyboard = new PatternMap<>();
 
     @PostConstruct
     public void init() {
-        actionsCommand.put("/start", new StartAction());
-        actionsCommand.put("/help", new HelpAction());
-        actionsCommand.put("/tariffs", new TariffsAction());
+        actionsCommand.put("/start", startAction);
+        actionsCommand.put("/help", helpAction);
+        actionsCommand.put("/tariffs", tariffsAction);
         actionsCommand.put("/balance", balanceAction);
         actionsCommand.put("/accounts", accountsAction);
-        actionsKeyboard.put("/start", new StartAction());
-        actionsKeyboard.put("/help", new HelpAction());
-        actionsKeyboard.put("/tariffs", new TariffsAction());
+
+        actionsKeyboard.put("/start", startAction);
+        actionsKeyboard.put("/help", helpAction);
+        actionsKeyboard.put("/tariffs", tariffsAction);
         actionsKeyboard.put("/balance", balanceAction);
         actionsKeyboard.put("/accounts", accountsAction);
-        actionsKeyboard.put("backToTariffs", new TariffsAction());
         actionsKeyboard.putPattern(key -> key.startsWith("accountId-"), selectAccountAction);
         actionsKeyboard.putPattern(key -> key.startsWith("back-"), accountsAction);
         actionsKeyboard.putPattern(key -> key.startsWith("deleteAccountId-"), deleteAccount);
-        actionsKeyboard.putPattern(key -> key.startsWith("tariff"), new TariffAction());
+        actionsKeyboard.putPattern(key -> key.startsWith("tariff"), tariffAction);
         actionsKeyboard.putPattern(key -> key.startsWith("connect"), connectTariff);
     }
 
-    public TelegramBot(BotConfig botConfig, UserService userService, BalanceAction balanceAction, ConnectTariff connectTariff, AccountsAction accountsAction, SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount) {
+    public TelegramBot(BotConfig botConfig, UserService userService, BalanceAction balanceAction, ConnectTariff connectTariff, AccountsAction accountsAction, SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount, StartAction startAction, HelpAction helpAction, TariffsAction tariffsAction, TariffAction tariffAction) {
         this.botConfig = botConfig;
         this.userService = userService;
         this.balanceAction = balanceAction;
@@ -65,6 +69,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.accountsAction = accountsAction;
         this.selectAccountAction = selectAccountAction;
         this.deleteAccount = deleteAccount;
+        this.startAction = startAction;
+        this.helpAction = helpAction;
+        this.tariffsAction = tariffsAction;
+        this.tariffAction = tariffAction;
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("/start", ""));
         listOfCommand.add(new BotCommand("/help", ""));

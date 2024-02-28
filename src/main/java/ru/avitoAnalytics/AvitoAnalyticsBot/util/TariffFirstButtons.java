@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 enum TariffFirstButtons implements ButtonsInfo {
     CONNECT("Подключить тариф", "connect1"),
-    BACK("Назад", "backToTariffs");
+    BACK("Назад", "/tariffs");
 
     private final String text;
     private String callbackData;
