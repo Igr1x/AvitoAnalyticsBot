@@ -7,19 +7,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponce;
-import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponceOperations;
-import ru.avitoAnalytics.AvitoAnalyticsBot.models.Operations;
-import ru.avitoAnalytics.AvitoAnalyticsBot.models.Stats;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import org.springframework.http.HttpHeaders;
-import ru.avitoAnalytics.AvitoAnalyticsBot.util.AvitoParser;
-import ru.avitoAnalytics.AvitoAnalyticsBot.util.ContactCost;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class StatisticAvitoServiceImpl implements StatisticAvitoService {
@@ -31,8 +22,8 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
     private final String KEY_CONTENT_TYPE = "Content-Type";
     private final String VALUE_APPLICATION_JSON = "application/json";
 
-    private String urlStats = "https://api.avito.ru/stats/v1/accounts/%s/items";
-    private String urlToken = "https://api.avito.ru/token?client_id=%s&client_secret=%s&grant_type=client_credentials";
+    private static String urlStats = "https://api.avito.ru/stats/v1/accounts/%s/items";
+    private static String urlToken = "https://api.avito.ru/token?client_id=%s&client_secret=%s&grant_type=client_credentials";
 
     @Override
     public List<Items> getStatistic(List<String> itemsId, String token, String userId, String dateFrom, String dateTo) throws JsonProcessingException {
