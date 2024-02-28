@@ -18,12 +18,11 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfig;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AccountService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.PatternMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -38,30 +37,22 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Autowired
     private ConnectTariff connectTariff;
 
-    private Map<String, Actions> actionsCommand;
-    private Map<String, Actions> actionsKeyboard;
+    private PatternMap<String, Actions> actionsCommand = new PatternMap<>();
+    private PatternMap<String, Actions> actionsKeyboard = new PatternMap<>();
 
     @PostConstruct
     public void init() {
-        actionsCommand = Map.of(
-                "/start", new StartAction(),
-                "/help", new HelpAction(),
-                "/tariffs", new TariffsAction(),
-                "/balance", balanceAction
-        );
-        actionsKeyboard = new HashMap<>(Map.of(
-                "/start", new StartAction(),
-                "/help", new HelpAction(),
-                "/tariffs", new TariffsAction(),
-                "/balance", balanceAction,
-                "tariff1", new TariffAction(),
-                "tariff2", new TariffAction(),
-                "tariff3", new TariffAction(),
-                "backToTariffs", new TariffsAction(),
-                "connect1", connectTariff,
-                "connect2", connectTariff
-        ));
-        actionsKeyboard.put("connect3", connectTariff);
+        actionsKeyboard.putPattern(key -> key.startsWith("tariff"), new TariffAction());
+        actionsKeyboard.putPattern(key -> key.startsWith("connect"), connectTariff);
+        actionsCommand.put("/start", new StartAction());
+        actionsCommand.put("/help", new HelpAction());
+        actionsCommand.put("/tariffs", new TariffsAction());
+        actionsCommand.put("/balance", balanceAction);
+        actionsKeyboard.put("/start", new StartAction());
+        actionsKeyboard.put("/help", new HelpAction());
+        actionsKeyboard.put("/tariffs", new TariffsAction());
+        actionsKeyboard.put("/balance", balanceAction);
+        actionsKeyboard.put("backToTariffs", new TariffsAction());
     }
 
     public TelegramBot(BotConfig botConfig, UserService userService, AccountService accountService) {
