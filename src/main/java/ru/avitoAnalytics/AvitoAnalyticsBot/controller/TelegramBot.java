@@ -36,6 +36,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     private BalanceAction balanceAction;
     @Autowired
     private ConnectTariff connectTariff;
+    @Autowired
+    private AccountsAction accountsAction;
 
     private PatternMap<String, Actions> actionsCommand = new PatternMap<>();
     private PatternMap<String, Actions> actionsKeyboard = new PatternMap<>();
@@ -48,11 +50,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         actionsCommand.put("/help", new HelpAction());
         actionsCommand.put("/tariffs", new TariffsAction());
         actionsCommand.put("/balance", balanceAction);
+        actionsCommand.put("/accounts", accountsAction);
         actionsKeyboard.put("/start", new StartAction());
         actionsKeyboard.put("/help", new HelpAction());
         actionsKeyboard.put("/tariffs", new TariffsAction());
         actionsKeyboard.put("/balance", balanceAction);
         actionsKeyboard.put("backToTariffs", new TariffsAction());
+        actionsKeyboard.put("/accounts", accountsAction);
     }
 
     public TelegramBot(BotConfig botConfig, UserService userService, AccountService accountService) {
@@ -102,7 +106,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         executeAsync((SendDocument) msg);
                         return;
                     }
-                    if (key.equals("connect1") || key.equals("connect2") || key.equals("connect3")) {
+                    if (key.equals("connect1") || key.equals("connect2") || key.equals("connect3") || key.equals("/accounts")) {
                         executeAsync((SendMessage) msg);
                         return;
                     }

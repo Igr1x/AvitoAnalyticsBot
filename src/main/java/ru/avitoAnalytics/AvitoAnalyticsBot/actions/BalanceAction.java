@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Rates;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
@@ -26,6 +27,6 @@ public class BalanceAction implements Actions<SendPhoto> {
         User user = userService.getUser(chatId).orElseThrow();
         Rates rate = ratesService.getRate(user.getRate().getId()).orElseThrow();
         String text = "Баланс: %.2f руб.\nПодключенный тариф: %s";
-        return TelegramChatUtils.getPhotoMessage(chatId, String.format(text, user.getBalance(), rate.getTitle()), "classpath:balance.jpeg", BotButtons.getBalanceButtons());
+        return TelegramChatUtils.getPhotoMessage(chatId, String.format(text, user.getBalance(), rate.getTitle()), "classpath:balance.jpeg", new InlineKeyboardMarkup(BotButtons.getBalanceButtons()));
     }
 }
