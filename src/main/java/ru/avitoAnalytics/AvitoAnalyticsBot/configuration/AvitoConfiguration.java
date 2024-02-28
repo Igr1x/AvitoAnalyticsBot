@@ -11,4 +11,7 @@ public class AvitoConfiguration {
 
     @Value("${avito.statistic.max_items_per_request}")
     private int maxItemsPerRequest;
+
+    @Value("${avito.ads.max_items_per_request}")
+    private int maxAdsPerRequest;
 }
