@@ -8,7 +8,7 @@ enum TariffFirstButtons implements ButtonsInfo {
     BACK("Назад", "backToTariffs");
 
     private final String text;
-    private final String callbackData;
+    private String callbackData;
 
     @Override
     public String getText() {
@@ -19,4 +19,5 @@ enum TariffFirstButtons implements ButtonsInfo {
     public String getCallbackData() {
         return callbackData;
     }
+
 }

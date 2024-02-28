@@ -3,7 +3,7 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.util;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-enum TariffThirdButtons implements ButtonsInfo {
+public enum TariffThirdButtons implements ButtonsInfo{
     CONNECT("Подключить тариф", "connect3"),
     BACK("Назад", "backToTariffs");
 
@@ -20,3 +20,4 @@ enum TariffThirdButtons implements ButtonsInfo {
         return callbackData;
     }
 }
+

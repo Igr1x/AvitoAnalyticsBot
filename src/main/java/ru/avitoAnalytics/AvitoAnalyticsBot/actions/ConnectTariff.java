@@ -1,6 +1,5 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.actions;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,20 +12,22 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.BotButtons;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.TelegramChatUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 
 @Component
 public class ConnectTariff implements Actions<SendMessage> {
-    @Autowired
-    private RatesService ratesService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserRepository userRepository;
+    private final RatesService ratesService;
+    private final UserService userService;
+    private final UserRepository userRepository;
+
+    public ConnectTariff(RatesService ratesService, UserService userService, UserRepository userRepository) {
+        this.ratesService = ratesService;
+        this.userService = userService;
+        this.userRepository = userRepository;
+    }
 
     @Override
-    public SendMessage handleMessage(Update update, Long chatId) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public SendMessage handleMessage(Update update, Long chatId) {
         String callbackData = update.getCallbackQuery().getData();
         String rateId = callbackData.substring(callbackData.length() - 1);
         Rates rate = ratesService.getRate(Long.valueOf(rateId)).orElseThrow();

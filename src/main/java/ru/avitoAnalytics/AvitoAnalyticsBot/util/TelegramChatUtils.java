@@ -24,7 +24,7 @@ public class TelegramChatUtils {
         return sendMessage;
     }
 
-    public static SendPhoto getPhotoMessage(long chatId, String caption, String path, InlineKeyboardMarkup inlineKeyboard) throws TelegramApiException {
+    public static SendPhoto getPhotoMessage(long chatId, String caption, String path, InlineKeyboardMarkup inlineKeyboard) {
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(chatId);
         sendPhoto.setPhoto(getFile(path));

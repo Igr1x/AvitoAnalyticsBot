@@ -1,6 +1,5 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.actions;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -12,19 +11,21 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.BotButtons;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.TelegramChatUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class AccountsAction implements Actions<SendMessage>{
-    @Autowired
-    AccountRepository accountRepository;
-    @Autowired
-    UserService userService;
+    private final AccountRepository accountRepository;
+    private final UserService userService;
+
+    public AccountsAction(AccountRepository accountRepository, UserService userService) {
+        this.accountRepository = accountRepository;
+        this.userService = userService;
+    }
 
     @Override
-    public SendMessage handleMessage(Update update, Long chatId) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public SendMessage handleMessage(Update update, Long chatId) {
         User user = userService.getUser(chatId).orElseThrow();
         List<AccountData> accounts = accountRepository.findByUserId(user.getId());
         StringBuilder text = new StringBuilder();
