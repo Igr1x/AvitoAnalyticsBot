@@ -16,22 +16,13 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
             String address = advertisement.getAddress();
             String city = getCityFromAddress(address);
             Long adId = advertisement.getId();
-            putAdvertisementId(advertisementsFromCity, city, adId);
+            advertisementsFromCity.getOrDefault(city, new ArrayList<>()).add(adId);
         }
         return advertisementsFromCity;
     }
 
     private String getCityFromAddress(String address) {
         return address.split(", ")[0];
-    }
-
-    private void putAdvertisementId(Map<String, List<Long>> map, String city, Long adId) {
-        if (!map.containsKey(city)) {
-            map.put(city, new ArrayList<>());
-            map.get(city).add(adId);
-            return;
-        }
-        map.get(city).add(adId);
     }
 
 }
