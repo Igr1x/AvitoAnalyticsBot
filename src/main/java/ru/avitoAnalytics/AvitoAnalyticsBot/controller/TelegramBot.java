@@ -1,38 +1,27 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.controller;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.interfaces.Validable;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.avitoAnalytics.AvitoAnalyticsBot.actions.Actions;
-import ru.avitoAnalytics.AvitoAnalyticsBot.actions.HelpAction;
-import ru.avitoAnalytics.AvitoAnalyticsBot.actions.StartAction;
-import ru.avitoAnalytics.AvitoAnalyticsBot.actions.TariffsAction;
-import ru.avitoAnalytics.AvitoAnalyticsBot.command.Parser;
+import ru.avitoAnalytics.AvitoAnalyticsBot.actions.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfig;
-import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AccountService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
-import ru.avitoAnalytics.AvitoAnalyticsBot.util.TelegramChatUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,12 +33,36 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final UserService userService;
     private final AccountService accountService;
 
-    private Map<String, Actions> actions = Map.of(
-            "/start", new StartAction(),
-            "/help", new HelpAction(),
-            "/tariffs", new TariffsAction()
-    );
+    @Autowired
+    private BalanceAction balanceAction;
+    @Autowired
+    private ConnectTariff connectTariff;
 
+    private Map<String, Actions> actionsCommand;
+    private Map<String, Actions> actionsKeyboard;
+
+    @PostConstruct
+    public void init() {
+        actionsCommand = Map.of(
+                "/start", new StartAction(),
+                "/help", new HelpAction(),
+                "/tariffs", new TariffsAction(),
+                "/balance", balanceAction
+        );
+        actionsKeyboard = new HashMap<>(Map.of(
+                "/start", new StartAction(),
+                "/help", new HelpAction(),
+                "/tariffs", new TariffsAction(),
+                "/balance", balanceAction,
+                "tariff1", new TariffAction(),
+                "tariff2", new TariffAction(),
+                "tariff3", new TariffAction(),
+                "backToTariffs", new TariffsAction(),
+                "connect1", connectTariff,
+                "connect2", connectTariff
+        ));
+        actionsKeyboard.put("connect3", connectTariff);
+    }
 
     public TelegramBot(BotConfig botConfig, UserService userService, AccountService accountService) {
         this.botConfig = botConfig;
@@ -57,63 +70,52 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.accountService = accountService;
 
         List<BotCommand> listOfCommand = new ArrayList<>();
-        listOfCommand.add(new BotCommand("/start", ""));
+        listOfCommand.add(new BotCommand("/start", "халоу"));
         listOfCommand.add(new BotCommand("/help", ""));
-        listOfCommand.add(new BotCommand("/add", ""));
         listOfCommand.add(new BotCommand("/accounts", ""));
         listOfCommand.add(new BotCommand("/tariffs", ""));
         try {
             this.execute(new SetMyCommands(listOfCommand, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
         }
-
     }
 
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();
-            registrationUser(update.getMessage().getChat().getUserName(), chatId.toString());
             var key = update.getMessage().getText();
-            if (actions.containsKey(key)) {
-                if (key.equals("/help")) {
-                    var msg = actions.get(key).handleMediaGroup(update, chatId);
-                    try {
-                        execute(msg);
-                    } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
+            if (key.equals("/start")) {
+                registrationUser(update.getMessage().getChat().getUserName(), chatId);
+            }
+            if (actionsCommand.containsKey(key)) {
+                try {
+                    var msg = actionsCommand.get(key).handleMessage(update, chatId);
+                    if (key.equals("/help")) {
+                        executeAsync((SendDocument) msg);
+                        return;
                     }
-                    try {
-                        var msg2 = actions.get(key).handleMessage(update, chatId);
-                        execute(msg2);
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    } catch (NoSuchMethodException e) {
-                        throw new RuntimeException(e);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                } else {
-                    try {
-                        var msg = actions.get(key).handlePhoto(update, chatId);
-                        execute(msg);
-                    } catch (TelegramApiException | InvocationTargetException | NoSuchMethodException |
-                             IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
+                    executeAsync((SendPhoto) msg);
+                } catch (TelegramApiException | InvocationTargetException | NoSuchMethodException |
+                         IllegalAccessException e) {
+                    throw new RuntimeException(e);
                 }
             }
-        }
-        else if (update.hasCallbackQuery()) {
+        } else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             var key = update.getCallbackQuery().getData();
-            if (actions.containsKey(key)) {
+            if (actionsKeyboard.containsKey(key)) {
                 try {
-                    var msg = actions.get(key).handlePhoto(update, chatId);
-                    execute(msg);
+                    var msg = actionsKeyboard.get(key).handleMessage(update, chatId);
+                    if (key.equals("/help")) {
+                        executeAsync((SendDocument) msg);
+                        return;
+                    }
+                    if (key.equals("connect1") || key.equals("connect2") || key.equals("connect3")) {
+                        executeAsync((SendMessage) msg);
+                        return;
+                    }
+                    executeAsync((SendPhoto) msg);
                 } catch (TelegramApiException | InvocationTargetException | NoSuchMethodException |
                          IllegalAccessException e) {
                     throw new RuntimeException(e);
@@ -163,12 +165,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         }*/
     }
 
-    private void registrationUser(String username, String chatId) {
-        if (!userService.existsUser(chatId)) {
-            User newUser = new User(username, chatId);
-            userService.saveUser(newUser);
+    private void registrationUser(String username, Long chatId) {
+        User user = userService.getUser(chatId).orElseGet(() ->
+        {
+            User added = new User(username, chatId.toString());
             log.info("Added new user with name {} and id {}", username, chatId);
-        }
+            return userService.saveUser(added);
+        });
     }
 
 

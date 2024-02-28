@@ -19,6 +19,21 @@ public class BotButtons {
         return createButtons(HelpButtons.class);
     }
 
+    public InlineKeyboardMarkup getTariffsButtons() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        return createButtons(TariffsButtons.class);
+    }
+
+    public InlineKeyboardMarkup getBalanceButtons() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        return createButtons(BalanceButtons.class);
+    }
+
+    public InlineKeyboardMarkup getTariffButtons(String tariffId) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        if (tariffId.equals(String.valueOf(1L))) return createButtons(TariffFirstButtons.class);
+        if (tariffId.equals(String.valueOf(2L))) return createButtons(TariffSecondButtons.class);
+        if (tariffId.equals(String.valueOf(3L))) return createButtons(TariffThirdButtons.class);
+        return null;
+    }
+
     private InlineKeyboardButton createButton(String text, String callbackData) {
         InlineKeyboardButton button = new InlineKeyboardButton(text);
         button.setCallbackData(callbackData);

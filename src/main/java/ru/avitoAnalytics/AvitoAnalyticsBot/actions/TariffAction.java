@@ -8,10 +8,11 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.util.TelegramChatUtils;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class TariffsAction implements Actions<SendPhoto> {
-
+public class TariffAction implements Actions<SendPhoto> {
     @Override
     public SendPhoto handleMessage(Update update, Long chatId) throws TelegramApiException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        return TelegramChatUtils.getPhotoMessage(chatId, "", "classpath:tariffs.jpeg", BotButtons.getTariffsButtons());
+        String callback = update.getCallbackQuery().getData();
+        StringBuilder path = new StringBuilder("classpath:" + callback + ".jpeg");
+        return TelegramChatUtils.getPhotoMessage(chatId, "Описание тарифа", path.toString(), BotButtons.getTariffButtons(callback.substring(callback.length() - 1)));
     }
 }
