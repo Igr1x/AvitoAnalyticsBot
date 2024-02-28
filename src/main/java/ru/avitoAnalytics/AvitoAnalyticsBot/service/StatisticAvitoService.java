@@ -6,8 +6,7 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
 import java.util.List;
 
 public interface StatisticAvitoService {
-
-    List<Items> getStatistic(List<String> itemsId, String token, String userId, String dateFrom, String dateTo) throws JsonProcessingException;
+    List<Items> getStatistic(List<Long> itemsId, String token, String userId, String dateFrom, String dateTo);
     String getToken(String clientId, String clientSecret);
 
 }
