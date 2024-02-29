@@ -93,35 +93,35 @@ public class TelegramBot extends TelegramLongPollingBot {
                 registrationUser(update.getMessage().getChat().getUserName(), chatId);
             }
             if (actionsCommand.containsKey(key)) {
-                    var msg = actionsCommand.get(key).handleMessage(update, chatId);
-                    if (key.equals("/help")) {
-                        executeAsync((SendDocument) msg);
-                        return;
-                    }
-                    executeAsync((SendPhoto) msg);
+                var msg = actionsCommand.get(key).handleMessage(update, chatId);
+                if (key.equals("/help")) {
+                    executeAsync((SendDocument) msg);
+                    return;
+                }
+                executeAsync((SendPhoto) msg);
             }
         } else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             var key = update.getCallbackQuery().getData();
             if (actionsKeyboard.containsKey(key)) {
-                    var msg = actionsKeyboard.get(key).handleMessage(update, chatId);
-                    if (key.equals("/help")) {
-                        executeAsync((SendDocument) msg);
-                        return;
+                var msg = actionsKeyboard.get(key).handleMessage(update, chatId);
+                if (key.equals("/help")) {
+                    executeAsync((SendDocument) msg);
+                    return;
+                }
+                if (key.contains("connect") ||
+                        key.equals("/accounts") ||
+                        key.contains("accountId-") ||
+                        key.contains("back-") ||
+                        key.contains("deleteAccountId-")) {
+                    try {
+                        executeAsync((SendMessage) msg);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
                     }
-                    if (key.contains("connect") ||
-                            key.equals("/accounts") ||
-                            key.contains("accountId-") ||
-                            key.contains("back-") ||
-                            key.contains("deleteAccountId-")) {
-                        try {
-                            executeAsync((SendMessage) msg);
-                        } catch (TelegramApiException e) {
-                            throw new RuntimeException(e);
-                        }
-                        return;
-                    }
-                    executeAsync((SendPhoto) msg);
+                    return;
+                }
+                executeAsync((SendPhoto) msg);
             }
         }
     }
