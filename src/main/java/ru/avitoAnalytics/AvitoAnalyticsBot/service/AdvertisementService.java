@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface AdvertisementService {
 
-    List<Advertisement> getAdvertisements(AccountData accountData, String perPage, String page, String statusAdvertisement);
+    List<Advertisement> getAllAdvertisements(AccountData accountData);
 
 }
