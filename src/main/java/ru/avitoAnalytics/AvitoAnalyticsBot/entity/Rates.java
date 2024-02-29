@@ -1,11 +1,13 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "rates")
+@Getter
 public class Rates {
 
     @Id

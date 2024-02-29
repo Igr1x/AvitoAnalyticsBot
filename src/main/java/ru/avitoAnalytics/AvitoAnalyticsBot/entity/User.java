@@ -49,4 +49,9 @@ public class User {
         }
     }
 
+    public User(String username, String telegramId) {
+        this.username = username;
+        this.telegramId = telegramId;
+    }
+
 }

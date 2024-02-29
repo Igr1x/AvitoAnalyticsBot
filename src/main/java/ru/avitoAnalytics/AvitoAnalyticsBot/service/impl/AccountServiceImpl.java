@@ -2,12 +2,14 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
 import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AccountRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.UserRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AccountService;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,4 +29,19 @@ public class AccountServiceImpl implements AccountService {
         return userRepository.findByTelegramId(String.valueOf(telegramId));
     }
 
+    @Override
+    @Transactional
+    public void deleteById(long accountId) {
+        accountRepository.deleteById(accountId);
+    }
+
+    @Override
+    public List<AccountData> findByUserId(Long userId) {
+        return accountRepository.findByUserId(userId);
+    }
+
+    @Override
+    public Optional<AccountData> findById(Long id) {
+        return accountRepository.findById(id);
+    }
 }

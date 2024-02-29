@@ -23,9 +23,7 @@ public class UserServiceImpl implements UserService {
     private final RatesRepository ratesRepository;
 
     @Override
-    public User saveUser(User user, String username, Long telegramId) {
-        user.setUsername(username);
-        user.setTelegramId(String.valueOf(telegramId));
+    public User saveUser(User user) {
         Rates rates = ratesRepository.findById(4L).get();
         user.setRate(rates);
         return userRepository.save(user);
@@ -47,4 +45,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    @Override
+    public void updateUserData(User user) {
+        userRepository.save(user);
+    }
 }

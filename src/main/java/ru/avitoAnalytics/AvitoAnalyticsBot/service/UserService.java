@@ -8,8 +8,8 @@ import java.util.Optional;
 
 public interface UserService {
 
-    User saveUser(User user, String username, Long telegramId);
+    User saveUser(User user);
     Optional<User> getUser(Long telegramId);
     User addAccount(User user, AccountData accountData) throws RepeatAccountDataException;
-
+    void updateUserData(User user);
 }
