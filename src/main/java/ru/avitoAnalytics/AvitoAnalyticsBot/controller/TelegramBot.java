@@ -20,10 +20,14 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.util.PatternMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
+
+    private final Map<Long, String> bindingBy = new ConcurrentHashMap<>();
 
     private final BotConfig botConfig;
     private final UserService userService;
@@ -31,6 +35,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final BalanceAction balanceAction;
     private final ConnectTariff connectTariff;
     private final AccountsAction accountsAction;
+    private final AddAccountAction addAccountAction;
     private final SelectAccountAction selectAccountAction;
     private final DeleteAccountAction deleteAccount;
     private final StartAction startAction;
@@ -45,12 +50,14 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void init() {
         actionsCommand.put("/start", startAction);
         actionsCommand.put("/help", helpAction);
+        actionsCommand.put("/add", addAccountAction);
         actionsCommand.put("/tariffs", tariffsAction);
         actionsCommand.put("/balance", balanceAction);
         actionsCommand.put("/accounts", accountsAction);
 
         actionsKeyboard.put("/start", startAction);
         actionsKeyboard.put("/help", helpAction);
+        actionsKeyboard.put("/add", addAccountAction);
         actionsKeyboard.put("/tariffs", tariffsAction);
         actionsKeyboard.put("/balance", balanceAction);
         actionsKeyboard.put("/accounts", accountsAction);
@@ -61,12 +68,18 @@ public class TelegramBot extends TelegramLongPollingBot {
         actionsKeyboard.putPattern(key -> key.startsWith("connect"), connectTariff);
     }
 
-    public TelegramBot(BotConfig botConfig, UserService userService, BalanceAction balanceAction, ConnectTariff connectTariff, AccountsAction accountsAction, SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount, StartAction startAction, HelpAction helpAction, TariffsAction tariffsAction, TariffAction tariffAction) {
+    public TelegramBot(BotConfig botConfig, UserService userService,
+                       BalanceAction balanceAction, ConnectTariff connectTariff,
+                       AccountsAction accountsAction, AddAccountAction addAccountAction,
+                       SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount,
+                       StartAction startAction, HelpAction helpAction,
+                       TariffsAction tariffsAction, TariffAction tariffAction) {
         this.botConfig = botConfig;
         this.userService = userService;
         this.balanceAction = balanceAction;
         this.connectTariff = connectTariff;
         this.accountsAction = accountsAction;
+        this.addAccountAction = addAccountAction;
         this.selectAccountAction = selectAccountAction;
         this.deleteAccount = deleteAccount;
         this.startAction = startAction;
@@ -76,6 +89,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("/start", ""));
         listOfCommand.add(new BotCommand("/help", ""));
+        listOfCommand.add(new BotCommand("/add", ""));
         listOfCommand.add(new BotCommand("/accounts", ""));
         listOfCommand.add(new BotCommand("/tariffs", ""));
         try {
@@ -94,20 +108,43 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
             if (actionsCommand.containsKey(key)) {
                 var msg = actionsCommand.get(key).handleMessage(update, chatId);
+                bindingBy.put(chatId, key);
                 if (key.equals("/help")) {
                     executeAsync((SendDocument) msg);
                     return;
                 }
+                if (key.equals("/add")) {
+                    try {
+                        executeAsync((SendMessage) msg);
+                        return;
+                    } catch (TelegramApiException e) {
+                    }
+                }
                 executeAsync((SendPhoto) msg);
+            } else if (bindingBy.containsKey(chatId)) {
+                var msg = actionsCommand.get(bindingBy.get(chatId)).callback(update, chatId);
+                bindingBy.remove(chatId);
+                try {
+                    executeAsync((SendMessage) msg);
+                } catch (TelegramApiException e) {
+                }
             }
         } else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             var key = update.getCallbackQuery().getData();
             if (actionsKeyboard.containsKey(key)) {
                 var msg = actionsKeyboard.get(key).handleMessage(update, chatId);
+                bindingBy.put(chatId, key);
                 if (key.equals("/help")) {
                     executeAsync((SendDocument) msg);
                     return;
+                }
+                if (key.equals("/add")) {
+                    try {
+                        executeAsync((SendMessage) msg);
+                        return;
+                    } catch (TelegramApiException e) {
+                    }
                 }
                 if (key.contains("connect") ||
                         key.equals("/accounts") ||
@@ -122,6 +159,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 executeAsync((SendPhoto) msg);
+            } else if (bindingBy.containsKey(chatId)) {
+                var msg = actionsCommand.get(bindingBy.get(chatId)).callback(update, chatId);
+                bindingBy.remove(chatId);
+                try {
+                    executeAsync((SendMessage) msg);
+                } catch (TelegramApiException e) {
+                }
             }
         }
     }

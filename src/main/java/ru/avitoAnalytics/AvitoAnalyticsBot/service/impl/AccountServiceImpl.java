@@ -36,8 +36,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<AccountData> findByUserId(Long userId) {
-        return accountRepository.findByUserId(userId);
+    public List<AccountData> findByUserId(Long userOwnerId) {
+        return accountRepository.findByUserOwnerId(userOwnerId);
     }
 
     @Override
