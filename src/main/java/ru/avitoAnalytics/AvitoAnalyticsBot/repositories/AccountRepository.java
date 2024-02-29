@@ -4,9 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface AccountRepository extends JpaRepository<AccountData, Long> {
-    Optional<AccountData> findByUserId(Long userId);
+    List<AccountData> findByUserOwnerId(Long userOwnerId);
 }
