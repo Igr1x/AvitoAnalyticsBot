@@ -1,13 +1,14 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "account_data")
 @Getter
-@Setter
 public class AccountData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +32,18 @@ public class AccountData {
 
     @Column(name = "account_name")
     private String accountName;
+
+    public AccountData() {
+    }
+
+    public AccountData(User userOwner, Long userId, String clientId, String clientSecret, String sheetsRef, String accountName) {
+        this.userOwner = userOwner;
+        this.userId = userId;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.sheetsRef = sheetsRef;
+        this.accountName = accountName;
+    }
 
     @Override
     public String toString() {

@@ -10,6 +10,5 @@ public interface UserService {
 
     User saveUser(User user);
     Optional<User> getUser(Long telegramId);
-    User addAccount(User user, AccountData accountData) throws RepeatAccountDataException;
     void updateUserData(User user);
 }

@@ -35,17 +35,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User addAccount(User user, AccountData accountData) throws RepeatAccountDataException {
-        List<AccountData> accountDataList = user.getAccounts();
-        if (accountDataList.contains(accountData)) {
-            throw new RepeatAccountDataException("У пользователя уже добавлен данный аккаунт");
-        }
-        accountDataList.add(accountData);
-        user.setAccounts(accountDataList);
-        return userRepository.save(user);
-    }
-
-    @Override
     public void updateUserData(User user) {
         userRepository.save(user);
     }
