@@ -13,7 +13,7 @@ public class AccountData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
@@ -25,4 +25,12 @@ public class AccountData {
 
     @Column(name = "sheets_ref")
     private String sheetsRef;
+
+    @Override
+    public String toString() {
+        return "Данные аккаунта:\n" +
+                "clientId - " + clientId + '\n' +
+                "clientSecret - " + clientSecret + '\n' +
+                "Ссылка на таблицу - " + sheetsRef;
+    }
 }
