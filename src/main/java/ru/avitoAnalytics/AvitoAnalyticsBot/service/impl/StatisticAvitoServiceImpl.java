@@ -3,68 +3,66 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.AvitoConfiguration;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponce;
-import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponceOperations;
-import ru.avitoAnalytics.AvitoAnalyticsBot.models.Operations;
-import ru.avitoAnalytics.AvitoAnalyticsBot.models.Stats;
+import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
-import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
-import org.springframework.http.HttpHeaders;
-import ru.avitoAnalytics.AvitoAnalyticsBot.util.AvitoParser;
-import ru.avitoAnalytics.AvitoAnalyticsBot.util.ContactCost;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class StatisticAvitoServiceImpl implements StatisticAvitoService {
-    private final String KEY_VIEWS = "uniqViews";
-    private final String KEY_CONTACTS = "uniqContacts";
-    private final String KEY_FAVOURITES = "uniqFavorites";
-    private final String KEY_AUTHORIZATION = "Authorization";
-    private final String VALUE_TOKEN = "Bearer %s";
-    private final String KEY_CONTENT_TYPE = "Content-Type";
-    private final String VALUE_APPLICATION_JSON = "application/json";
+    private final static String KEY_VIEWS = "uniqViews";
+    private final static String KEY_CONTACTS = "uniqContacts";
+    private final static String KEY_FAVOURITES = "uniqFavorites";
 
-    private String urlStats = "https://api.avito.ru/stats/v1/accounts/%s/items";
-    private String urlToken = "https://api.avito.ru/token?client_id=%s&client_secret=%s&grant_type=client_credentials";
+    private final static String urlStats = "https://api.avito.ru/stats/v1/accounts/%s/items";
+    private final static String urlToken = "https://api.avito.ru/token?client_id=%s&client_secret=%s&grant_type=client_credentials";
+
+    private final AvitoConfiguration avitoConfiguration;
+
+    public StatisticAvitoServiceImpl(AvitoConfiguration avitoConfiguration) {
+        this.avitoConfiguration = avitoConfiguration;
+    }
 
     @Override
-    public List<Items> getStatistic(List<String> itemsId, String token, String userId, String dateFrom, String dateTo) throws JsonProcessingException {
-        String urlRequest = String.format(urlStats, userId);
-        List<Long> itemsIdLong = itemsId.stream()
-                .map(Long::parseLong)
+    public List<Items> getStatistic(List<Long> itemsId, String token, String userId, String dateFrom, String dateTo) {
+        return Lists.partition(itemsId, avitoConfiguration.getMaxItemsPerRequest())
+                .parallelStream()
+                .map(itemsIds -> getAvitoResponse(itemsIds, token, dateFrom, dateTo, userId))
+                .flatMap(avitoResponce -> avitoResponce.getResult().getItems().stream())
                 .toList();
+    }
+
+    private static AvitoResponce getAvitoResponse(List<Long> itemsId, String token, String dateFrom, String dateTo, String userId) {
+        String urlRequest = String.format(urlStats, userId);
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        headers.add(KEY_AUTHORIZATION, String.format(VALUE_TOKEN, token));
-        headers.add(KEY_CONTENT_TYPE, VALUE_APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        Map<String, Object> jsonData = getRequestParams(itemsId, dateFrom, dateTo);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(jsonData, headers);
+
+        return rest.postForObject(urlRequest, request, AvitoResponce.class);
+    }
+
+    private static Map<String, Object> getRequestParams(List<Long> itemsId, String dateFrom, String dateTo) {
         Map<String, Object> jsonData = new HashMap<>();
         jsonData.put("dateFrom", dateFrom);
         jsonData.put("dateTo", dateTo);
         jsonData.put("fields", Arrays.asList(KEY_VIEWS, KEY_CONTACTS, KEY_FAVOURITES));
-        jsonData.put("itemIds", itemsIdLong);
+        jsonData.put("itemIds", itemsId.toArray(new Long[0]));
         jsonData.put("periodGrouping", "day");
-
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(jsonData, headers);
-        AvitoResponce responce = rest.postForObject(urlRequest, request, AvitoResponce.class);
-        /*List<Operations> operations = getAmountExpenses();
-        for (Stats stat : responce.getResult().getItems().get(0).getStats()) {
-            for (Operations op : operations) {
-                if (responce.getResult().getItems().get(0).getItemId().equals(op.getItemId()) &&
-                stat.getDate().equals(op.getUpdatedAt())) {
-                    stat.setTotalAmount(op.getAmountTotal());
-                } else {
-                    stat.setTotalAmount(0);
-                }
-            }
-        }*/
-        return responce.getResult().getItems();
+        return jsonData;
     }
 
     @Override
