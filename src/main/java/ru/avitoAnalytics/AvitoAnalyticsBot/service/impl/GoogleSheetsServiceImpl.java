@@ -18,6 +18,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -31,8 +32,11 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     private static Sheets service;
 
     static {
-        try {
-            GoogleCredential credential = getCredential();
+        try(InputStream io = GoogleSheetsServiceImpl.class
+                .getClassLoader()
+                .getResourceAsStream("creds.json")) {
+            GoogleCredential credential = GoogleCredential.fromStream(Objects.requireNonNull(io))
+                    .createScoped(Collections.singletonList(SheetsScopes.SPREADSHEETS));
             service = new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
                     .setApplicationName(APPLICATION_NAME)
                     .build();
@@ -43,9 +47,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     @Override
     public void insertStatisticIntoTable(List<List<Object>> data, String range, String sheetId) throws IOException, GeneralSecurityException {
-        //String range = "Избранные!D2:AP10";
-        //String id = "1WJ-Url5L6obzKMUtCUxkk3KKZYeV7NmSuCRP6MAWQR4";
-        Sheets service = getSheetsService();
         ValueRange body = new ValueRange().setValues(data);
         service.spreadsheets().values().update(sheetId, range, body)
                 .setValueInputOption("USER_ENTERED")
@@ -53,12 +54,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public void insertTemplateSheets(String sheetsRef) throws IOException, GeneralSecurityException {
-        GoogleCredential credential = getCredential();
-        Sheets service = new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-
+    public void insertTemplateSheets(String sheetsRef) throws IOException {
         Spreadsheet spreadsheet = service.spreadsheets().get(FROM_SHEETS_ID).execute();
         List<Sheet> sheets = spreadsheet.getSheets();
 
@@ -75,7 +71,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             CopyTo request = service.spreadsheets().sheets().copyTo(FROM_SHEETS_ID, sheetId, requestBody);
             request.execute();
         }
-        setSheetsTitle(service, toSheetsId);
+        setSheetsTitle(toSheetsId);
     }
 
     @Override
@@ -90,7 +86,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         }
     }
 
-    private void setSheetsTitle(Sheets service, String sheetsId) throws IOException {
+    private void setSheetsTitle(String sheetsId) throws IOException {
         Spreadsheet spreadsheet = service.spreadsheets().get(sheetsId).execute();
         List<Sheet> sheets = spreadsheet.getSheets();
 
@@ -111,7 +107,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         }
     }
 
-    private void setBackgroundColor(Sheets service, String id) throws IOException {
+    private void setBackgroundColor(String id) throws IOException {
         List<Request> requests = new ArrayList<>();
         for (int i = 3; i <= 6; i++) {
             String range = "D" + i + ":AP" + i;
@@ -134,23 +130,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return titleSheet.replace(substring, "").trim();
     }
 
-    private Sheets getSheetsService() throws IOException, GeneralSecurityException {
-        GoogleCredential credential = getCredential();
-        return new Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-    }
-
-    private static GoogleCredential getCredential() throws IOException {
-        InputStream io = GoogleSheetsServiceImpl.class
-                .getClassLoader()
-                .getResourceAsStream("creds.json");
-        return GoogleCredential.fromStream(io)
-                .createScoped(Collections.singletonList(SheetsScopes.SPREADSHEETS));
-    }
-
     private String parseTokenFromSheetsRef(String sheetsRef) {
         return sheetsRef.substring(PREFIX_SHEETS_REF.length()).split("/")[0];
     }
-
 }
