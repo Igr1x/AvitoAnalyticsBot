@@ -15,10 +15,8 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.service.GoogleSheetsService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -46,7 +44,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public void insertStatisticIntoTable(List<List<Object>> data, String range, String sheetId) throws IOException, GeneralSecurityException {
+    public void insertStatisticIntoTable(List<List<Object>> data, String range, String sheetId) throws IOException{
         ValueRange body = new ValueRange().setValues(data);
         service.spreadsheets().values().update(sheetId, range, body)
                 .setValueInputOption("USER_ENTERED")
@@ -54,24 +52,28 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public void insertTemplateSheets(String sheetsRef) throws IOException {
-        Spreadsheet spreadsheet = service.spreadsheets().get(FROM_SHEETS_ID).execute();
-        List<Sheet> sheets = spreadsheet.getSheets();
+    public void insertTemplateSheets(String sheetsRef) {
+        try {
+            Spreadsheet spreadsheet = service.spreadsheets().get(FROM_SHEETS_ID).execute();
+            List<Sheet> sheets = spreadsheet.getSheets();
 
-        List<Integer> sheetsId = new ArrayList<>();
-        for (Sheet sheet : sheets) {
-            sheetsId.add(sheet.getProperties().getSheetId());
+            List<Integer> sheetsId = new ArrayList<>();
+            for (Sheet sheet : sheets) {
+                sheetsId.add(sheet.getProperties().getSheetId());
+            }
+
+            String toSheetsId = parseTokenFromSheetsRef(sheetsRef);
+
+            CopySheetToAnotherSpreadsheetRequest requestBody = new CopySheetToAnotherSpreadsheetRequest();
+            requestBody.setDestinationSpreadsheetId(toSheetsId);
+            for (Integer sheetId : sheetsId) {
+                CopyTo request = service.spreadsheets().sheets().copyTo(FROM_SHEETS_ID, sheetId, requestBody);
+                request.execute();
+            }
+            setSheetsTitle(toSheetsId);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        String toSheetsId = parseTokenFromSheetsRef(sheetsRef);
-
-        CopySheetToAnotherSpreadsheetRequest requestBody = new CopySheetToAnotherSpreadsheetRequest();
-        requestBody.setDestinationSpreadsheetId(toSheetsId);
-        for (Integer sheetId : sheetsId) {
-            CopyTo request = service.spreadsheets().sheets().copyTo(FROM_SHEETS_ID, sheetId, requestBody);
-            request.execute();
-        }
-        setSheetsTitle(toSheetsId);
     }
 
     @Override
@@ -85,6 +87,79 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             return false;
         }
     }
+    
+    @Override
+    public List<String> getLinksIdFavouriteItems(String sheetsLink) {
+        String sheetsId = parseTokenFromSheetsRef(sheetsLink);
+        List<String> itemsId = new ArrayList<>();
+        String range = "test!B%d:B%d";
+        ValueRange value;
+        for (int i = 0; ;i++) {
+            int currentRange = (i * 15) + 2;
+            try {
+                value = service.spreadsheets().values().get(sheetsId, String.format(range, currentRange, currentRange)).execute();
+                if (value.getValues() == null) {
+                    break;
+                }
+                itemsId.add((String) value.getValues().get(0).get(0));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return itemsId;
+    }
+
+    @Override
+    public List<Long> getIdFavouritesItems(List<String> itemsId) {
+        return itemsId.stream()
+                .map(s -> s.substring(s.lastIndexOf('_') + 1))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getNextColumn(String sheetsLink,String range) {
+        String column = getColumnLetter(sheetsLink, range);
+        char[] chars = column.toCharArray();
+        int length = chars.length;
+        int index = length - 1;
+
+        while (index >= 0) {
+            if (chars[index] == 'Z') {
+                chars[index] = 'A';
+                index--;
+            } else {
+                chars[index]++;
+                return new String(chars);
+            }
+        }
+        return "A" + new String(chars);
+    }
+
+    private String getColumnLetter(String sheetsLink,String range) {
+        int columnNumber = getLastColumnNumber(sheetsLink, range);
+        StringBuilder column = new StringBuilder();
+        while (columnNumber > 0) {
+            column.insert(0, (char) ('A' + (columnNumber - 1) % 26));
+            columnNumber = (columnNumber - 1) / 26;
+        }
+        return column.toString();
+    }
+
+    private int getLastColumnNumber(String sheetsLink,String range) {
+        String sheetsId = parseTokenFromSheetsRef(sheetsLink);
+        int lastColumn = 0;
+        try {
+            ValueRange values = service.spreadsheets().values().get(sheetsId, range).execute();
+            if (!values.isEmpty()) {
+                lastColumn = values.getValues().get(0).size();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return lastColumn;
+    }
+
 
     private void setSheetsTitle(String sheetsId) throws IOException {
         Spreadsheet spreadsheet = service.spreadsheets().get(sheetsId).execute();
@@ -103,7 +178,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                             .setFields("title"));
             requests.add(request);
             BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-            BatchUpdateSpreadsheetResponse response = service.spreadsheets().batchUpdate(sheetsId, body).execute();
+            service.spreadsheets().batchUpdate(sheetsId, body).execute();
         }
     }
 
