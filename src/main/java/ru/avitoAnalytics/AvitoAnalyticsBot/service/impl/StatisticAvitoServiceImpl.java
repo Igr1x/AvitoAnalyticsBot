@@ -11,13 +11,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.AvitoConfiguration;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponce;
+import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponceOperations;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
+import ru.avitoAnalytics.AvitoAnalyticsBot.models.Operations;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.AvitoParser;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.ContactCost;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Service
 public class StatisticAvitoServiceImpl implements StatisticAvitoService {
@@ -83,14 +88,19 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
         return node.get("access_token").asText();
     }
 
-/*    @Override
-    public Double getCost() throws Exception {
-        List<String> parse = AvitoParser.getDataForTable();
-        return ContactCost.GetCostContact(parse);
-    }*/
+    @Override
+    public Double getCost(String link) {
+        List<String> parse = null;
+        try {
+            parse = AvitoParser.getDataForTable(link);
+            return ContactCost.GetCostContact(parse);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
-    /*public List<Operations> getAmountExpenses(String token, String dateFrom, String dateTo) {
+    public List<Operations> getAmountExpenses(String token, String dateFrom, String dateTo, Long itemId) {
         LocalDate dateTimeFrom = LocalDate.parse(dateFrom);
         LocalDate dateTimeTo = LocalDate.parse(dateTo);
         long days = dateTimeFrom.until(dateTimeTo, ChronoUnit.DAYS);
@@ -98,7 +108,7 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
         String url = "https://api.avito.ru/core/v1/accounts/operations_history/";
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", String.format(VALUE_TOKEN, token));
+        headers.add("Authorization", String.format("Bearer ", token));
         Map<String, Object> jsonData = new HashMap<>();
         List<Operations> operations = new ArrayList<>();
         HttpEntity<Map<String, Object>> request = null;
@@ -107,7 +117,7 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
             jsonData.put("dateTimeTo", dateTo + sh);
             request = new HttpEntity<>(jsonData, headers);
             AvitoResponceOperations responce = rest.postForObject(url, request, AvitoResponceOperations.class);
-            operations.addAll(sortOperations(responce.getResult().getOperations()));
+            operations.addAll(sortOperations(responce.getResult().getOperations(), itemId.toString()));
             return operations;
         }
 
@@ -117,17 +127,16 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
                 jsonData.put("dateTimeFrom", dateTo + sh);
                 request = new HttpEntity<>(jsonData, headers);
                 AvitoResponceOperations responce = rest.postForObject(url, request, AvitoResponceOperations.class);
-                operations.addAll(sortOperations(responce.getResult().getOperations()));
+                operations.addAll(sortOperations(responce.getResult().getOperations(), itemId.toString()));
                 break;
             }
             jsonData.put("dateTimeFrom", dateTimeFrom.toString() + sh);
             jsonData.put("dateTimeTo", dateTimeFrom.plusDays(6).toString() + sh);
             request = new HttpEntity<>(jsonData, headers);
             AvitoResponceOperations responce = rest.postForObject(url, request, AvitoResponceOperations.class);
-            operations.addAll(sortOperations(responce.getResult().getOperations()));
+            operations.addAll(sortOperations(responce.getResult().getOperations(), itemId.toString()));
             dateTimeFrom = dateTimeFrom.plusDays(7);
         }
-       // operations.forEach(System.out::println);
         return operations;
     }
 
@@ -145,5 +154,5 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
         }
         newList.forEach(System.out::println);
         return newList;
-    }*/
+    }
 }

@@ -8,10 +8,17 @@ public class Stats {
     private int uniqContacts;
     private int uniqFavorites;
     private int uniqViews;
-    private double totalAmount = 0;
 
-    public void setTotalAmount(double totalAmount) {
-        this.totalAmount += totalAmount;
+    private double cv = 0.0;
+    private double sumViews = 0.0;
+    private double sumPod = 0.0;
+    private double totalAmount = 0.0;
+    private double sumCon = 0;
+
+    public Stats() {
+        if (uniqViews != 0) {
+            cv = (double) uniqContacts / uniqViews;
+        }
     }
 
     @Override

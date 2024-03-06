@@ -8,5 +8,5 @@ import java.util.List;
 public interface StatisticAvitoService {
     List<Items> getStatistic(List<Long> itemsId, String token, String userId, String dateFrom, String dateTo);
     String getToken(String clientId, String clientSecret);
-
+    Double getCost(String link);
 }

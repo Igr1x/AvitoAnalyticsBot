@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -87,7 +88,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             return false;
         }
     }
-    
+
     @Override
     public List<String> getLinksIdFavouriteItems(String sheetsLink) {
         String sheetsId = parseTokenFromSheetsRef(sheetsLink);
@@ -110,7 +111,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public List<Long> getIdFavouritesItems(List<String> itemsId) {
+    public List<Long> getIdFavouritesItems(String sheetsLink) {
+        List<String> itemsId = getLinksIdFavouriteItems(sheetsLink);
         return itemsId.stream()
                 .map(s -> s.substring(s.lastIndexOf('_') + 1))
                 .map(Long::parseLong)
@@ -134,6 +136,42 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             }
         }
         return "A" + new String(chars);
+    }
+
+    private Map<Long, Long> getMapItemsId(String sheetsLink) {
+        List<Long> itemsId = getIdFavouritesItems(sheetsLink);
+        return IntStream.range(0, itemsId.size())
+                .boxed()
+                .collect(Collectors.toMap(
+                        Long::valueOf,
+                        itemsId::get
+                ));
+    }
+
+    @Override
+    public Map<String, List<Map.Entry<Long, Long>>> getItemsWithRange(String sheetsLink, String range) {
+        Map<Long, Long> map = getMapItemsId(sheetsLink);
+        Map<String, List<Map.Entry<Long, Long>>> itemsRange = new HashMap<>();
+        int i = 0;
+        for (Map.Entry<Long, Long> item : map.entrySet()) {
+            int paramForRange = (i * 15) + 2;
+            String currentItemRange = String.format(range, paramForRange, paramForRange);
+            String nextColumn = getNextColumn(sheetsLink, currentItemRange);
+            String newRange = createRange(nextColumn);
+            List<Map.Entry<Long, Long>> itemList = itemsRange.computeIfAbsent(newRange, k -> new ArrayList<>());
+            itemList.add(new AbstractMap.SimpleEntry<>(item.getKey(), item.getValue()));
+            i++;
+        }
+        return itemsRange;
+    }
+
+    private String createRange(String nextColumn) {
+        if (nextColumn.equals("D")) {
+            return "test!D%d:JM%d";
+        }
+        StringBuilder range = new StringBuilder("test!");
+        range.append(nextColumn).append("%d:").append(nextColumn).append("%d");
+        return range.toString();
     }
 
     private String getColumnLetter(String sheetsLink,String range) {

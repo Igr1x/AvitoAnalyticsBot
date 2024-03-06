@@ -1,7 +1,6 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
@@ -11,8 +10,14 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.service.GoogleSheetsService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.SelectedAdsStatisticService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @Service
 @AllArgsConstructor
@@ -27,21 +32,150 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     public void SetStatistic() {
         List<AccountData> listAccounts = getAllAccounts();
         if (listAccounts.isEmpty()) return;
-
         for (AccountData account : listAccounts) {
             List<String> links = googleSheetsService.getLinksIdFavouriteItems(account.getSheetsRef());
+            Map<String, List<Map.Entry<Long, Long>>> map = googleSheetsService.getItemsWithRange(account.getSheetsRef(), RANGE_FOR_GET_LAST_COLUMN);
+            LocalDate dateTo = LocalDate.now();
+            LocalDate dateFrom = dateTo.minusDays(1);
+
+
+            List<Long> idAllStat = map.entrySet().stream()
+                    .filter(x -> x.getKey().contains("test!D%d:JM%d"))
+                    .flatMapToLong(x -> x.getValue().stream()
+                            .flatMapToLong(entry -> LongStream.of(entry.getValue())))
+                    .boxed()
+                    .toList();
+
+            List<Long> id = map.entrySet().stream()
+                    .filter(x -> !x.getKey().contains("test!D%d:JM%d"))
+                    .flatMapToLong(x -> x.getValue().stream()
+                            .flatMapToLong(entry -> LongStream.of(entry.getValue())))
+                    .boxed()
+                    .toList();
+
+            String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
+            List<Items> listStats = statisticAvitoService.getStatistic(idAllStat, token, account.getUserId().toString(), dateTo.minusDays(269).toString(), dateTo.toString());
+            List<Items> listSt = statisticAvitoService.getStatistic(id, token, account.getUserId().toString(), dateFrom.toString(), dateFrom.toString());
+
+
+            for (Items item : listStats) {
+                Long idItem = Long.parseLong(item.getItemId());
+                String range = "";
+
+                for (Map.Entry<String, List<Map.Entry<Long, Long>>> entry : map.entrySet()) {
+                    String currentRange = entry.getKey();
+                    List<Map.Entry<Long, Long>> list = entry.getValue();
+                    for (Map.Entry<Long, Long> innerEntry : list) {
+                        Long x = innerEntry.getKey();
+                        Long currentId = innerEntry.getValue();
+                        if (currentId.equals(idItem)) {
+                            range = String.format(currentRange, (x * 15) + 2, (x * 15) + 10);
+
+                        }
+                    }
+                }
+                List<Object> date = new ArrayList<>();
+                List<Object> statsViews = new ArrayList<>();
+                List<Object> cv = new ArrayList<>();
+                List<Object> statsFavourite = new ArrayList<>();
+                List<Object> statsContacts = new ArrayList<>();
+                List<Object> statsSumContact = new ArrayList<>();
+                List<Object> statsSumPod = new ArrayList<>();
+                List<Object> statsSum = new ArrayList<>();
+                List<Object> statsContact = new ArrayList<>();
+                for (Stats stats : item.getStats()) {
+                    date.add(stats.getDate());
+                    statsViews.add(stats.getUniqViews());
+                    cv.add(0);
+                    statsContacts.add(stats.getUniqContacts());
+                    statsFavourite.add(stats.getUniqFavorites());
+                    statsSumContact.add(0);
+                    statsSumPod.add(0);
+                    statsSum.add(0);
+                    statsContact.add(0);
+                }
+                List<List<Object>> all = List.of( date,
+                        statsViews,
+                        cv,
+                        statsContacts,
+                        statsFavourite,
+                        statsSumContact,
+                        statsSumPod,
+                        statsSum,
+                        statsContact);
+                try {
+                    googleSheetsService.insertStatisticIntoTable(all, range, account.getSheetsRef().substring("https://docs.google.com/spreadsheets/d/".length()).split("/")[0]);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (GeneralSecurityException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            for (Items item : listSt) {
+                Long idItem = Long.parseLong(item.getItemId());
+                String range = "";
+
+                for (Map.Entry<String, List<Map.Entry<Long, Long>>> entry : map.entrySet()) {
+                    String currentRange = entry.getKey();
+                    List<Map.Entry<Long, Long>> list = entry.getValue();
+                    for (Map.Entry<Long, Long> innerEntry : list) {
+                        Long x = innerEntry.getKey();
+                        Long currentId = innerEntry.getValue();
+                        if (currentId.equals(idItem)) {
+                            range = String.format(currentRange, (x * 15) + 2, (x * 15) + 10);
+
+                        }
+                    }
+                }
+                List<Object> date = new ArrayList<>();
+                List<Object> statsViews = new ArrayList<>();
+                List<Object> cv = new ArrayList<>();
+                List<Object> statsFavourite = new ArrayList<>();
+                List<Object> statsContacts = new ArrayList<>();
+                List<Object> statsSumContact = new ArrayList<>();
+                List<Object> statsSumPod = new ArrayList<>();
+                List<Object> statsSum = new ArrayList<>();
+                List<Object> statsContact = new ArrayList<>();
+                for (Stats stats : item.getStats()) {
+                    date.add(stats.getDate());
+                    statsViews.add(stats.getUniqViews());
+                    cv.add(0);
+                    statsContacts.add(stats.getUniqContacts());
+                    statsFavourite.add(stats.getUniqFavorites());
+                    statsSumContact.add(0);
+                    statsSumPod.add(0);
+                    statsSum.add(0);
+                    statsContact.add(0);
+                }
+                List<List<Object>> all = List.of( date,
+                        statsViews,
+                        cv,
+                        statsContacts,
+                        statsFavourite,
+                        statsSumContact,
+                        statsSumPod,
+                        statsSum,
+                        statsContact);
+                try {
+                    googleSheetsService.insertStatisticIntoTable(all, range, account.getSheetsRef().substring("https://docs.google.com/spreadsheets/d/".length()).split("/")[0]);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (GeneralSecurityException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            System.out.println("hello");
             //@TODO
             //добавить поиск цены на просмотры
-
-            List<Long> itemsId = googleSheetsService.getIdFavouritesItems(links);
+            //List<Long> itemsId = googleSheetsService.getIdFavouritesItems(links);
 //
-            System.out.println(getRange(account.getSheetsRef(), 1));
+            /*System.out.println(getRange(account.getSheetsRef(), 1));*/
 
             //String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
             //List<Items> itemsList = statisticAvitoService.getStatistic(itemsId, token, account.getUserId(),  );
         }
 
-        for (int i = 0; i < listAccounts.size(); i++) {
+        /*for (int i = 0; i < listAccounts.size(); i++) {
             AccountData account = listAccounts.get(i);
             List<String> links = googleSheetsService.getLinksIdFavouriteItems(account.getSheetsRef());
             List<Long> itemsId = googleSheetsService.getIdFavouritesItems(links);
@@ -53,13 +187,13 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
             }
             String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
             List<Items> listStats = statisticAvitoService.getStatistic(itemsId, token, account.getUserId().toString(), dateFrom.toString(), dateTo.toString());
-            /*for (Items item : listStats) {
+            *//*for (Items item : listStats) {
                 List<Stats> stats = item.getStats();
                 for (Stats stat : stats) {
 
                 }
-            }*/
-        }
+            }*//*
+        }*/
     }
 
     private List<AccountData> getAllAccounts() {

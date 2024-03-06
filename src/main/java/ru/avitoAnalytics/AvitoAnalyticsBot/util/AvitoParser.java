@@ -14,8 +14,8 @@ import java.util.List;
 public final class AvitoParser {
     private AvitoParser() {};
 
-    public static List<String> getDataForTable() throws IOException, GeneralSecurityException {
-        Document doc = Jsoup.connect("https://www.avito.ru/voronezh/mebel_i_interer/krovat_dvuhspalnaya_3344770133").get();
+    public static List<String> getDataForTable(String link) throws IOException, GeneralSecurityException {
+        Document doc = Jsoup.connect(link).get();
         List<String> forTable = new ArrayList<>(List.of("другой регион"));
         forTable.addAll(getAddress(doc));
         forTable.addAll(getHeaders(doc));
