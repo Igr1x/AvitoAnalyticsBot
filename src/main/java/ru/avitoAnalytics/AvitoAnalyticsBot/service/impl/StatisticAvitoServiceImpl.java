@@ -77,11 +77,11 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/x-www-form-urlencoded");
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(headers);
-        String responce = rest.postForObject(url, entity, String.class);
+        String response = rest.postForObject(url, entity, String.class);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = null;
         try {
-            node = mapper.readTree(responce);
+            node = mapper.readTree(response);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -99,52 +99,57 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
         }
     }
 
-
-    public List<Operations> getAmountExpenses(String token, String dateFrom, String dateTo, Long itemId) {
-        LocalDate dateTimeFrom = LocalDate.parse(dateFrom);
-        LocalDate dateTimeTo = LocalDate.parse(dateTo);
-        long days = dateTimeFrom.until(dateTimeTo, ChronoUnit.DAYS);
-        String sh = "T00:00:00";
+    @Override
+    public List<Operations> getAmountExpenses(String token, LocalDate dateFrom, LocalDate dateTo) {
+        long days = dateFrom.until(dateTo, ChronoUnit.DAYS);
+        String timeFrom = "T00:00:00";
+        String timeTo = "T23:59:59";
         String url = "https://api.avito.ru/core/v1/accounts/operations_history/";
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", String.format("Bearer ", token));
+        headers.add("Authorization", "Bearer " + token);
         Map<String, Object> jsonData = new HashMap<>();
         List<Operations> operations = new ArrayList<>();
         HttpEntity<Map<String, Object>> request = null;
         if (days < 7) {
-            jsonData.put("dateTimeFrom", dateFrom + sh);
-            jsonData.put("dateTimeTo", dateTo + sh);
+            jsonData.put("dateTimeFrom", dateFrom + timeFrom);
+            jsonData.put("dateTimeTo", dateTo + timeTo);
             request = new HttpEntity<>(jsonData, headers);
-            AvitoResponceOperations responce = rest.postForObject(url, request, AvitoResponceOperations.class);
-            operations.addAll(sortOperations(responce.getResult().getOperations(), itemId.toString()));
+            AvitoResponceOperations response = rest.postForObject(url, request, AvitoResponceOperations.class);
+            if (response != null) {
+                operations.addAll(sortOperations(response.getResult().getOperations()));
+            }
             return operations;
         }
 
         for (int i = 0; i <= days / 7; i++) {
             if (i == days / 7) {
-                jsonData.put("dateTimeFrom", dateTimeFrom.toString() + sh);
-                jsonData.put("dateTimeFrom", dateTo + sh);
+                jsonData.put("dateTimeFrom", dateFrom + timeFrom);
+                jsonData.put("dateTimeTo", dateTo + timeTo);
                 request = new HttpEntity<>(jsonData, headers);
-                AvitoResponceOperations responce = rest.postForObject(url, request, AvitoResponceOperations.class);
-                operations.addAll(sortOperations(responce.getResult().getOperations(), itemId.toString()));
-                break;
+                AvitoResponceOperations response = rest.postForObject(url, request, AvitoResponceOperations.class);
+                if (response != null) {
+                    operations.addAll(sortOperations(response.getResult().getOperations()));
+                    break;
+                }
             }
-            jsonData.put("dateTimeFrom", dateTimeFrom.toString() + sh);
-            jsonData.put("dateTimeTo", dateTimeFrom.plusDays(6).toString() + sh);
+            jsonData.put("dateTimeFrom", dateFrom + timeFrom);
+            jsonData.put("dateTimeTo", dateFrom.plusDays(6) + timeTo);
             request = new HttpEntity<>(jsonData, headers);
-            AvitoResponceOperations responce = rest.postForObject(url, request, AvitoResponceOperations.class);
-            operations.addAll(sortOperations(responce.getResult().getOperations(), itemId.toString()));
-            dateTimeFrom = dateTimeFrom.plusDays(7);
+            AvitoResponceOperations response = rest.postForObject(url, request, AvitoResponceOperations.class);
+            if (response != null) {
+                operations.addAll(sortOperations(response.getResult().getOperations()));
+                dateFrom = dateFrom.plusDays(7);
+            }
         }
         return operations;
     }
 
-    private List<Operations> sortOperations(List<Operations> list, String itemId) {
+    private List<Operations> sortOperations(List<Operations> list) {
         List<Operations> newList = new ArrayList<>();
         for (Operations op : list) {
             if (op.getOperationType().equals("резервирование средств под услугу")) {
-                if (op.getItemId() != null && op.getItemId().equals(itemId)){
+                if (op.getItemId() != null) {
                     newList.add(op);
                 }
             }
@@ -152,7 +157,17 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
         for (Operations op : newList) {
             op.setUpdatedAt(op.getUpdatedAt().substring(0, 10));
         }
-        newList.forEach(System.out::println);
+        return newList;
+    }
+
+    @Override
+    public List<Operations> getItemOperations(List<Operations> list, Long itemId) {
+        List<Operations> newList = new ArrayList<>();
+        for (Operations op : list) {
+            if (op.getItemId().equals(itemId.toString())) {
+                newList.add(op);
+            }
+        }
         return newList;
     }
 }

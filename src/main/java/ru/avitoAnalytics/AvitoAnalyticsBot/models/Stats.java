@@ -1,6 +1,7 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.models;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class Stats {
@@ -11,24 +12,32 @@ public class Stats {
 
     private double cv = 0.0;
     private double sumViews = 0.0;
-    private double sumPod = 0.0;
-    private double totalAmount = 0.0;
-    private double sumCon = 0;
+    private double sumRaise = 0.0;
+    private double totalSum = 0.0;
+    private double sumContact = 0;
 
-    public Stats() {
+    @Setter
+    private double cost;
+
+    public void update() {
+        sumViews = uniqViews * cost;
         if (uniqViews != 0) {
             cv = (double) uniqContacts / uniqViews;
         }
     }
 
-    @Override
-    public String toString() {
-        return "Stats{" +
-                "date='" + date + '\'' +
-                ", uniqContacts=" + uniqContacts +
-                ", uniqFavorites=" + uniqFavorites +
-                ", uniqViews=" + uniqViews +
-                ", totalAmount=" + totalAmount +
-                '}';
+    public void updateSum() {
+        totalSum = sumRaise + sumViews;
+        if (uniqContacts != 0) {
+            sumContact = totalSum / uniqContacts;
+        }
+    }
+
+    public void updateSumRaise(double sumRaise) {
+        this.sumRaise += sumRaise;
+    }
+
+    public void updateCost(double cost) {
+        this.cost = cost;
     }
 }

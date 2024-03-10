@@ -50,6 +50,7 @@ public class AddAccountAction implements Actions<SendMessage> {
             AccountData accountData = new AccountData(user, userId, clientId, clientSecret, sheetsRef, accountName);
             accountService.saveAccount(accountData);
             String text = "Ваш аккаунт успешно добавлен";
+            googleSheetsService.insertTemplateSheets(sheetsRef);
             log.info("Account was added successfully for client: " + clientId);
             return TelegramChatUtils.getMessage(chatId, text, new InlineKeyboardMarkup(BotButtons.getHelpButtons()));
 

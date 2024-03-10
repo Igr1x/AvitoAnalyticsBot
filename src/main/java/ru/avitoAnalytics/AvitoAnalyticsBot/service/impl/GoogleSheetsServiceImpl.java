@@ -10,6 +10,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoItems;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.GoogleSheetsService;
 
 import java.io.IOException;
@@ -17,7 +18,6 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -111,8 +111,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public List<Long> getIdFavouritesItems(String sheetsLink) {
-        List<String> itemsId = getLinksIdFavouriteItems(sheetsLink);
+    public List<Long> getIdFavouritesItems(List<String> itemsId) {
         return itemsId.stream()
                 .map(s -> s.substring(s.lastIndexOf('_') + 1))
                 .map(Long::parseLong)
@@ -138,35 +137,35 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return "A" + new String(chars);
     }
 
-    private Map<Long, Long> getMapItemsId(String sheetsLink) {
-        List<Long> itemsId = getIdFavouritesItems(sheetsLink);
-        return IntStream.range(0, itemsId.size())
-                .boxed()
-                .collect(Collectors.toMap(
-                        Long::valueOf,
-                        itemsId::get
-                ));
-    }
-
     @Override
-    public Map<String, List<Map.Entry<Long, Long>>> getItemsWithRange(String sheetsLink, String range) {
-        Map<Long, Long> map = getMapItemsId(sheetsLink);
-        Map<String, List<Map.Entry<Long, Long>>> itemsRange = new HashMap<>();
+    public Map<String, List<AvitoItems>> getItemsWithRange(String sheetsLink, String range) {
+        List<AvitoItems> listItems = getItemsWithLink(sheetsLink);
+        Map<String, List<AvitoItems>> itemsRange = new HashMap<>();
         int i = 0;
-        for (Map.Entry<Long, Long> item : map.entrySet()) {
+        for (AvitoItems item : listItems) {
             int paramForRange = (i * 15) + 2;
             String currentItemRange = String.format(range, paramForRange, paramForRange);
             String nextColumn = getNextColumn(sheetsLink, currentItemRange);
             String newRange = createRange(nextColumn);
-            List<Map.Entry<Long, Long>> itemList = itemsRange.computeIfAbsent(newRange, k -> new ArrayList<>());
-            itemList.add(new AbstractMap.SimpleEntry<>(item.getKey(), item.getValue()));
+            List<AvitoItems> itemList = itemsRange.computeIfAbsent(newRange, k -> new ArrayList<>());
+            itemList.add(item);
             i++;
         }
         return itemsRange;
     }
 
+    private List<AvitoItems> getItemsWithLink(String sheetsLink) {
+        List<String> itemsId = getLinksIdFavouriteItems(sheetsLink);
+        List<Long> itemsLongId = getIdFavouritesItems(itemsId);
+        List<AvitoItems> result = new ArrayList<>();
+        for (int i = 0; i < itemsLongId.size(); i++) {
+            result.add(new AvitoItems((long) i, itemsLongId.get(i), itemsId.get(i)));
+        }
+        return result;
+    }
+
     private String createRange(String nextColumn) {
-        if (nextColumn.equals("D")) {
+        if (nextColumn.equals("C")) {
             return "test!D%d:JM%d";
         }
         StringBuilder range = new StringBuilder("test!");

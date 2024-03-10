@@ -26,8 +26,11 @@ public final class AvitoParser {
 
     private static List<String> getAddress(Document doc) {
         Element address = doc.selectFirst("[itemtype=http://schema.org/PostalAddress]");
-        String addr = address.selectFirst("span[class=style-item-address__string-wt61A]").text().replaceAll("обл.", "область");
-        return new ArrayList<>(Arrays.asList(addr.split(", ")));
+        if (address != null) {
+            String addr = address.selectFirst("span[class=style-item-address__string-wt61A]").text().replaceAll("обл.", "область");
+            return new ArrayList<>(Arrays.asList(addr.split(", ")));
+        }
+        return new ArrayList<>();
     }
 
     private static List<String> getHeaders(Document doc) {
