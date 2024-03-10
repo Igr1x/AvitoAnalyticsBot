@@ -2,8 +2,9 @@ package ru.avitoAnalytics.AvitoAnalyticsBot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.stereotype.Controller;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+@EnableScheduling
 @SpringBootApplication
 public class AvitoAnalyticsBotApplication {
 
