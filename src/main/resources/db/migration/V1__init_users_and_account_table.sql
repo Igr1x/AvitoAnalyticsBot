@@ -23,3 +23,8 @@ CREATE TABLE users (
     CONSTRAINT fk_account FOREIGN KEY (account_id) REFERENCES account_data(id),
     CONSTRAINT fk_rate FOREIGN KEY (rate_id) REFERENCES rates(id)
 );
+
+CREATE TABLE favourite_items (
+    id bigint PRIMARY KEY,
+    cost numeric(4,2)
+);
