@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -25,6 +26,9 @@ public class User {
 
     @Column(name = "balance", precision = 18, scale = 2)
     private BigDecimal balance;
+
+    @Column(name = "end_tariff")
+    private LocalDate endRate;
 
     @OneToOne
     private Rates rate;
