@@ -27,7 +27,7 @@ public class User {
     @Column(name = "balance", precision = 18, scale = 2)
     private BigDecimal balance;
 
-    @Column(name = "end_tariff")
+    @Column(name = "end_rate")
     private LocalDate endRate;
 
     @OneToOne

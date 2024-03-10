@@ -48,7 +48,9 @@ public class UserServiceImpl implements UserService {
             BigDecimal costRate = user.getRate().getCost();
             if (userBalance.compareTo(costRate) >= 0) {
                 BigDecimal remains = userBalance.subtract(costRate);
+                LocalDate endRate = user.getEndRate().plusMonths(1);
                 user.setBalance(remains);
+                user.setEndRate(endRate);
             }
         }
         else {
