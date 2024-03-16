@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class StatSummary {
+    private String dayOfWeek;
     private String date;
     private Object uniqViews;
     private Object cv;

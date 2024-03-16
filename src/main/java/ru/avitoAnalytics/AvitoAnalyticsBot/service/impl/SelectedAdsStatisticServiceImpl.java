@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -81,7 +82,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                     Long currentId = itemAvito.getId();
                     Long avitoId = itemAvito.getItemId();
                     if (avitoId.equals(idItem)) {
-                        range = String.format(currentRange, (currentId * 15) + 2, (currentId * 15) + 10);
+                        range = String.format(currentRange, (currentId * 15) + 1, (currentId * 15) + 10);
                         double cost = favouriteItemsService.findCostById(avitoId).doubleValue();
                         if (cost == 0 ) {
                             cost = statisticAvitoService.getCost(itemAvito.getSheetsLink());
@@ -106,7 +107,10 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                     }
                 }
                 stats.updateSum();
-                stat.add(new StatSummary(stats.getDate(),
+                LocalDate date = LocalDate.parse(stats.getDate());
+                String dayOfWeek = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("ru"));
+                stat.add(new StatSummary(dayOfWeek
+                                ,stats.getDate(),
                                 stats.getUniqViews(),
                                 stats.getCv(),
                                 stats.getUniqContacts(),
@@ -116,17 +120,8 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                                 stats.getTotalSum(),
                                 stats.getSumContact()));
             }
-            //List<List<Object>> all = new ArrayList<>();
-            /*all.add(new ArrayList<>(stat.stream().map(StatSummary::getDate).collect(Collectors.toList())));
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getUniqViews).collect(Collectors.toList())));
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getCv).collect(Collectors.toList())));
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getUniqContacts).collect(Collectors.toList())));
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getUniqFavorites).collect(Collectors.toList())));
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getSumViews).collect(Collectors.toList())));
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getSumRaise).collect(Collectors.toList())));
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getTotalSum).collect(Collectors.toList())));
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getSumContact).collect(Collectors.toList())));*/
             List<Function<StatSummary, Object>> mappers = List.of(
+                    StatSummary::getDayOfWeek,
                     StatSummary::getDate,
                     StatSummary::getUniqViews,
                     StatSummary::getCv,
@@ -138,7 +133,6 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                     StatSummary::getSumContact
             );
 
-// Преобразование stat в List<List<Object>> с использованием функций преобразования
             List<List<Object>> all = mappers.stream()
                     .map(mapper -> stat.stream().map(mapper).collect(Collectors.toList()))
                     .collect(Collectors.toList());
