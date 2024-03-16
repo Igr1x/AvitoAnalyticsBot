@@ -21,9 +21,10 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.SelectedAdsStatisticServiceImpl;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.PatternMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -105,7 +106,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        services.SetStatistic();
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();
             var key = update.getMessage().getText();

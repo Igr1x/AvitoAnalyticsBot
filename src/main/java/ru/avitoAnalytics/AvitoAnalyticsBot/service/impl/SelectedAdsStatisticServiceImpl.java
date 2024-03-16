@@ -6,21 +6,17 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.FavouriteItems;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
-import ru.avitoAnalytics.AvitoAnalyticsBot.util.ContactCost;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -35,7 +31,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     FavouriteItemsService favouriteItemsService;
 
     @Override
-    public void SetStatistic() {
+    public void setStatistic() {
         List<AccountData> listAccounts = getAllAccounts();
         if (listAccounts.isEmpty()) return;
         updateAccountStats(listAccounts);
@@ -61,6 +57,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
 
             LocalDate dateTo = LocalDate.now();
             LocalDate dateFrom = dateTo.minusDays(1);
+            DayOfWeek day = dateTo.getDayOfWeek();
 
             List<Operations> operations = statisticAvitoService.getAmountExpenses(token, dateTo.minusDays(269), dateTo);
 
@@ -119,8 +116,8 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                                 stats.getTotalSum(),
                                 stats.getSumContact()));
             }
-            List<List<Object>> all = new ArrayList<>();
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getDate).collect(Collectors.toList())));
+            //List<List<Object>> all = new ArrayList<>();
+            /*all.add(new ArrayList<>(stat.stream().map(StatSummary::getDate).collect(Collectors.toList())));
             all.add(new ArrayList<>(stat.stream().map(StatSummary::getUniqViews).collect(Collectors.toList())));
             all.add(new ArrayList<>(stat.stream().map(StatSummary::getCv).collect(Collectors.toList())));
             all.add(new ArrayList<>(stat.stream().map(StatSummary::getUniqContacts).collect(Collectors.toList())));
@@ -128,7 +125,23 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
             all.add(new ArrayList<>(stat.stream().map(StatSummary::getSumViews).collect(Collectors.toList())));
             all.add(new ArrayList<>(stat.stream().map(StatSummary::getSumRaise).collect(Collectors.toList())));
             all.add(new ArrayList<>(stat.stream().map(StatSummary::getTotalSum).collect(Collectors.toList())));
-            all.add(new ArrayList<>(stat.stream().map(StatSummary::getSumContact).collect(Collectors.toList())));
+            all.add(new ArrayList<>(stat.stream().map(StatSummary::getSumContact).collect(Collectors.toList())));*/
+            List<Function<StatSummary, Object>> mappers = List.of(
+                    StatSummary::getDate,
+                    StatSummary::getUniqViews,
+                    StatSummary::getCv,
+                    StatSummary::getUniqContacts,
+                    StatSummary::getUniqFavorites,
+                    StatSummary::getSumViews,
+                    StatSummary::getSumRaise,
+                    StatSummary::getTotalSum,
+                    StatSummary::getSumContact
+            );
+
+// Преобразование stat в List<List<Object>> с использованием функций преобразования
+            List<List<Object>> all = mappers.stream()
+                    .map(mapper -> stat.stream().map(mapper).collect(Collectors.toList()))
+                    .collect(Collectors.toList());
             try {
                 googleSheetsService.insertStatisticIntoTable(all, range, account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
             } catch (IOException | GeneralSecurityException e) {
