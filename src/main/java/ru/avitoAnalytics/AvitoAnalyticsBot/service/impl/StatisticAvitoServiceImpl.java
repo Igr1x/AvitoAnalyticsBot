@@ -18,8 +18,6 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.AvitoParser;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.ContactCost;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;

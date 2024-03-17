@@ -1,19 +1,16 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.models;
 
 import lombok.Getter;
-
-import java.util.List;
+import lombok.Setter;
 
 @Getter
 public class Operations {
     private String operationType;
     private double amountTotal;
-    private String updatedAt;
     private String itemId;
 
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    @Setter
+    private String updatedAt;
 
     @Override
     public String toString() {

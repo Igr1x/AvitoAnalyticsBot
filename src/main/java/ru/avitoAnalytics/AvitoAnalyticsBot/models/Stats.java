@@ -19,7 +19,8 @@ public class Stats {
     @Setter
     private double cost;
 
-    public void update() {
+    public void updateFields(double cost) {
+        this.cost = cost;
         sumViews = uniqViews * cost;
         if (uniqViews != 0) {
             cv = (double) uniqContacts / uniqViews;
@@ -35,9 +36,5 @@ public class Stats {
 
     public void updateSumRaise(double sumRaise) {
         this.sumRaise += sumRaise;
-    }
-
-    public void updateCost(double cost) {
-        this.cost = cost;
     }
 }

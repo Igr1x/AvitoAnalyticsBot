@@ -10,12 +10,17 @@ import lombok.Setter;
 public class StatSummary {
     private String dayOfWeek;
     private String date;
-    private Object uniqViews;
-    private Object cv;
-    private Object uniqContacts;
-    private Object uniqFavorites;
-    private Object sumViews;
-    private Object sumRaise;
-    private Object totalSum;
-    private Object sumContact;
+    private Object uniqViews = 0;
+    private Object cv = 0;
+    private Object uniqContacts = 0;
+    private Object uniqFavorites = 0;
+    private Object sumViews = 0;
+    private Object sumRaise = 0;
+    private Object totalSum = 0;
+    private Object sumContact = 0;
+
+    public StatSummary(String dayOfWeek, String date) {
+        this.dayOfWeek = dayOfWeek;
+        this.date = date;
+    }
 }
