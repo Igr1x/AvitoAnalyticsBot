@@ -99,13 +99,13 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
             LocalDate currentDateStats = LocalDate.parse(stats.getDate());
             statsList.addAll(getMissingDayStats(currentDateStats, currentDate).getKey());
             currentDate = getMissingDayStats(currentDateStats, currentDate).getValue();
-            stats.updateFields(item.getCost());
 
             itemOperations.stream()
                     .filter(operation -> operation.getUpdatedAt().equals(stats.getDate()))
                     .forEach(operation -> stats.updateSumRaise(operation.getAmountTotal()));
 
-            stats.updateSum();
+            stats.updateFields(item.getCost());
+
             LocalDate date = LocalDate.parse(stats.getDate());
             String dayOfWeek = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("ru"));
             statsList.add(new StatSummary(dayOfWeek, stats.getDate(), stats.getUniqViews(),

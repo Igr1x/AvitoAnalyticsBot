@@ -25,14 +25,18 @@ public class Stats {
         if (uniqViews != 0) {
             cv = (double) uniqContacts / uniqViews;
         }
-    }
-
-    public void updateSum() {
         totalSum = sumRaise + sumViews;
         if (uniqContacts != 0) {
             sumContact = totalSum / uniqContacts;
         }
     }
+
+    /*public void updateSum() {
+        totalSum = sumRaise + sumViews;
+        if (uniqContacts != 0) {
+            sumContact = totalSum / uniqContacts;
+        }
+    }*/
 
     public void updateSumRaise(double sumRaise) {
         this.sumRaise += sumRaise;
