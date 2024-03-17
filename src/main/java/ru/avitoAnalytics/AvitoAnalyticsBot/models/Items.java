@@ -12,5 +12,9 @@ public class Items {
     private List<Stats> stats = new ArrayList<>();
 
     @Setter
+    private String range;
+
+    @Setter
     private double cost;
+
 }

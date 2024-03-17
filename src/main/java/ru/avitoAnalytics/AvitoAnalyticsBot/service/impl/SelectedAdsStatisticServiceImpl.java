@@ -17,6 +17,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import org.apache.commons.lang3.tuple.Pair;
 
 @Service
 @AllArgsConstructor
@@ -49,6 +50,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     private void updateAccountStats(List<AccountData> listAccounts) {
         for (AccountData account : listAccounts) {
             Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(account.getSheetsRef(), RANGE_FOR_GET_LAST_COLUMN);
+
             String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
 
             LocalDate dateNow = LocalDate.now();
@@ -64,83 +66,65 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     }
 
     private void updateStats(AccountData account, List<Items> itemsList, List<Operations> operations, Map<String, List<AvitoItems>> map, LocalDate dateNow) {
-
         if (itemsList.isEmpty()) {
             return;
         }
         LocalDate oldestDate = getOldestDate(itemsList, dateNow.minusDays(270));
-
         for (Items item : itemsList) {
-            Long idItem = Long.parseLong(item.getItemId());
-            String range = "";
-            List<Operations> itemOperations = statisticAvitoService.getItemOperations(operations, idItem);
-            for (Map.Entry<String, List<AvitoItems>> entry : map.entrySet()) {
-                String currentRange = entry.getKey();
-                List<AvitoItems> list = entry.getValue();
-                for (AvitoItems itemAvito : list) {
-                    Long currentId = itemAvito.getId();
-                    Long avitoId = itemAvito.getItemId();
-                    if (avitoId.equals(idItem)) {
-                        range = String.format(currentRange, (currentId * 15) + 1, (currentId * 15) + 10);
-                        double cost = favouriteItemsService.findCostById(avitoId).doubleValue();
-                        if (cost == 0) {
-                            cost = statisticAvitoService.getCost(itemAvito.getSheetsLink());
-                            favouriteItemsService.save(new FavouriteItems(avitoId, BigDecimal.valueOf(cost)));
-                        }
-                        item.setCost(cost);
-                        break;
-                    }
-                }
-                if (!range.equals("")) {
-                    break;
-                }
-            }
-
+            item = setRangeAndCost(map, item);
             List<StatSummary> stat = new ArrayList<>();
-
             if (item.getStats().isEmpty()) {
                 stat.add(new StatSummary(getDayOfWeek(oldestDate), oldestDate.toString()));
             } else {
-                LocalDate currentDate = oldestDate;
-                for (Stats stats : item.getStats()) {
-                    LocalDate currentDateStats = LocalDate.parse(stats.getDate());
-
-                    while (!currentDateStats.equals(currentDate)) {
-                        stat.add(new StatSummary(getDayOfWeek(currentDate), currentDate.toString()));
-                        currentDate = currentDate.plusDays(1);
-                    }
-                    stats.updateFields(item.getCost());
-
-                    itemOperations.stream()
-                            .filter(operation -> operation.getUpdatedAt().equals(stats.getDate()))
-                            .forEach(operation -> stats.updateSumRaise(operation.getAmountTotal()));
-
-                    stats.updateSum();
-                    LocalDate date = LocalDate.parse(stats.getDate());
-                    String dayOfWeek = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("ru"));
-                    stat.add(new StatSummary(dayOfWeek, stats.getDate(), stats.getUniqViews(),
-                            stats.getCv(), stats.getUniqContacts(), stats.getUniqFavorites(),
-                            stats.getSumViews(), stats.getSumRaise(), stats.getTotalSum(),
-                            stats.getSumContact()));
-                    currentDate = currentDate.plusDays(1);
-                }
-
-                while (!currentDate.equals(LocalDate.now())) {
-                    stat.add(new StatSummary(getDayOfWeek(currentDate), currentDate.toString()));
-                    currentDate = currentDate.plusDays(1);
-                }
+                stat.addAll(getStatsList(item, operations, oldestDate));
             }
 
             List<List<Object>> all = getStatSummaryMethods().stream()
                     .map(mapper -> stat.stream().map(mapper).collect(Collectors.toList()))
                     .collect(Collectors.toList());
             try {
-                googleSheetsService.insertStatisticIntoTable(all, range, account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
+                googleSheetsService.insertStatisticIntoTable(all, item.getRange(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
             } catch (IOException | GeneralSecurityException e) {
                 throw new RuntimeException(e);
             }
-
         }
+    }
+
+    private List<StatSummary> getStatsList(Items item, List<Operations> operations, LocalDate oldestDate) {
+        Long idItem = Long.parseLong(item.getItemId());
+        List<Operations> itemOperations = statisticAvitoService.getItemOperations(operations, idItem);
+        LocalDate currentDate = oldestDate;
+        List<StatSummary> statsList = new ArrayList<>();
+        for (Stats stats : item.getStats()) {
+            LocalDate currentDateStats = LocalDate.parse(stats.getDate());
+            statsList.addAll(getMissingDayStats(currentDateStats, currentDate).getKey());
+            currentDate = getMissingDayStats(currentDateStats, currentDate).getValue();
+            stats.updateFields(item.getCost());
+
+            itemOperations.stream()
+                    .filter(operation -> operation.getUpdatedAt().equals(stats.getDate()))
+                    .forEach(operation -> stats.updateSumRaise(operation.getAmountTotal()));
+
+            stats.updateSum();
+            LocalDate date = LocalDate.parse(stats.getDate());
+            String dayOfWeek = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("ru"));
+            statsList.add(new StatSummary(dayOfWeek, stats.getDate(), stats.getUniqViews(),
+                    stats.getCv(), stats.getUniqContacts(), stats.getUniqFavorites(),
+                    stats.getSumViews(), stats.getSumRaise(), stats.getTotalSum(),
+                    stats.getSumContact()));
+            currentDate = currentDate.plusDays(1);
+        }
+        statsList.addAll(getMissingDayStats(LocalDate.now(), currentDate).getKey());
+        return statsList;
+    }
+
+    private Pair<List<StatSummary>, LocalDate>  getMissingDayStats(LocalDate currentDateStats, LocalDate date) {
+        List<StatSummary> missingDayStats = new ArrayList<>();
+        while (!currentDateStats.equals(date)) {
+            missingDayStats.add(new StatSummary(getDayOfWeek(date), date.toString()));
+            date = date.plusDays(1);
+        }
+        return Pair.of(missingDayStats, date);
     }
 
     private LocalDate getFirstStatisticDay(List<Items> itemsList, LocalDate dateFrom) {
@@ -188,6 +172,37 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         }
         date = getDayOfStartWeek(date);
         return date;
+    }
+
+    private Items setRangeAndCost(Map<String, List<AvitoItems>> map, Items item) {
+        Long idItem = Long.parseLong(item.getItemId());
+        for (Map.Entry<String, List<AvitoItems>> entry : map.entrySet()) {
+            String currentRange = entry.getKey();
+            List<AvitoItems> avitoItemsList = entry.getValue();
+            for (AvitoItems itemAvito : avitoItemsList) {
+                Long currentSheetId = itemAvito.getId();
+                Long avitoId = itemAvito.getItemId();
+                if (avitoId.equals(idItem)) {
+                    item.setRange(String.format(currentRange, (currentSheetId * 15) + 1, (currentSheetId * 15) + 10));
+                    item.setCost(getCostForItem(itemAvito));
+                    break;
+                }
+            }
+            if (!item.getRange().isEmpty()) {
+                break;
+            }
+        }
+        return item;
+    }
+
+    private double getCostForItem(AvitoItems item) {
+        Long avitoId = item.getItemId();
+        double cost = favouriteItemsService.findCostById(avitoId).doubleValue();
+        if (cost == 0) {
+            cost = statisticAvitoService.getCost(item.getSheetsLink());
+            favouriteItemsService.save(new FavouriteItems(avitoId, BigDecimal.valueOf(cost)));
+        }
+        return cost;
     }
 
     private List<Function<StatSummary, Object>> getStatSummaryMethods() {
