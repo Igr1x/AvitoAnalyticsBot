@@ -120,7 +120,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     executeAsync((SendDocument) msg);
                     return;
                 }
-                if (key.equals("/add")) {
+                if (key.equals("/add") || key.equals("/accounts")) {
                     try {
                         executeAsync((SendMessage) msg);
                         return;

@@ -16,6 +16,7 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Operations;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.AvitoParser;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.AvitoParserSelenium;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.ContactCost;
 
 import java.time.LocalDate;
@@ -90,7 +91,7 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
     public Double getCost(String link) {
         List<String> parse = null;
         try {
-            parse = AvitoParser.getDataForTable(link);
+            parse = AvitoParserSelenium.getDataForTable(link);
             return ContactCost.GetCostContact(parse);
         } catch (Exception e) {
             throw new RuntimeException(e);

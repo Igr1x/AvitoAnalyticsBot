@@ -12,6 +12,9 @@ public class Items {
     private List<Stats> stats = new ArrayList<>();
 
     @Setter
+    private String sheetsLink;
+
+    @Setter
     private String range;
 
     @Setter
