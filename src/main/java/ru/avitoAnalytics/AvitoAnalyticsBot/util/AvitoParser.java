@@ -14,20 +14,24 @@ import java.util.List;
 public final class AvitoParser {
     private AvitoParser() {};
 
-    public static List<String> getDataForTable() throws IOException, GeneralSecurityException {
-        Document doc = Jsoup.connect("https://www.avito.ru/voronezh/mebel_i_interer/krovat_dvuhspalnaya_3344770133").get();
+    public static List<String> getDataForTable(String link) throws IOException, GeneralSecurityException, InterruptedException {
+        Document doc = Jsoup.connect(link).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 YaBrowser/24.1.0.0 Safari/537.36").get();
         List<String> forTable = new ArrayList<>(List.of("другой регион"));
         forTable.addAll(getAddress(doc));
         forTable.addAll(getHeaders(doc));
         forTable.add(getState(doc));
         forTable.forEach(System.out::println);
+        Thread.sleep(60000L);
         return forTable;
     }
 
     private static List<String> getAddress(Document doc) {
         Element address = doc.selectFirst("[itemtype=http://schema.org/PostalAddress]");
-        String addr = address.selectFirst("span[class=style-item-address__string-wt61A]").text().replaceAll("обл.", "область");
-        return new ArrayList<>(Arrays.asList(addr.split(", ")));
+        if (address != null) {
+            String addr = address.selectFirst("span[class=style-item-address__string-wt61A]").text().replaceAll("обл.", "область");
+            return new ArrayList<>(Arrays.asList(addr.split(", ")));
+        }
+        return new ArrayList<>();
     }
 
     private static List<String> getHeaders(Document doc) {

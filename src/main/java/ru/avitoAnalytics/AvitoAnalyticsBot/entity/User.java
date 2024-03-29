@@ -2,25 +2,47 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.aot.generate.GeneratedTypeReference;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "username")
+    private String username;
+
     @Column(name = "telegram_id")
     private String telegramId;
 
-    @OneToMany(mappedBy = "user")
-    List<AccountData> accounts;
+    @Column(name = "balance", precision = 18, scale = 2)
+    private BigDecimal balance;
 
-    public User(){};
+    @Column(name = "end_rate")
+    private LocalDate endRate;
+
+    @OneToOne
+    private Rates rate;
+
+    @PrePersist
+    protected void onDefaultValue() {
+        if (this.balance == null) {
+            this.balance = new BigDecimal("0.0");
+        }
+    }
+
+    public User(String username, String telegramId) {
+        this.username = username;
+        this.telegramId = telegramId;
+    }
+
 }
