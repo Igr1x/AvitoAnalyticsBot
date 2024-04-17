@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface AdvertisementService {
 
-    List<Advertisement> getAllAdvertisements(AccountData accountData);
+    List<Advertisement> getAllAdvertisements(String token);
 
 }
