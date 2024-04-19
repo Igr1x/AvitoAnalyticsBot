@@ -9,10 +9,8 @@ import com.google.api.services.sheets.v4.Sheets.Spreadsheets.SheetsOperations.Co
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoItems;
-import ru.avitoAnalytics.AvitoAnalyticsBot.models.StatSummary;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.GoogleSheetsService;
 
 import java.io.IOException;
@@ -20,8 +18,6 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -112,11 +108,11 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                 throw new RuntimeException(e);
             }
         }
-        try {
+        /*try {
             Thread.sleep(60000L);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }
+        }*/
         return itemsId;
     }
 
@@ -153,7 +149,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         Map<String, List<AvitoItems>> itemsRange = new HashMap<>();
         int i = 0;
         for (AvitoItems item : listItems) {
-            int paramForRange = (i * 15) + 2;
+            int paramForRange = (i * 15) + 3;
             String currentItemRange = String.format(range, paramForRange, paramForRange);
             String nextColumn = getNextColumn(sheetsLink, currentItemRange);
             String dopColumn = getDopColumn(nextColumn);
@@ -167,7 +163,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     @Override
     public Optional<LocalDate> getOldestDate(String sheetsLink) {
-        String range = "test!D2:D2";
+        String range = "test!D3:D3";
         String sheetsId = parseTokenFromSheetsRef(sheetsLink);
         try {
             ValueRange value = service.spreadsheets().values().get(sheetsId, range).execute();
@@ -273,7 +269,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     private String createRange(String nextColumn, String dopColumn) {
         if (nextColumn.equals("C")) {
-            return "test!D%d:JM%d";
+            return "test!D%d:RH%d";
         }
         StringBuilder range = new StringBuilder("test!");
         range.append(nextColumn).append("%d:").append(dopColumn).append("%d");
