@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.actions.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfig;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.FullAdsStatisticService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.SelectedAdsStatisticService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.PatternMap;

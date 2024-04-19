@@ -2,6 +2,7 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.util;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.util.ResourceUtils;
+import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;

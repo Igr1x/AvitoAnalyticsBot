@@ -17,44 +17,32 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AdvertisementServiceImpl implements AdvertisementService {
 
-    private static final String URL = "https://api.avito.ru/core/v1/items";
+    private static final String URL = "https://api.avito.ru/core/v1/items?page=%s&per_page=%s";
 
-    private final StatisticAvitoService statisticAvitoService;
     private final AvitoConfiguration avitoConfiguration;
 
     @Override
-    public List<Advertisement> getAllAdvertisements(AccountData accountData) {
+    public List<Advertisement> getAllAdvertisements(String token) {
         int page = 1;
         List<Advertisement> result = new ArrayList<>();
-        List<Advertisement> advertisementsPage = getAdvertisementsResponse(accountData,
+        List<Advertisement> advertisementsPage = getAdvertisementsResponse(token,
                 avitoConfiguration.getMaxAdsPerRequest(),
                 page++);
         while (!advertisementsPage.isEmpty()) {
             result.addAll(advertisementsPage);
-            advertisementsPage = getAdvertisementsResponse(accountData,
+            advertisementsPage = getAdvertisementsResponse(token,
                     avitoConfiguration.getMaxAdsPerRequest(),
                     page++);
         }
         return result;
     }
 
-    private List<Advertisement> getAdvertisementsResponse(AccountData accountData, Integer perPage, Integer page) {
+    private List<Advertisement> getAdvertisementsResponse(String token, Integer perPage, Integer page) {
         RestTemplate restTemplate = new RestTemplate();
-        String clientToken = statisticAvitoService.getToken(accountData.getClientId(), accountData.getClientSecret());
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBearerAuth(clientToken);
-        Map<String, Object> jsonData = getParams(perPage, page);
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(jsonData, headers);
-
-        return restTemplate.postForObject(URL, request, ListAdvertisement.class).getAdvertisementList();
+        headers.setBearerAuth(token);
+        String currentUrl = String.format(URL, page, perPage);
+        var response = restTemplate.exchange(currentUrl, HttpMethod.GET, new HttpEntity<>(null, headers), ListAdvertisement.class);
+        return response.getBody() == null ? new ArrayList<>() : response.getBody().getAdvertisementList();
     }
-
-    private Map<String, Object> getParams(Integer perPage, Integer page) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("per_page", perPage);
-        map.put("page", page);
-        return map;
-    }
-
 }

@@ -50,7 +50,7 @@ public class AvitoParserSelenium {
         } finally {
             driver.quit();
         }
-        Thread.sleep(20000L);
+        //Thread.sleep(20000L);
         return forTable;
     }
 }
