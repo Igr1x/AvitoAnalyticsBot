@@ -1,30 +1,35 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.FavouriteItems;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 @Service
 @AllArgsConstructor
 public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticService {
     private final String RANGE_FOR_GET_LAST_COLUMN = "test!A%d:KI%d";
-    private final String RANGE_MAX_DEPTH = "test!D%d:JM%d";
+    private final String RANGE_MAX_DEPTH = "test!D%d:RH%d";
     private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
 
     AccountService accountService;
@@ -68,6 +73,70 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         }
     }
 
+    private void setDatesAndDayOfWeek(AccountData account, LocalDate day, String range, int days) {
+        LocalDate lastDate = day.plusDays(days);
+        List<Object> date = new ArrayList<>();
+        List<Object> dayOfWeek = new ArrayList<>();
+        List<List<Object>> daysList = new ArrayList<>();
+        while (!day.equals(lastDate)) {
+            date.add(day.toString());
+            dayOfWeek.add(SheetsStatUtil.getDayOfWeek(day));
+            if (SheetsStatUtil.getDayOfWeek(day).equals("вс")) {
+                date.add("Итог недели");
+                dayOfWeek.add(day.minusDays(6) + "-" + day);
+            }
+            day = day.plusDays(1);
+        }
+        daysList.add(dayOfWeek);
+        daysList.add(date);
+
+        Matcher matcher = getMatcherForCololumn(range);
+        String first = null;
+        int value = 0;
+        if (matcher.find()) {
+            first = matcher.group(1);
+            value = Integer.parseInt(matcher.group(2));
+        }
+        String last = first;
+
+        String newRange = "test!%s%d:%s%d";
+        days = days + 10;
+        for (int i = 0; i <= days; i++) {
+            last = getLastColumn(last);
+        }
+        String newrangee = String.format(newRange, first, value, last, ++value);
+        if (days == 375) {
+            newrangee = String.format(RANGE_MAX_DEPTH, --value, ++value);
+        }
+        try {
+            googleSheetsService.insertStatisticIntoTable(daysList, newrangee, account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
+        } catch (IOException | GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Matcher getMatcherForCololumn(String range) {
+        return Pattern.compile("!([A-Z]+)([0-9]+)").matcher(range);
+    }
+
+
+    private String getLastColumn(String column) {
+        char[] chars = column.toCharArray();
+        int length = chars.length;
+        int index = length - 1;
+
+        while (index >= 0) {
+            if (chars[index] == 'Z') {
+                chars[index] = 'A';
+                index--;
+            } else {
+                chars[index]++;
+                return new String(chars);
+            }
+        }
+        return "A" + new String(chars);
+    }
+
     private void updateStats(AccountData account, List<Items> itemsList, List<Operations> operations, Map<String, List<AvitoItems>> map, LocalDate dateNow) {
         if (itemsList.isEmpty()) {
             return;
@@ -78,18 +147,21 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         }
         for (Items item : itemsList) {
             item = setRangeAndCost(map, item);
+            insertDate(account, item, oldestDate);
             List<StatSummary> stat = new ArrayList<>();
             if (item.getStats().isEmpty()) {
-                stat.add(new StatSummary(getDayOfWeek(oldestDate), oldestDate.toString()));
-                if (getDayOfWeek(oldestDate).equals("вс")) {
-                    stat.addAll(setStatsWeek(item.getRange(), oldestDate));
+                stat.add(new StatSummary(SheetsStatUtil.getDayOfWeek(oldestDate), oldestDate.toString()));
+                if (SheetsStatUtil.getDayOfWeek(oldestDate).equals("вс")) {
+                    stat.addAll(SheetsStatUtil.setStatsWeek(oldestDate));
                 }
             } else {
                 stat.addAll(getStatsList(item, operations, oldestDate));
             }
 
             List<List<Object>> all = getStatSummaryMethods().stream()
-                    .map(mapper -> stat.stream().map(mapper).collect(Collectors.toList()))
+                    .map(mapper -> stat.stream().
+                            map(mapper)
+                            .collect(Collectors.toList()))
                     .collect(Collectors.toList());
             try {
                 googleSheetsService.insertStatisticIntoTable(all, item.getRange(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
@@ -98,6 +170,20 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
             }
         }
     }
+
+    private void insertDate(AccountData account, Items item, LocalDate oldestDate) {
+        Matcher matcher = getMatcherForCololumn(item.getRange());
+        String first = null;
+        if (matcher.find()) {
+            first = matcher.group(1);
+        }
+        int quantityDays = 365;
+        if (!first.equals("D")) {
+            quantityDays = 30;
+        }
+        setDatesAndDayOfWeek(account, oldestDate, item.getRange(), quantityDays);
+    }
+
 
     private List<StatSummary> getStatsList(Items item, List<Operations> operations, LocalDate oldestDate) {
         Long idItem = Long.parseLong(item.getItemId());
@@ -124,7 +210,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                     stats.getSumContact()));
             if (dayOfWeek.equals("вс")) {
                 item.getRange();
-                statsList.addAll(setStatsWeek(item.getRange(), LocalDate.parse(stats.getDate())));
+                statsList.addAll(SheetsStatUtil.setStatsWeek(LocalDate.parse(stats.getDate())));
             }
             currentDate = currentDate.plusDays(1);
         }
@@ -135,9 +221,9 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     private Pair<List<StatSummary>, LocalDate> getMissingDayStats(LocalDate currentDateStats, LocalDate date, String range) {
         List<StatSummary> missingDayStats = new ArrayList<>();
         while (!currentDateStats.equals(date)) {
-            missingDayStats.add(new StatSummary(getDayOfWeek(date), date.toString()));
-            if (getDayOfWeek(date).equals("вс")) {
-                missingDayStats.addAll(setStatsWeek(range, date));
+            missingDayStats.add(new StatSummary(SheetsStatUtil.getDayOfWeek(date), date.toString()));
+            if (SheetsStatUtil.getDayOfWeek(date).equals("вс")) {
+                missingDayStats.addAll(SheetsStatUtil.setStatsWeek(date));
             }
             date = date.plusDays(1);
         }
@@ -169,27 +255,9 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return oldestDate;
     }
 
-    private static List<StatSummary> setStatsWeek(String currentRange, LocalDate lastDate) {
-        String template = "=SUM(OFFSET(INDIRECT(ADDRESS(ROW();COLUMN();));0;-7;1;7))";
-        String startWeek = lastDate.minusDays(6).toString();
-        return List.of(new StatSummary("Итог недели", startWeek + "-" + lastDate.toString(),
-                template,
-                "=CELL(\"contents\"; INDIRECT(ADDRESS(ROW()+1;COLUMN();))) / CELL(\"contents\"; INDIRECT(ADDRESS(ROW()-1;COLUMN();)))",
-                template,
-                template,
-                template,
-                template,
-                template,
-                template));
-    }
-
-    private String getDayOfWeek(LocalDate date) {
-        return date.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("ru"));
-    }
-
     private LocalDate getDayOfStartWeek(LocalDate date) {
         LocalDate newDate = date;
-        while (!getDayOfWeek(newDate).equals("пн")) {
+        while (!SheetsStatUtil.getDayOfWeek(newDate).equals("пн")) {
             newDate = newDate.minusDays(1);
         }
         return newDate;
@@ -198,7 +266,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
 
     private LocalDate getOldestDate(List<Items> itemsList, LocalDate dateFrom) {
         LocalDate date = getFirstStatisticDay(itemsList, dateFrom);
-        if (date.equals(LocalDate.now().minusDays(1)) || getDayOfWeek(date).equals("пн")) {
+        if (date.equals(LocalDate.now().minusDays(1)) || SheetsStatUtil.getDayOfWeek(date).equals("пн")) {
             return date;
         }
         date = getDayOfStartWeek(date);

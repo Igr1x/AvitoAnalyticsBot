@@ -2,7 +2,6 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.controller;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -18,13 +17,11 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfig;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.SelectedAdsStatisticService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
-import ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.SelectedAdsStatisticServiceImpl;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.PatternMap;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.format.TextStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
