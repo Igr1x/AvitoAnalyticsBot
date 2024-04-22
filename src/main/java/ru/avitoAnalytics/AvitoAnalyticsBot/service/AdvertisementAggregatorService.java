@@ -8,5 +8,6 @@ import java.util.Map;
 public interface AdvertisementAggregatorService {
 
     Map<String, List<Long>> getInfoOnAdvertisement(List<Advertisement> advertisementList);
+    void fillingStatisticCities(String dateFrom, String dateTo);
 
 }
