@@ -28,8 +28,8 @@ import java.util.stream.LongStream;
 @Service
 @AllArgsConstructor
 public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticService {
-    private final String RANGE_FOR_GET_LAST_COLUMN = "test!A%d:KI%d";
-    private final String RANGE_MAX_DEPTH = "test!D%d:RH%d";
+    private final String RANGE_FOR_GET_LAST_COLUMN = "%s!A%%d:KI%%d";
+    private final String RANGE_MAX_DEPTH = "%s!D%d:RH%d";
     private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
 
     AccountService accountService;
@@ -55,7 +55,8 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
 
     private void updateAccountStats(List<AccountData> listAccounts) {
         for (AccountData account : listAccounts) {
-            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(account.getSheetsRef(), RANGE_FOR_GET_LAST_COLUMN);
+            String title = googleSheetsService.getSheetByName("StatFav#", account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
+            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(account.getSheetsRef(), String.format(RANGE_FOR_GET_LAST_COLUMN, title), title);
             if (map.isEmpty()) {
                 continue;
             }
@@ -68,12 +69,12 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
             List<Items> statsMaxDepth = statisticAvitoService.getStatistic(getListId(map, k -> k.contains(RANGE_MAX_DEPTH)), token, account.getUserId().toString(), dateNow.minusDays(270).toString(), dateNow.minusDays(1).toString());
             List<Items> statsLastDay = statisticAvitoService.getStatistic(getListId(map, k -> !k.contains(RANGE_MAX_DEPTH)), token, account.getUserId().toString(), dateNow.minusDays(1).toString(), dateNow.minusDays(1).toString());
 
-            updateStats(account, statsMaxDepth, operations, map, dateNow);
-            updateStats(account, statsLastDay, operations, map, dateNow.minusDays(1));
+            updateStats(account, statsMaxDepth, operations, map, dateNow, title);
+            updateStats(account, statsLastDay, operations, map, dateNow.minusDays(1), title);
         }
     }
 
-    private void setDatesAndDayOfWeek(AccountData account, LocalDate day, String range, int days) {
+    private void setDatesAndDayOfWeek(AccountData account, LocalDate day, String range, int days, String tittle) {
         LocalDate lastDate = day.plusDays(days);
         List<Object> date = new ArrayList<>();
         List<Object> dayOfWeek = new ArrayList<>();
@@ -90,6 +91,15 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         daysList.add(dayOfWeek);
         daysList.add(date);
 
+        String newRange = createRangeForDate(range, days, tittle);
+        try {
+            googleSheetsService.insertStatisticIntoTable(daysList, newRange, account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
+        } catch (IOException | GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String createRangeForDate(String range, int days, String tittle) {
         Matcher matcher = getMatcherForCololumn(range);
         String first = null;
         int value = 0;
@@ -99,20 +109,17 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         }
         String last = first;
 
-        String newRange = "test!%s%d:%s%d";
+        String newRangeGen = "%s!%s%d:%s%d";
+
         days = days + 10;
         for (int i = 0; i <= days; i++) {
             last = getLastColumn(last);
         }
-        String newrangee = String.format(newRange, first, value, last, ++value);
+        String newRange = String.format(newRangeGen, tittle, first, value, last, ++value);
         if (days == 375) {
-            newrangee = String.format(RANGE_MAX_DEPTH, --value, ++value);
+            newRange = String.format(RANGE_MAX_DEPTH, tittle, --value, ++value);
         }
-        try {
-            googleSheetsService.insertStatisticIntoTable(daysList, newrangee, account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
-        } catch (IOException | GeneralSecurityException e) {
-            throw new RuntimeException(e);
-        }
+        return newRange;
     }
 
     private Matcher getMatcherForCololumn(String range) {
@@ -137,17 +144,17 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return "A" + new String(chars);
     }
 
-    private void updateStats(AccountData account, List<Items> itemsList, List<Operations> operations, Map<String, List<AvitoItems>> map, LocalDate dateNow) {
+    private void updateStats(AccountData account, List<Items> itemsList, List<Operations> operations, Map<String, List<AvitoItems>> map, LocalDate dateNow, String tittle) {
         if (itemsList.isEmpty()) {
             return;
         }
         LocalDate oldestDate = getOldestDate(itemsList, dateNow.minusDays(270));
         if (dateNow.equals(LocalDate.now())) {
-            oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef()).orElse(oldestDate);
+            oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), tittle).orElse(oldestDate);
         }
         for (Items item : itemsList) {
             item = setRangeAndCost(map, item);
-            insertDate(account, item, oldestDate);
+            insertDate(account, item, oldestDate, tittle);
             List<StatSummary> stat = new ArrayList<>();
             if (item.getStats().isEmpty()) {
                 stat.add(new StatSummary(SheetsStatUtil.getDayOfWeek(oldestDate), oldestDate.toString()));
@@ -171,7 +178,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         }
     }
 
-    private void insertDate(AccountData account, Items item, LocalDate oldestDate) {
+    private void insertDate(AccountData account, Items item, LocalDate oldestDate, String tittle) {
         Matcher matcher = getMatcherForCololumn(item.getRange());
         String first = null;
         if (matcher.find()) {
@@ -181,7 +188,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         if (!first.equals("D")) {
             quantityDays = 30;
         }
-        setDatesAndDayOfWeek(account, oldestDate, item.getRange(), quantityDays);
+        setDatesAndDayOfWeek(account, oldestDate, item.getRange(), quantityDays, tittle);
     }
 
 
