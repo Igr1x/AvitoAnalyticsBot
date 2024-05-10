@@ -28,6 +28,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String FROM_SHEETS_ID = "1WJ-Url5L6obzKMUtCUxkk3KKZYeV7NmSuCRP6MAWQR4";
     private static final String PREFIX_SHEETS_REF = "https://docs.google.com/spreadsheets/d/";
+    private static final String ADS_ID_RANGE = "%s!B%%d:B%%d";
+    private static final String OLDEST_DATE_ADS_RANGE = "%s!D3:D3";
 
     private static Sheets service;
 
@@ -91,10 +93,10 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public List<String> getLinksIdFavouriteItems(String sheetsLink) {
+    public List<String> getLinksIdFavouriteItems(String sheetsLink, String sheetTittle) {
         String sheetsId = parseTokenFromSheetsRef(sheetsLink);
         List<String> itemsId = new ArrayList<>();
-        String range = "test!B%d:B%d";
+        String range = String.format(ADS_ID_RANGE, sheetTittle);
         ValueRange value;
         for (int i = 0; ; i++) {
             int currentRange = (i * 15) + 2;
@@ -108,11 +110,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                 throw new RuntimeException(e);
             }
         }
-        /*try {
-            Thread.sleep(60000L);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }*/
         return itemsId;
     }
 
@@ -144,8 +141,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public Map<String, List<AvitoItems>> getItemsWithRange(String sheetsLink, String range) {
-        List<AvitoItems> listItems = getItemsWithLink(sheetsLink);
+    public Map<String, List<AvitoItems>> getItemsWithRange(String sheetsLink, String range, String sheetTittle) {
+        List<AvitoItems> listItems = getItemsWithLink(sheetsLink, sheetTittle);
         Map<String, List<AvitoItems>> itemsRange = new HashMap<>();
         int i = 0;
         for (AvitoItems item : listItems) {
@@ -153,7 +150,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             String currentItemRange = String.format(range, paramForRange, paramForRange);
             String nextColumn = getNextColumn(sheetsLink, currentItemRange);
             String dopColumn = getDopColumn(nextColumn);
-            String newRange = createRange(nextColumn, dopColumn);
+            String newRange = createRange(nextColumn, dopColumn, sheetTittle);
             List<AvitoItems> itemList = itemsRange.computeIfAbsent(newRange, k -> new ArrayList<>());
             itemList.add(item);
             i++;
@@ -162,8 +159,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public Optional<LocalDate> getOldestDate(String sheetsLink) {
-        String range = "test!D3:D3";
+    public Optional<LocalDate> getOldestDate(String sheetsLink, String sheetTittle) {
+        String range = String.format(OLDEST_DATE_ADS_RANGE, sheetTittle);
         String sheetsId = parseTokenFromSheetsRef(sheetsLink);
         try {
             ValueRange value = service.spreadsheets().values().get(sheetsId, range).execute();
@@ -176,69 +173,20 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return Optional.empty();
     }
 
-    /*@Override
-    public long getLastWeekStatistic(String sheetsLink, String currentRange) {
-        String sheetsId = parseTokenFromSheetsRef(sheetsLink);
-        String range = getPatterRange(calculateInterval(currentRange)).getKey();
-        Long id = Long.parseLong(getPatterRange(calculateInterval(currentRange)).getValue());
-        long sum = 0;
+    @Override
+    public Optional<String> getSheetByName(String nameSheets, String sheetsRef) {
         try {
-            ValueRange valueViews = service.spreadsheets().values().get(sheetsId, "test!" + String.format(range, id + 2, id + 2)).execute();
-            List<List<Object>> values = valueViews.getValues();
-            for (List<Object> row : values) {
-                for (Object value : row) {
-                    long longValue = Long.parseLong(value.toString());
-                    sum += longValue;
+            Spreadsheet spreadsheet = service.spreadsheets().get(sheetsRef).execute();
+            for (Sheet sheet : spreadsheet.getSheets()) {
+                if (sheet.getProperties().getTitle().contains(nameSheets)) {
+                    return Optional.of(sheet.getProperties().getTitle());
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return sum;
+        return Optional.empty();
     }
-
-    private static Pair<String, String> getPatterRange(String range) {
-        String regex = "(\\d+)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(range);
-
-        String number = matcher.group(1);
-        String modifiedString = range.replaceAll(regex, "%d");
-        return Pair.of(modifiedString, number);
-
-    }
-
-    private static String calculateInterval(String s) {
-        String partAfterExclamation = s.split("!")[1];
-        String firstPart = partAfterExclamation.split(":")[0];
-        String lettersPart = firstPart.replaceAll("[0-9]", "");
-        String numbersPart = firstPart.substring(lettersPart.length());
-        int lettersNumber = columnLettersToNumber(lettersPart) - 6;
-        String newLettersPart = columnNumberToLetters(lettersNumber);
-
-
-        return newLettersPart + numbersPart + ":" + lettersPart + numbersPart;
-    }
-
-    private static int columnLettersToNumber(String letters) {
-        int number = 0;
-        for (int i = 0; i < letters.length(); i++) {
-            number *= 26;
-            number += letters.charAt(i) - 'A' + 1;
-        }
-        return number;
-    }
-
-    private static String columnNumberToLetters(int number) {
-        StringBuilder letters = new StringBuilder();
-        while (number > 0) {
-            number--;
-            char letter = (char) ('A' + (number % 26));
-            letters.insert(0, letter);
-            number /= 26;
-        }
-        return letters.toString();
-    }*/
 
     private String getDopColumn(String column) {
         char[] chars = column.toCharArray();
@@ -257,8 +205,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return "A" + new String(chars);
     }
 
-    private List<AvitoItems> getItemsWithLink(String sheetsLink) {
-        List<String> itemsId = getLinksIdFavouriteItems(sheetsLink);
+    private List<AvitoItems> getItemsWithLink(String sheetsLink, String sheetTittle) {
+        List<String> itemsId = getLinksIdFavouriteItems(sheetsLink, sheetTittle);
         List<Long> itemsLongId = getIdFavouritesItems(itemsId);
         List<AvitoItems> result = new ArrayList<>();
         for (int i = 0; i < itemsLongId.size(); i++) {
@@ -267,12 +215,13 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return result;
     }
 
-    private String createRange(String nextColumn, String dopColumn) {
+    private String createRange(String nextColumn, String dopColumn, String sheetTittle) {
         if (nextColumn.equals("C")) {
-            return "test!D%d:RH%d";
+            String range = "%s!D%%d:RH%%d";
+            return String.format(range, sheetTittle);
         }
-        StringBuilder range = new StringBuilder("test!");
-        range.append(nextColumn).append("%d:").append(dopColumn).append("%d");
+        StringBuilder range = new StringBuilder(sheetTittle);
+        range.append("!").append(nextColumn).append("%d:").append(dopColumn).append("%d");
         return range.toString();
     }
 
@@ -320,25 +269,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
             service.spreadsheets().batchUpdate(sheetsId, body).execute();
         }
-    }
-
-    private void setBackgroundColor(String id) throws IOException {
-        List<Request> requests = new ArrayList<>();
-        for (int i = 3; i <= 6; i++) {
-            String range = "D" + i + ":AP" + i;
-            String conditionFormula = "=$C" + i + ">D" + i;
-            // Создание условного форматирования для текущей строки
-            ConditionalFormatRule rule = new ConditionalFormatRule()
-                    .setRanges(Collections.singletonList(new GridRange().setSheetId(0).setStartRowIndex(i - 1).setEndRowIndex(i).setStartColumnIndex(1).setEndColumnIndex(5)))
-                    .setBooleanRule(new BooleanRule()
-                            .setCondition(new BooleanCondition().setType("CUSTOM_FORMULA").setValues(Collections.singletonList(new ConditionValue().setUserEnteredValue(conditionFormula))))
-                            .setFormat(new CellFormat().setBackgroundColor(
-                                    new Color().setRed(1f)
-                            )));
-            requests.add(new Request().setAddConditionalFormatRule(new AddConditionalFormatRuleRequest().setRule(rule).setIndex(i - 1)));
-        }
-        BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-        service.spreadsheets().batchUpdate(id, batchUpdateRequest).execute();
     }
 
     private String deleteSubstringFromTitleSheet(String titleSheet, String substring) {
