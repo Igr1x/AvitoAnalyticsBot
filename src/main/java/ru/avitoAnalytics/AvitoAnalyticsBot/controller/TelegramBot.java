@@ -44,7 +44,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final HelpAction helpAction;
     private final TariffsAction tariffsAction;
     private final TariffAction tariffAction;
-    private final SelectedAdsStatisticService services;
+    private final FullAdsStatisticService services;
+    private final SelectedAdsStatisticService selService;
 
     private final PatternMap<String, Actions<?>> actionsCommand = new PatternMap<>();
     private final PatternMap<String, Actions<?>> actionsKeyboard = new PatternMap<>();
@@ -76,7 +77,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                        AccountsAction accountsAction, AddAccountAction addAccountAction,
                        SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount,
                        StartAction startAction, HelpAction helpAction,
-                       TariffsAction tariffsAction, TariffAction tariffAction, SelectedAdsStatisticService services) {
+                       TariffsAction tariffsAction, TariffAction tariffAction, FullAdsStatisticService services,
+                       SelectedAdsStatisticService selService) {
         this.botConfig = botConfig;
         this.userService = userService;
         this.balanceAction = balanceAction;
@@ -90,6 +92,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.tariffsAction = tariffsAction;
         this.tariffAction = tariffAction;
         this.services = services;
+        this.selService = selService;
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("/start", ""));
         listOfCommand.add(new BotCommand("/help", ""));

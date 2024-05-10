@@ -20,9 +20,7 @@ import java.util.function.Function;
 public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
 
     private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
-    private final String RANGE_FOR_GET_LAST_COLUMN = "test!A%d:KI%d";
-
-    private static String sheetName;
+    private final String RANGE_FOR_GET_LAST_COLUMN = "%s!A%%d:KI%%d";
 
     private final AccountService accountService;
     private final GoogleSheetsService googleSheetsService;
@@ -33,7 +31,6 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
     public void setStatistic() {
         List<AccountData> listAccounts = accountService.findAll();
         if (listAccounts.isEmpty()) return;
-        sheetName = googleSheetsService.
         updateAccountStats(listAccounts);
     }
 
@@ -41,12 +38,15 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         for (AccountData account : listAccounts) {
             String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
             LocalDate yesterday = LocalDate.now().minusDays(1);
+            String sheetName = googleSheetsService.getSheetByName("StatAcc#", account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
 
             List<Advertisement> allAds = advertisementService.getAllAdvertisements(token);
             List<Long> listId = allAds.stream()
                     .map(Advertisement::getId)
                     .toList();
             List<Items> stats = statisticAvitoService.getStatistic(listId, token, account.getUserId().toString(), yesterday.toString(), yesterday.toString());
+
+            var map = googleSheetsService.getItemsWithRange(account.getSheetsRef(), String.format(RANGE_FOR_GET_LAST_COLUMN, sheetName), sheetName);
 
             Integer sumV = getSumStatistic(stats, Stats::getUniqViews);
             Integer sumC = getSumStatistic(stats, Stats::getUniqContacts);
