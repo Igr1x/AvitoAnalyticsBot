@@ -1,6 +1,7 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Advertisement;
@@ -8,23 +9,31 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Operations;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Stats;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
-    AccountService accountService;
-    GoogleSheetsService googleSheetsService;
-    StatisticAvitoService statisticAvitoService;
-    AdvertisementService advertisementService;
+
+    private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
+    private final String RANGE_FOR_GET_LAST_COLUMN = "test!A%d:KI%d";
+
+    private static String sheetName;
+
+    private final AccountService accountService;
+    private final GoogleSheetsService googleSheetsService;
+    private final StatisticAvitoService statisticAvitoService;
+    private final AdvertisementService advertisementService;
 
     @Override
     public void setStatistic() {
         List<AccountData> listAccounts = accountService.findAll();
         if (listAccounts.isEmpty()) return;
+        sheetName = googleSheetsService.
         updateAccountStats(listAccounts);
     }
 
@@ -42,6 +51,9 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
             Integer sumV = getSumStatistic(stats, Stats::getUniqViews);
             Integer sumC = getSumStatistic(stats, Stats::getUniqContacts);
             Integer sumF = getSumStatistic(stats, Stats::getUniqFavorites);
+            Double allExpenses = getAllExpenses(token, yesterday);
+
+
 
             System.out.println("...");
         }
@@ -60,4 +72,31 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 .mapToInt(getValue::apply)
                 .sum();
     }
+
+    private String getLastColumn(String column) {
+        char[] chars = column.toCharArray();
+        int length = chars.length;
+        int index = length - 1;
+
+        while (index >= 0) {
+            if (chars[index] == 'Z') {
+                chars[index] = 'A';
+                index--;
+            } else {
+                chars[index]++;
+                return new String(chars);
+            }
+        }
+        return "A" + new String(chars);
+    }
+
+    private LocalDate getDayOfStartWeek(LocalDate date) {
+        LocalDate newDate = date;
+        while (!SheetsStatUtil.getDayOfWeek(newDate).equals("пн")) {
+            newDate = newDate.minusDays(1);
+        }
+        return newDate;
+    }
+
+
 }

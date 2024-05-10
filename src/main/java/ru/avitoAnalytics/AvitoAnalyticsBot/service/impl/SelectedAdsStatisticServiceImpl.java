@@ -90,7 +90,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         daysList.add(dayOfWeek);
         daysList.add(date);
 
-        Matcher matcher = getMatcherForCololumn(range);
+        Matcher matcher = getMatcherForColumn(range);
         String first = null;
         int value = 0;
         if (matcher.find()) {
@@ -115,7 +115,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         }
     }
 
-    private Matcher getMatcherForCololumn(String range) {
+    private Matcher getMatcherForColumn(String range) {
         return Pattern.compile("!([A-Z]+)([0-9]+)").matcher(range);
     }
 
@@ -172,7 +172,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     }
 
     private void insertDate(AccountData account, Items item, LocalDate oldestDate) {
-        Matcher matcher = getMatcherForCololumn(item.getRange());
+        Matcher matcher = getMatcherForColumn(item.getRange());
         String first = null;
         if (matcher.find()) {
             first = matcher.group(1);
