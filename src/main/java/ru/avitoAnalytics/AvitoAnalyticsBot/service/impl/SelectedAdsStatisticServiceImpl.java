@@ -56,7 +56,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     private void updateAccountStats(List<AccountData> listAccounts) {
         for (AccountData account : listAccounts) {
             String title = googleSheetsService.getSheetByName("StatFav#", account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
-            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(account.getSheetsRef(), String.format(RANGE_FOR_GET_LAST_COLUMN, title), title);
+            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(account.getSheetsRef(), String.format(RANGE_FOR_GET_LAST_COLUMN, title), title, 15, 3);
             if (map.isEmpty()) {
                 continue;
             }
