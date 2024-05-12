@@ -30,5 +30,12 @@ public class SheetsStatUtil {
         return date.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("ru"));
     }
 
+    public static LocalDate getDayOfStartWeek(LocalDate date) {
+        LocalDate newDate = date;
+        while (!SheetsStatUtil.getDayOfWeek(newDate).equals("пн")) {
+            newDate = newDate.minusDays(1);
+        }
+        return newDate;
+    }
 
 }
