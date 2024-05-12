@@ -13,4 +13,7 @@ public interface AccountService {
     List<AccountData> findByUserId(Long userId);
     Optional<AccountData> findById(Long id);
     List<AccountData> findAll();
+    List<String> findUniqueSheetsRef();
+    List<AccountData> findAllBySheetsRef(String sheetsRef);
+    Optional<AccountData> findAllByAccountName(String accountName);
 }

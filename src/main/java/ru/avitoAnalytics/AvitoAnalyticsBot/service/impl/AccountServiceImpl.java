@@ -46,7 +46,22 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public List<AccountData> findAllBySheetsRef(String sheetsRef) {
+        return accountRepository.findAllBySheetsRef(sheetsRef);
+    }
+
+    @Override
+    public Optional<AccountData> findAllByAccountName(String accountName) {
+        return accountRepository.findAllByAccountName(accountName);
+    }
+
+    @Override
     public List<AccountData> findAll() {
         return accountRepository.findAll();
+    }
+
+    @Override
+    public List<String> findUniqueSheetsRef() {
+        return accountRepository.findUniqueSheetsRef();
     }
 }

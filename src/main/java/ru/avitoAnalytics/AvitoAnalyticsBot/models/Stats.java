@@ -1,9 +1,13 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Stats {
     private String date;
     private int uniqContacts;
@@ -18,6 +22,14 @@ public class Stats {
 
     @Setter
     private double cost;
+
+
+    public Stats(String date, int uniqContacts, int uniqFavorites, int uniqViews) {
+        this.date = date;
+        this.uniqContacts = uniqContacts;
+        this.uniqFavorites = uniqFavorites;
+        this.uniqViews = uniqViews;
+    }
 
     public void updateFields(double cost) {
         this.cost = cost;

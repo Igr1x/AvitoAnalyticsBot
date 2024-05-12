@@ -29,7 +29,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     private static final String FROM_SHEETS_ID = "1WJ-Url5L6obzKMUtCUxkk3KKZYeV7NmSuCRP6MAWQR4";
     private static final String PREFIX_SHEETS_REF = "https://docs.google.com/spreadsheets/d/";
     private static final String ADS_ID_RANGE = "%s!B%%d:B%%d";
-    private static final String OLDEST_DATE_ADS_RANGE = "%s!D3:D3";
+    private static final String OLDEST_DATE_ADS_RANGE = "%s!D2:D2";
 
     private static Sheets service;
 
@@ -107,7 +107,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                 }
                 itemsId.add((String) value.getValues().get(0).get(0));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                //@TODO
             }
         }
         return itemsId;
@@ -123,7 +123,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     @Override
     public String getNextColumn(String column) {
-        //String column = getColumnLetter(sheetsLink, range);
         char[] chars = column.toCharArray();
         int length = chars.length;
         int index = length - 1;
@@ -148,8 +147,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         for (AvitoItems item : listItems) {
             int paramForRange = (i * param1) + param2;
             String currentItemRange = String.format(range, paramForRange, paramForRange);
-            int lastColumnNumver = getLastColumnNumber(sheetsLink, currentItemRange);
-            String currentColumn = getColumnLetter(lastColumnNumver);
+            int lastColumnNumber = getLastColumnNumber(sheetsLink, currentItemRange);
+            String currentColumn = getColumnLetter(lastColumnNumber);
             String nextColumn = getNextColumn(currentColumn);
             String dopColumn = getDopColumn(nextColumn);
             String newRange = createRange(nextColumn, dopColumn, sheetTittle);
@@ -162,25 +161,23 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     @Override
     public Map<String, List<String>> getAccountsWithRange(String sheetsLink, String range, String sheetTittle) {
-        List<String> accountList = getLinksIdFavouriteItems(sheetsLink, range, 12, 2);
+        List<String> accountList = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 12, 2);
         Map<String, List<String>> itemsRange = new HashMap<>();
         int i = 0;
         for (String account : accountList) {
             int paramForRange = (i * 12) + 2;
             String currentItemRange = String.format(range, paramForRange, paramForRange);
-            int lastColumnNumver = getLastColumnNumber(sheetsLink, currentItemRange);
-            String currentColumn = getColumnLetter(lastColumnNumver);
+            int lastColumnNumber = getLastColumnNumber(sheetsLink, currentItemRange);
+            String currentColumn = getColumnLetter(lastColumnNumber);
             String nextColumn = getNextColumn(currentColumn);
             String dopColumn = getDopColumn(nextColumn);
-            String newRange = createRange(nextColumn, dopColumn, sheetTittle);
+            String newRange = String.format(createRange(nextColumn, dopColumn, sheetTittle), (i * 12) + 1, (i * 12) + 11);
             List<String> itemList = itemsRange.computeIfAbsent(newRange, k -> new ArrayList<>());
             itemList.add(account);
             i++;
         }
         return itemsRange;
     }
-
-
 
     @Override
     public Optional<LocalDate> getOldestDate(String sheetsLink, String sheetTittle) {
@@ -219,14 +216,20 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
         while (index >= 0) {
             if (chars[index] == 'Z') {
-                chars[index] = 'A';
+                chars[index] = 'B'; // Z -> B
                 index--;
+                if (index < 0) {
+                    return "AB"; // Если Z был первым и единственным символом, вернем AB
+                }
+            } else if (chars[index] == 'Y') {
+                chars[index] = 'A'; // Y -> A
+                return "B" + new String(chars); // Добавляем B перед строкой
             } else {
-                chars[index]++;
+                chars[index] += 2; // Увеличиваем символ на 2
                 return new String(chars);
             }
         }
-        return "A" + new String(chars);
+        return "B" + new String(chars); // Для случая, когда все символы были Z
     }
 
     private List<AvitoItems> getItemsWithLink(String sheetsLink, String sheetTittle) {
@@ -250,7 +253,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     private String getColumnLetter(int columnNumber) {
-        //int columnNumber = getLastColumnNumber(sheetsLink, range);
         StringBuilder column = new StringBuilder();
         while (columnNumber > 0) {
             column.insert(0, (char) ('A' + (columnNumber - 1) % 26));

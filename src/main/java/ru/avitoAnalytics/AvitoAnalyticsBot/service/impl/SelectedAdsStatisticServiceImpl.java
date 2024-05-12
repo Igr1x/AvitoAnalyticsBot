@@ -66,8 +66,10 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
 
             List<Operations> operations = statisticAvitoService.getAmountExpenses(token, dateNow.minusDays(269), dateNow);
 
-            List<Items> statsMaxDepth = statisticAvitoService.getStatistic(getListId(map, k -> k.contains(RANGE_MAX_DEPTH)), token, account.getUserId().toString(), dateNow.minusDays(270).toString(), dateNow.minusDays(1).toString());
-            List<Items> statsLastDay = statisticAvitoService.getStatistic(getListId(map, k -> !k.contains(RANGE_MAX_DEPTH)), token, account.getUserId().toString(), dateNow.minusDays(1).toString(), dateNow.minusDays(1).toString());
+            StringBuilder maxRange = new StringBuilder(title + '!' + "D%d:RH%d");
+
+            List<Items> statsMaxDepth = statisticAvitoService.getStatistic(getListId(map, k -> k.contains(maxRange)), token, account.getUserId().toString(), dateNow.minusDays(270).toString(), dateNow.minusDays(1).toString());
+            List<Items> statsLastDay = statisticAvitoService.getStatistic(getListId(map, k -> !k.contains(maxRange)), token, account.getUserId().toString(), dateNow.minusDays(1).toString(), dateNow.minusDays(1).toString());
 
             updateStats(account, statsMaxDepth, operations, map, dateNow, title);
             updateStats(account, statsLastDay, operations, map, dateNow.minusDays(1), title);
@@ -199,9 +201,9 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         List<StatSummary> statsList = new ArrayList<>();
         for (Stats stats : item.getStats()) {
             LocalDate currentDateStats = LocalDate.parse(stats.getDate());
-            statsList.addAll(getMissingDayStats(currentDateStats, currentDate, item.getRange()).getKey());
+            statsList.addAll(getMissingDayStats(currentDateStats, currentDate).getKey());
 
-            currentDate = getMissingDayStats(currentDateStats, currentDate, item.getRange()).getValue();
+            currentDate = getMissingDayStats(currentDateStats, currentDate).getValue();
 
             itemOperations.stream()
                     .filter(operation -> operation.getUpdatedAt().equals(stats.getDate()))
@@ -221,11 +223,11 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
             }
             currentDate = currentDate.plusDays(1);
         }
-        statsList.addAll(getMissingDayStats(LocalDate.now(), currentDate, item.getRange()).getKey());
+        statsList.addAll(getMissingDayStats(LocalDate.now(), currentDate).getKey());
         return statsList;
     }
 
-    private Pair<List<StatSummary>, LocalDate> getMissingDayStats(LocalDate currentDateStats, LocalDate date, String range) {
+    private Pair<List<StatSummary>, LocalDate> getMissingDayStats(LocalDate currentDateStats, LocalDate date) {
         List<StatSummary> missingDayStats = new ArrayList<>();
         while (!currentDateStats.equals(date)) {
             missingDayStats.add(new StatSummary(SheetsStatUtil.getDayOfWeek(date), date.toString()));
@@ -262,21 +264,12 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return oldestDate;
     }
 
-    private LocalDate getDayOfStartWeek(LocalDate date) {
-        LocalDate newDate = date;
-        while (!SheetsStatUtil.getDayOfWeek(newDate).equals("пн")) {
-            newDate = newDate.minusDays(1);
-        }
-        return newDate;
-    }
-
-
     private LocalDate getOldestDate(List<Items> itemsList, LocalDate dateFrom) {
         LocalDate date = getFirstStatisticDay(itemsList, dateFrom);
         if (date.equals(LocalDate.now().minusDays(1)) || SheetsStatUtil.getDayOfWeek(date).equals("пн")) {
             return date;
         }
-        date = getDayOfStartWeek(date);
+        date = SheetsStatUtil.getDayOfStartWeek(date);
         return date;
     }
 
@@ -290,7 +283,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                 Long avitoId = itemAvito.getItemId();
                 if (avitoId.equals(idItem)) {
                     item.setRange(String.format(currentRange, (currentSheetId * 15) + 1, (currentSheetId * 15) + 10));
-                    item.setCost(getCostForItem(itemAvito));
+                    item.setCost(0.0);
                     item.setSheetsLink(itemAvito.getSheetsLink());
                     break;
                 }
