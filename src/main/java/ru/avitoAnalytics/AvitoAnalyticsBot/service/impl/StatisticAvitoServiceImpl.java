@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
+@Slf4j
 public class StatisticAvitoServiceImpl implements StatisticAvitoService {
     private final static String KEY_VIEWS = "uniqViews";
     private final static String KEY_CONTACTS = "uniqContacts";
@@ -82,6 +84,7 @@ public class StatisticAvitoServiceImpl implements StatisticAvitoService {
         try {
             node = mapper.readTree(response);
         } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
         return node.get("access_token").asText();

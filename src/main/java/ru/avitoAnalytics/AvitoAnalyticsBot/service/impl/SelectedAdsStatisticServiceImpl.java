@@ -1,7 +1,10 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.FavouriteItems;
@@ -27,6 +30,7 @@ import java.util.stream.LongStream;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticService {
     private final String RANGE_FOR_GET_LAST_COLUMN = "%s!A%%d:KI%%d";
     private final String RANGE_MAX_DEPTH = "%s!D%d:RH%d";
@@ -38,6 +42,8 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     FavouriteItemsService favouriteItemsService;
 
     @Override
+    @Scheduled(cron = "0 0 1 * * *")
+    @Async
     public void setStatistic() {
         List<AccountData> listAccounts = accountService.findAll();
         if (listAccounts.isEmpty()) return;
@@ -97,7 +103,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         try {
             googleSheetsService.insertStatisticIntoTable(daysList, newRange, account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
         } catch (IOException | GeneralSecurityException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage());
         }
     }
 
@@ -175,7 +181,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
             try {
                 googleSheetsService.insertStatisticIntoTable(all, item.getRange(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
             } catch (IOException | GeneralSecurityException e) {
-                throw new RuntimeException(e);
+                log.error(e.getMessage());
             }
         }
     }

@@ -1,17 +1,11 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.util;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.util.ResourceUtils;
-import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 
 @UtilityClass
 public class TelegramChatUtils {
@@ -25,10 +19,10 @@ public class TelegramChatUtils {
         return sendMessage;
     }
 
-    public static SendPhoto getPhotoMessage(long chatId, String caption, String path, InlineKeyboardMarkup inlineKeyboard) {
+    public static SendPhoto getPhotoMessage(long chatId, String caption, InputFile photo, InlineKeyboardMarkup inlineKeyboard) {
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(chatId);
-        sendPhoto.setPhoto(getFile(path));
+        sendPhoto.setPhoto(photo);
         sendPhoto.setCaption(caption);
         if (inlineKeyboard != null) {
             sendPhoto.setReplyMarkup(inlineKeyboard);
@@ -36,23 +30,14 @@ public class TelegramChatUtils {
         return sendPhoto;
     }
 
-    public static SendDocument getDocumentMessage(long chatId, String caption, String path, InlineKeyboardMarkup inlineKeyboard) {
+    public static SendDocument getDocumentMessage(long chatId, String caption, InputFile file, InlineKeyboardMarkup inlineKeyboard) {
         SendDocument sendDocument = new SendDocument();
         sendDocument.setChatId(chatId);
-        sendDocument.setDocument(getFile(path));
+        sendDocument.setDocument(file);
         sendDocument.setCaption(caption);
         if (inlineKeyboard != null) {
             sendDocument.setReplyMarkup(inlineKeyboard);
         }
         return sendDocument;
-    }
-
-    private InputFile getFile(String path) {
-        try {
-            File file = ResourceUtils.getFile(path);
-            return new InputFile(file);
-        } catch (FileNotFoundException e) {
-        }
-        return null;
     }
 }

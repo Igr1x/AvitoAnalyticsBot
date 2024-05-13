@@ -1,11 +1,9 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
-import org.asynchttpclient.ClientStats;
-import org.openqa.selenium.json.JsonOutput;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
@@ -15,7 +13,10 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +38,8 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
     public static String name;
 
     @Override
+    @Scheduled(cron = "0 0 1 * * *")
+    @Async
     public void setStatistic() {
         List<String> listLinks = accountService.findUniqueSheetsRef();
         if (listLinks.isEmpty()) {
@@ -50,15 +53,11 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
             String sheetName = googleSheetsService.getSheetByName("StatAcc#", sheetRef.substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
             name = sheetName;
             var sheetWithRangeMap = googleSheetsService.getAccountsWithRange(sheetRef, String.format(RANGE_FOR_GET_LAST_COLUMN, sheetName), sheetName);
-
-            System.out.println();
-
             try {
                 setAccountStats(sheetWithRangeMap);
             } catch (GeneralSecurityException | IOException e) {
                 log.error(e.getMessage());
             }
-            System.out.println("...");
         }
     }
 
@@ -67,7 +66,6 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
             AccountData account = accountService.findAllByAccountName(entry.getValue().get(0)).get();
             String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
 
-            LocalDate yesterday = LocalDate.now().minusDays(1);
             Pattern pattern = Pattern.compile("D[0-9]+");
             Matcher matcher = pattern.matcher(entry.getKey());
             if (matcher.find()) {

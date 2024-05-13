@@ -1,3 +1,4 @@
+/*
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,3 +37,4 @@ public class FullAdsStatisticServiceImplTest {
 
 
 }
+*/

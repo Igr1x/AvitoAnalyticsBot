@@ -106,7 +106,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                     break;
                 }
                 itemsId.add((String) value.getValues().get(0).get(0));
-            } catch (IOException e) {
+                Thread.sleep(5L);
+            } catch (IOException | InterruptedException e) {
                 //@TODO
             }
         }
