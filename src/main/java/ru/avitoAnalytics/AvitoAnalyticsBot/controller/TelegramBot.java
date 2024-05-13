@@ -108,7 +108,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         //services.setStatistic();
-        selService.setStatistic();
+        //selService.setStatistic();
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();
             var key = update.getMessage().getText();

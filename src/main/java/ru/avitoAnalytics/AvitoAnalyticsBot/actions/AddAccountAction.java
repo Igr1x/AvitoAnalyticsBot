@@ -2,6 +2,7 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.actions;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -48,12 +49,11 @@ public class AddAccountAction implements Actions<SendMessage> {
         if (googleSheetsService.checkExistSheets(sheetsRef)) {
             User user = userService.getUser(chatId).orElseThrow();
             AccountData accountData = new AccountData(user, userId, clientId, clientSecret, sheetsRef, accountName);
+            googleSheetsService.insertTemplateSheets(sheetsRef);
             accountService.saveAccount(accountData);
             String text = "Ваш аккаунт успешно добавлен";
-            googleSheetsService.insertTemplateSheets(sheetsRef);
             log.info("Account was added successfully for client: " + clientId);
             return TelegramChatUtils.getMessage(chatId, text, new InlineKeyboardMarkup(BotButtons.getHelpButtons()));
-
         }
         String text = "Таблицы по данной ссылке не существует либо вы не предоставили открытый доступ!";
         return TelegramChatUtils.getMessage(chatId, text, new InlineKeyboardMarkup(BotButtons.getHelpButtons()));
