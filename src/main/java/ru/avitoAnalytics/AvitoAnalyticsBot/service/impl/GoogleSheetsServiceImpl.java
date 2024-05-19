@@ -28,8 +28,9 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String FROM_SHEETS_ID = "1WJ-Url5L6obzKMUtCUxkk3KKZYeV7NmSuCRP6MAWQR4";
     private static final String PREFIX_SHEETS_REF = "https://docs.google.com/spreadsheets/d/";
-    private static final String ADS_ID_RANGE = "%s!B%%d:B%%d";
+    private static final String ADS_ID_RANGE = "%s!B%%d:C%%d";
     private static final String OLDEST_DATE_ADS_RANGE = "%s!D2:D2";
+    private static final String AVITO = "https://avito.ru/%d";
 
     private static Sheets service;
 
@@ -93,9 +94,10 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public List<String> getLinksIdFavouriteItems(String sheetsLink, String sheetTittle, int p1, int p2) {
+    public Map<String, String> getLinksIdFavouriteItems(String sheetsLink, String sheetTittle, int p1, int p2) {
         String sheetsId = parseTokenFromSheetsRef(sheetsLink);
-        List<String> itemsId = new ArrayList<>();
+        //List<Pair<String, String>> itemsId = new ArrayList<>();
+        Map<String, String> itemsIdWithAccount = new LinkedHashMap<>();
         String range = String.format(ADS_ID_RANGE, sheetTittle);
         ValueRange value;
         for (int i = 0; ; i++) {
@@ -105,22 +107,40 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                 if (value.getValues() == null) {
                     break;
                 }
-                itemsId.add((String) value.getValues().get(0).get(0));
+                String itemId = value.getValues().get(0).get(0).toString();
+                String accountData = "unknown";
+                if (value.getValues().get(0).size() == 2) {
+                    accountData = value.getValues().get(0).get(1).toString();
+                }
+                itemsIdWithAccount.put(itemId, accountData);
                 Thread.sleep(5L);
             } catch (IOException | InterruptedException e) {
                 //@TODO
             }
         }
-        return itemsId;
+        return itemsIdWithAccount;
     }
 
-    @Override
-    public List<Long> getIdFavouritesItems(List<String> itemsId) {
-        return itemsId.stream()
+    /*@Override
+    public Map<Long, String> getIdFavouritesItems(Map<String, String> itemsId) {
+        *//*return itemsId.stream()
                 .map(s -> s.substring(s.lastIndexOf('_') + 1))
                 .map(Long::parseLong)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*//*
+        return itemsId.
+    }*/
+    @Override
+    public Map<Long, String> getIdFavouritesItems(Map<String, String> itemsId) {
+        return itemsId.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> Long.parseLong(entry.getKey().substring(entry.getKey().lastIndexOf('_') + 1)),
+                        Map.Entry::getValue,
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+                ));
     }
+
+
 
     @Override
     public String getNextColumn(String column) {
@@ -162,10 +182,12 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     @Override
     public Map<String, List<String>> getAccountsWithRange(String sheetsLink, String range, String sheetTittle) {
-        List<String> accountList = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 12, 2);
+        //List<String> accountList = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 12, 2);
+        Map<String, String> accountLinks = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 12, 2);
         Map<String, List<String>> itemsRange = new HashMap<>();
         int i = 0;
-        for (String account : accountList) {
+        //for (String account : accountList) {
+        for (Map.Entry<String, String> entry : accountLinks.entrySet()) {
             int paramForRange = (i * 12) + 2;
             String currentItemRange = String.format(range, paramForRange, paramForRange);
             int lastColumnNumber = getLastColumnNumber(sheetsLink, currentItemRange);
@@ -174,7 +196,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             String dopColumn = getDopColumn(nextColumn);
             String newRange = String.format(createRange(nextColumn, dopColumn, sheetTittle), (i * 12) + 1, (i * 12) + 11);
             List<String> itemList = itemsRange.computeIfAbsent(newRange, k -> new ArrayList<>());
-            itemList.add(account);
+            itemList.add(entry.getKey());
             i++;
         }
         return itemsRange;
@@ -234,11 +256,18 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     private List<AvitoItems> getItemsWithLink(String sheetsLink, String sheetTittle) {
-        List<String> itemsId = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 15, 2);
-        List<Long> itemsLongId = getIdFavouritesItems(itemsId);
+        //List<String> itemsId = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 15, 2);
+        Map<String, String> itemsId = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 15, 2);
+        //List<Long> itemsLongId = getIdFavouritesItems(itemsId);
+        Map<Long, String> itemsLongId = getIdFavouritesItems(itemsId);
         List<AvitoItems> result = new ArrayList<>();
-        for (int i = 0; i < itemsLongId.size(); i++) {
+        /*for (int i = 0; i < itemsLongId.size(); i++) {
             result.add(new AvitoItems((long) i, itemsLongId.get(i), itemsId.get(i)));
+        }*/
+        int i = 0;
+        for (Map.Entry<Long, String> entry : itemsLongId.entrySet()) {
+            result.add(new AvitoItems((long) i, entry.getKey(), String.format(AVITO, entry.getKey()),entry.getValue()));
+            i++;
         }
         return result;
     }

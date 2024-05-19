@@ -32,7 +32,7 @@ import java.util.stream.LongStream;
 @AllArgsConstructor
 @Slf4j
 public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticService {
-    private final String RANGE_FOR_GET_LAST_COLUMN = "%s!A%%d:KI%%d";
+    private final String RANGE_FOR_GET_LAST_COLUMN = "%s!A%%d:ZZZ%%d";
     private final String RANGE_MAX_DEPTH = "%s!D%d:RH%d";
     private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
 
@@ -45,40 +45,84 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     @Scheduled(cron = "0 0 1 * * *")
     @Async
     public void setStatistic() {
-        List<AccountData> listAccounts = accountService.findAll();
-        if (listAccounts.isEmpty()) return;
-        updateAccountStats(listAccounts);
+        List<String> listAllUniqueSheets = accountService.findUniqueSheetsRef();
+        if (listAllUniqueSheets.isEmpty()) return;
+        updateAccountStats(listAllUniqueSheets);
     }
 
-    private List<Long> getListId(Map<String, List<AvitoItems>> map, Predicate<String> condition) {
+    private void updateAccountStats(List<String> listAllUniqueSheets) {
+        for (String sheetName : listAllUniqueSheets) {
+            List<AccountData> listAccounts = accountService.findAllBySheetsRef(sheetName);
+            if (listAccounts.isEmpty()) {
+                continue;
+            }
+            String title = googleSheetsService.getSheetByName("StatFav#", sheetName.substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
+            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(sheetName, String.format(RANGE_FOR_GET_LAST_COLUMN, title), title, 15, 3);
+            if (map.isEmpty()) {
+                continue;
+            }
+            for (AccountData account : listAccounts) {
+
+                String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
+
+                LocalDate dateNow = LocalDate.now();
+
+                List<Operations> operations = statisticAvitoService.getAmountExpenses(token, dateNow.minusDays(269), dateNow);
+
+                StringBuilder maxRange = new StringBuilder(title + '!' + "D%d:RH%d");
+                List<Items> statsMaxDepth = statisticAvitoService.getStatistic(getListId(map, k -> k.contains(maxRange), account.getAccountName()), token, account.getUserId().toString(), dateNow.minusDays(270).toString(), dateNow.minusDays(1).toString());
+                List<Items> statsLastDay = statisticAvitoService.getStatistic(getListId(map, k -> !k.contains(maxRange), account.getAccountName()), token, account.getUserId().toString(), dateNow.minusDays(1).toString(), dateNow.minusDays(1).toString());
+
+                updateStats(account, statsMaxDepth, operations, map, dateNow, title);
+                updateStats(account, statsLastDay, operations, map, dateNow.minusDays(1), title);
+            }
+        }
+    }
+
+    private List<Long> getListId(Map<String, List<AvitoItems>> map, Predicate<String> condition, String accountName) {
         return map.entrySet().stream()
                 .filter(x -> condition.test(x.getKey()))
                 .flatMapToLong(x -> x.getValue().stream()
+                        .filter(entry -> accountName.equals(entry.getAccountName()))
                         .flatMapToLong(entry -> LongStream.of(entry.getItemId())))
                 .boxed()
                 .toList();
     }
 
-    private void updateAccountStats(List<AccountData> listAccounts) {
-        for (AccountData account : listAccounts) {
-            String title = googleSheetsService.getSheetByName("StatFav#", account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
-            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(account.getSheetsRef(), String.format(RANGE_FOR_GET_LAST_COLUMN, title), title, 15, 3);
-            if (map.isEmpty()) {
-                continue;
+    private void updateStats(AccountData account, List<Items> itemsList, List<Operations> operations, Map<String, List<AvitoItems>> map, LocalDate dateNow, String tittle) {
+        if (itemsList.isEmpty()) {
+            return;
+        }
+        LocalDate oldestDate = getOldestStatisticDate(itemsList, dateNow.minusDays(270));
+        if (dateNow.equals(LocalDate.now())) {
+            oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), tittle).orElse(oldestDate);
+        }
+        if (dateNow.equals(LocalDate.now().minusDays(1))) {
+            oldestDate = LocalDate.now().minusDays(1);
+        }
+        for (Items item : itemsList) {
+            item = setRangeAndCost(map, item);
+            insertDate(account, item, oldestDate, tittle);
+            List<StatSummary> stat = new ArrayList<>();
+            if (item.getStats().isEmpty() && !dateNow.equals(LocalDate.now())) {
+                stat.add(new StatSummary(SheetsStatUtil.getDayOfWeek(oldestDate), oldestDate.toString()));
+                if (SheetsStatUtil.getDayOfWeek(oldestDate).equals("вс")) {
+                    stat.addAll(SheetsStatUtil.setStatsWeek(oldestDate));
+                }
+            } else {
+                stat.addAll(getStatsList(item, operations, oldestDate));
             }
-            String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
 
-            LocalDate dateNow = LocalDate.now();
-
-            List<Operations> operations = statisticAvitoService.getAmountExpenses(token, dateNow.minusDays(269), dateNow);
-
-            StringBuilder maxRange = new StringBuilder(title + '!' + "D%d:RH%d");
-
-            List<Items> statsMaxDepth = statisticAvitoService.getStatistic(getListId(map, k -> k.contains(maxRange)), token, account.getUserId().toString(), dateNow.minusDays(270).toString(), dateNow.minusDays(1).toString());
-            List<Items> statsLastDay = statisticAvitoService.getStatistic(getListId(map, k -> !k.contains(maxRange)), token, account.getUserId().toString(), dateNow.minusDays(1).toString(), dateNow.minusDays(1).toString());
-
-            updateStats(account, statsMaxDepth, operations, map, dateNow, title);
-            updateStats(account, statsLastDay, operations, map, dateNow.minusDays(1), title);
+            List<List<Object>> all = getStatSummaryMethods().stream()
+                    .map(mapper -> stat.stream().
+                            map(mapper)
+                            .collect(Collectors.toList()))
+                    .collect(Collectors.toList());
+            try {
+                googleSheetsService.insertStatisticIntoTable(all, item.getRange(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
+            } catch (IOException | GeneralSecurityException e) {
+                log.error(e.getMessage());
+            }
         }
     }
 
@@ -134,7 +178,6 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return Pattern.compile("!([A-Z]+)([0-9]+)").matcher(range);
     }
 
-
     private String getLastColumn(String column) {
         char[] chars = column.toCharArray();
         int length = chars.length;
@@ -152,39 +195,6 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return "A" + new String(chars);
     }
 
-    private void updateStats(AccountData account, List<Items> itemsList, List<Operations> operations, Map<String, List<AvitoItems>> map, LocalDate dateNow, String tittle) {
-        if (itemsList.isEmpty()) {
-            return;
-        }
-        LocalDate oldestDate = getOldestDate(itemsList, dateNow.minusDays(270));
-        if (dateNow.equals(LocalDate.now())) {
-            oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), tittle).orElse(oldestDate);
-        }
-        for (Items item : itemsList) {
-            item = setRangeAndCost(map, item);
-            insertDate(account, item, oldestDate, tittle);
-            List<StatSummary> stat = new ArrayList<>();
-            if (item.getStats().isEmpty()) {
-                stat.add(new StatSummary(SheetsStatUtil.getDayOfWeek(oldestDate), oldestDate.toString()));
-                if (SheetsStatUtil.getDayOfWeek(oldestDate).equals("вс")) {
-                    stat.addAll(SheetsStatUtil.setStatsWeek(oldestDate));
-                }
-            } else {
-                stat.addAll(getStatsList(item, operations, oldestDate));
-            }
-
-            List<List<Object>> all = getStatSummaryMethods().stream()
-                    .map(mapper -> stat.stream().
-                            map(mapper)
-                            .collect(Collectors.toList()))
-                    .collect(Collectors.toList());
-            try {
-                googleSheetsService.insertStatisticIntoTable(all, item.getRange(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
-            } catch (IOException | GeneralSecurityException e) {
-                log.error(e.getMessage());
-            }
-        }
-    }
 
     private void insertDate(AccountData account, Items item, LocalDate oldestDate, String tittle) {
         Matcher matcher = getMatcherForCololumn(item.getRange());
@@ -270,7 +280,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return oldestDate;
     }
 
-    private LocalDate getOldestDate(List<Items> itemsList, LocalDate dateFrom) {
+    private LocalDate getOldestStatisticDate(List<Items> itemsList, LocalDate dateFrom) {
         LocalDate date = getFirstStatisticDay(itemsList, dateFrom);
         if (date.equals(LocalDate.now().minusDays(1)) || SheetsStatUtil.getDayOfWeek(date).equals("пн")) {
             return date;

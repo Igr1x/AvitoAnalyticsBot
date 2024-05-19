@@ -11,4 +11,5 @@ public class AvitoItems {
     private Long id;
     private Long itemId;
     private String sheetsLink;
+    private String accountName;
 }

@@ -14,8 +14,7 @@ public interface AccountRepository extends JpaRepository<AccountData, Long> {
     List<AccountData> findByUserOwnerId(Long userOwnerId);
     List<AccountData> findAllBySheetsRef(String sheetsRef);
     Optional<AccountData> findAllByAccountName(String accountName);
+
     @Query(value = "select distinct a.sheetsRef from AccountData a")
     List<String> findUniqueSheetsRef();
-
-
 }
