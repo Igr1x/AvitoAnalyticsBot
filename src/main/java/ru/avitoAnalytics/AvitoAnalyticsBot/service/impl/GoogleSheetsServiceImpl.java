@@ -97,7 +97,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     public Map<String, String> getLinksIdFavouriteItems(String sheetsLink, String sheetTittle, int p1, int p2) {
         String sheetsId = parseTokenFromSheetsRef(sheetsLink);
         //List<Pair<String, String>> itemsId = new ArrayList<>();
-        Map<String, String> itemsIdWithAccount = new HashMap<>();
+        Map<String, String> itemsIdWithAccount = new LinkedHashMap<>();
         String range = String.format(ADS_ID_RANGE, sheetTittle);
         ValueRange value;
         for (int i = 0; ; i++) {
@@ -134,9 +134,12 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return itemsId.entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> Long.parseLong(entry.getKey().substring(entry.getKey().lastIndexOf('_') + 1)),
-                        Map.Entry::getValue
+                        Map.Entry::getValue,
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
                 ));
     }
+
 
 
     @Override
@@ -264,6 +267,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         int i = 0;
         for (Map.Entry<Long, String> entry : itemsLongId.entrySet()) {
             result.add(new AvitoItems((long) i, entry.getKey(), String.format(AVITO, entry.getKey()),entry.getValue()));
+            i++;
         }
         return result;
     }
