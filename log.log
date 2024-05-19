@@ -33,3 +33,265 @@
 2024-05-13T08:46:42.718+03:00  INFO 6888 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2024-05-13T08:46:42.719+03:00  INFO 6888 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2024-05-13T08:46:42.722+03:00  INFO 6888 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-05-19T11:10:13.410+03:00  INFO 19000 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 19000 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-05-19T11:10:13.412+03:00  INFO 19000 --- [main] r.a.A.AvitoAnalyticsBotApplication       : No active profile set, falling back to 1 default profile: "default"
+2024-05-19T11:10:14.144+03:00  INFO 19000 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-05-19T11:10:14.235+03:00  INFO 19000 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 82 ms. Found 4 JPA repository interfaces.
+2024-05-19T11:10:14.811+03:00  INFO 19000 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2024-05-19T11:10:14.821+03:00  INFO 19000 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-05-19T11:10:14.821+03:00  INFO 19000 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+2024-05-19T11:10:14.939+03:00  INFO 19000 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-05-19T11:10:14.940+03:00  INFO 19000 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1472 ms
+2024-05-19T11:10:15.121+03:00  INFO 19000 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.16.3 by Redgate
+2024-05-19T11:10:15.121+03:00  INFO 19000 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-05-19T11:10:15.121+03:00  INFO 19000 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-05-19T11:10:15.133+03:00  INFO 19000 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-05-19T11:10:15.288+03:00  INFO 19000 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@68a305eb
+2024-05-19T11:10:15.290+03:00  INFO 19000 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-05-19T11:10:15.315+03:00  INFO 19000 --- [main] o.f.c.i.database.base.BaseDatabaseType   : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
+2024-05-19T11:10:15.389+03:00  INFO 19000 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.047s)
+2024-05-19T11:10:15.444+03:00  INFO 19000 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2024-05-19T11:10:15.444+03:00  INFO 19000 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2024-05-19T11:10:15.556+03:00  INFO 19000 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-05-19T11:10:15.647+03:00  INFO 19000 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.9.Final
+2024-05-19T11:10:15.650+03:00  INFO 19000 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2024-05-19T11:10:15.851+03:00  INFO 19000 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:10:16.012+03:00  INFO 19000 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-05-19T11:10:16.313+03:00  INFO 19000 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:10:17.001+03:00  INFO 19000 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2024-05-19T11:10:17.004+03:00  INFO 19000 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T11:10:17.252+03:00  INFO 19000 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-05-19T11:10:18.034+03:00  WARN 19000 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-05-19T11:10:18.444+03:00  INFO 19000 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2024-05-19T11:10:18.894+03:00  INFO 19000 --- [main] r.a.A.configuration.Initializer          : Bot @AvitoAnalyticsBot was registered!
+2024-05-19T11:10:18.896+03:00  INFO 19000 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Started AvitoAnalyticsBotApplication in 6.005 seconds (process running for 7.747)
+2024-05-19T11:11:31.999+03:00  INFO 19000 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T11:11:32.001+03:00  INFO 19000 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-05-19T11:11:32.006+03:00  INFO 19000 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-05-19T11:11:35.537+03:00  INFO 23228 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 23228 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-05-19T11:11:35.539+03:00  INFO 23228 --- [main] r.a.A.AvitoAnalyticsBotApplication       : No active profile set, falling back to 1 default profile: "default"
+2024-05-19T11:11:36.283+03:00  INFO 23228 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-05-19T11:11:36.381+03:00  INFO 23228 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 86 ms. Found 4 JPA repository interfaces.
+2024-05-19T11:11:36.913+03:00  INFO 23228 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2024-05-19T11:11:36.922+03:00  INFO 23228 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-05-19T11:11:36.922+03:00  INFO 23228 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+2024-05-19T11:11:37.032+03:00  INFO 23228 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-05-19T11:11:37.033+03:00  INFO 23228 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1429 ms
+2024-05-19T11:11:37.197+03:00  INFO 23228 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.16.3 by Redgate
+2024-05-19T11:11:37.197+03:00  INFO 23228 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-05-19T11:11:37.197+03:00  INFO 23228 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-05-19T11:11:37.207+03:00  INFO 23228 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-05-19T11:11:37.330+03:00  INFO 23228 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6a3fbcb1
+2024-05-19T11:11:37.332+03:00  INFO 23228 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-05-19T11:11:37.347+03:00  INFO 23228 --- [main] o.f.c.i.database.base.BaseDatabaseType   : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
+2024-05-19T11:11:37.396+03:00  INFO 23228 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.031s)
+2024-05-19T11:11:37.457+03:00  INFO 23228 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2024-05-19T11:11:37.457+03:00  INFO 23228 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2024-05-19T11:11:37.555+03:00  INFO 23228 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-05-19T11:11:37.615+03:00  INFO 23228 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.9.Final
+2024-05-19T11:11:37.617+03:00  INFO 23228 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2024-05-19T11:11:37.773+03:00  INFO 23228 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:11:37.911+03:00  INFO 23228 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-05-19T11:11:38.170+03:00  INFO 23228 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:11:38.804+03:00  INFO 23228 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2024-05-19T11:11:38.808+03:00  INFO 23228 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T11:11:39.049+03:00  INFO 23228 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-05-19T11:11:39.788+03:00  WARN 23228 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-05-19T11:11:40.157+03:00  INFO 23228 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2024-05-19T11:11:40.529+03:00  INFO 23228 --- [main] r.a.A.configuration.Initializer          : Bot @AvitoAnalyticsBot was registered!
+2024-05-19T11:11:40.531+03:00  INFO 23228 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Started AvitoAnalyticsBotApplication in 5.547 seconds (process running for 6.774)
+2024-05-19T11:12:20.076+03:00  INFO 23228 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T11:12:20.078+03:00  INFO 23228 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-05-19T11:12:20.081+03:00  INFO 23228 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-05-19T11:36:38.738+03:00  INFO 8108 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 8108 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-05-19T11:36:38.739+03:00  INFO 8108 --- [main] r.a.A.AvitoAnalyticsBotApplication       : No active profile set, falling back to 1 default profile: "default"
+2024-05-19T11:36:39.373+03:00  INFO 8108 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-05-19T11:36:39.472+03:00  INFO 8108 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 90 ms. Found 4 JPA repository interfaces.
+2024-05-19T11:36:40.022+03:00  INFO 8108 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2024-05-19T11:36:40.032+03:00  INFO 8108 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-05-19T11:36:40.032+03:00  INFO 8108 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+2024-05-19T11:36:40.135+03:00  INFO 8108 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-05-19T11:36:40.135+03:00  INFO 8108 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1351 ms
+2024-05-19T11:36:40.278+03:00  INFO 8108 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.16.3 by Redgate
+2024-05-19T11:36:40.278+03:00  INFO 8108 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-05-19T11:36:40.278+03:00  INFO 8108 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-05-19T11:36:40.288+03:00  INFO 8108 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-05-19T11:36:40.409+03:00  INFO 8108 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4a70d302
+2024-05-19T11:36:40.410+03:00  INFO 8108 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-05-19T11:36:40.424+03:00  INFO 8108 --- [main] o.f.c.i.database.base.BaseDatabaseType   : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
+2024-05-19T11:36:40.472+03:00  INFO 8108 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.030s)
+2024-05-19T11:36:40.525+03:00  INFO 8108 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2024-05-19T11:36:40.525+03:00  INFO 8108 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2024-05-19T11:36:40.630+03:00  INFO 8108 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-05-19T11:36:40.687+03:00  INFO 8108 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.9.Final
+2024-05-19T11:36:40.689+03:00  INFO 8108 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2024-05-19T11:36:40.848+03:00  INFO 8108 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:36:40.984+03:00  INFO 8108 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-05-19T11:36:41.239+03:00  INFO 8108 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:36:41.833+03:00  INFO 8108 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2024-05-19T11:36:41.836+03:00  INFO 8108 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T11:36:42.058+03:00  INFO 8108 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-05-19T11:36:42.722+03:00  WARN 8108 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-05-19T11:36:43.103+03:00  INFO 8108 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2024-05-19T11:36:44.073+03:00  INFO 8108 --- [main] r.a.A.configuration.Initializer          : Bot @AvitoAnalyticsBot was registered!
+2024-05-19T11:36:44.074+03:00  INFO 8108 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Started AvitoAnalyticsBotApplication in 5.79 seconds (process running for 6.745)
+2024-05-19T11:37:30.117+03:00  WARN 8108 --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=49s604ms931µs600ns).
+2024-05-19T11:37:30.190+03:00  INFO 8108 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T11:37:30.192+03:00  INFO 8108 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-05-19T11:37:30.195+03:00  INFO 8108 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-05-19T11:37:40.784+03:00  INFO 19888 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 19888 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-05-19T11:37:40.786+03:00  INFO 19888 --- [main] r.a.A.AvitoAnalyticsBotApplication       : No active profile set, falling back to 1 default profile: "default"
+2024-05-19T11:37:41.410+03:00  INFO 19888 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-05-19T11:37:41.490+03:00  INFO 19888 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 74 ms. Found 4 JPA repository interfaces.
+2024-05-19T11:37:41.996+03:00  INFO 19888 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2024-05-19T11:37:42.005+03:00  INFO 19888 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-05-19T11:37:42.006+03:00  INFO 19888 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+2024-05-19T11:37:42.107+03:00  INFO 19888 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-05-19T11:37:42.108+03:00  INFO 19888 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1277 ms
+2024-05-19T11:37:42.255+03:00  INFO 19888 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.16.3 by Redgate
+2024-05-19T11:37:42.255+03:00  INFO 19888 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-05-19T11:37:42.255+03:00  INFO 19888 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-05-19T11:37:42.266+03:00  INFO 19888 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-05-19T11:37:42.500+03:00  INFO 19888 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@68a305eb
+2024-05-19T11:37:42.501+03:00  INFO 19888 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-05-19T11:37:42.515+03:00  INFO 19888 --- [main] o.f.c.i.database.base.BaseDatabaseType   : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
+2024-05-19T11:37:42.563+03:00  INFO 19888 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.030s)
+2024-05-19T11:37:42.615+03:00  INFO 19888 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2024-05-19T11:37:42.616+03:00  INFO 19888 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2024-05-19T11:37:42.714+03:00  INFO 19888 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-05-19T11:37:42.781+03:00  INFO 19888 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.9.Final
+2024-05-19T11:37:42.784+03:00  INFO 19888 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2024-05-19T11:37:42.944+03:00  INFO 19888 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:37:43.079+03:00  INFO 19888 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-05-19T11:37:43.350+03:00  INFO 19888 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:37:43.984+03:00  INFO 19888 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2024-05-19T11:37:43.987+03:00  INFO 19888 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T11:37:44.291+03:00  INFO 19888 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-05-19T11:37:44.932+03:00  WARN 19888 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-05-19T11:37:45.327+03:00  INFO 19888 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2024-05-19T11:37:46.106+03:00  INFO 19888 --- [main] r.a.A.configuration.Initializer          : Bot @AvitoAnalyticsBot was registered!
+2024-05-19T11:37:46.108+03:00  INFO 19888 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Started AvitoAnalyticsBotApplication in 5.77 seconds (process running for 6.66)
+2024-05-19T11:38:06.733+03:00 ERROR 19888 --- [@AvitoAnalyticsBot Telegram Executor] o.t.t.u.DefaultBotSession                : Index 1 out of bounds for length 1
+
+java.lang.IndexOutOfBoundsException: Index 1 out of bounds for length 1
+	at java.base/jdk.internal.util.Preconditions.outOfBounds(Preconditions.java:100) ~[na:na]
+	at java.base/jdk.internal.util.Preconditions.outOfBoundsCheckIndex(Preconditions.java:106) ~[na:na]
+	at java.base/jdk.internal.util.Preconditions.checkIndex(Preconditions.java:302) ~[na:na]
+	at java.base/java.util.Objects.checkIndex(Objects.java:385) ~[na:na]
+	at java.base/java.util.ArrayList.get(ArrayList.java:427) ~[na:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.GoogleSheetsServiceImpl.getLinksIdFavouriteItems(GoogleSheetsServiceImpl.java:111) ~[classes/:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.GoogleSheetsServiceImpl.getItemsWithLink(GoogleSheetsServiceImpl.java:254) ~[classes/:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.GoogleSheetsServiceImpl.getItemsWithRange(GoogleSheetsServiceImpl.java:159) ~[classes/:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.SelectedAdsStatisticServiceImpl.updateAccountStats(SelectedAdsStatisticServiceImpl.java:65) ~[classes/:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.SelectedAdsStatisticServiceImpl.setStatistic(SelectedAdsStatisticServiceImpl.java:50) ~[classes/:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.controller.TelegramBot.onUpdateReceived(TelegramBot.java:111) ~[classes/:na]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511) ~[na:na]
+	at org.telegram.telegrambots.meta.generics.LongPollingBot.onUpdatesReceived(LongPollingBot.java:27) ~[telegrambots-meta-6.9.0.jar:na]
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$HandlerThread.run(DefaultBotSession.java:312) ~[telegrambots-6.9.0.jar:na]
+
+2024-05-19T11:38:42.888+03:00  INFO 19888 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T11:38:42.889+03:00  INFO 19888 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-05-19T11:38:42.894+03:00  INFO 19888 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-05-19T11:39:42.209+03:00  INFO 20876 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 20876 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-05-19T11:39:42.211+03:00  INFO 20876 --- [main] r.a.A.AvitoAnalyticsBotApplication       : No active profile set, falling back to 1 default profile: "default"
+2024-05-19T11:39:42.822+03:00  INFO 20876 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-05-19T11:39:42.903+03:00  INFO 20876 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 73 ms. Found 4 JPA repository interfaces.
+2024-05-19T11:39:43.393+03:00  INFO 20876 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2024-05-19T11:39:43.401+03:00  INFO 20876 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-05-19T11:39:43.402+03:00  INFO 20876 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+2024-05-19T11:39:43.504+03:00  INFO 20876 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-05-19T11:39:43.504+03:00  INFO 20876 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1249 ms
+2024-05-19T11:39:43.648+03:00  INFO 20876 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.16.3 by Redgate
+2024-05-19T11:39:43.648+03:00  INFO 20876 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-05-19T11:39:43.648+03:00  INFO 20876 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-05-19T11:39:43.658+03:00  INFO 20876 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-05-19T11:39:43.774+03:00  INFO 20876 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1310fcb0
+2024-05-19T11:39:43.775+03:00  INFO 20876 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-05-19T11:39:43.789+03:00  INFO 20876 --- [main] o.f.c.i.database.base.BaseDatabaseType   : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
+2024-05-19T11:39:43.834+03:00  INFO 20876 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.028s)
+2024-05-19T11:39:43.886+03:00  INFO 20876 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2024-05-19T11:39:43.887+03:00  INFO 20876 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2024-05-19T11:39:43.982+03:00  INFO 20876 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-05-19T11:39:44.036+03:00  INFO 20876 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.9.Final
+2024-05-19T11:39:44.038+03:00  INFO 20876 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2024-05-19T11:39:44.194+03:00  INFO 20876 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:39:44.331+03:00  INFO 20876 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-05-19T11:39:44.576+03:00  INFO 20876 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T11:39:45.193+03:00  INFO 20876 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2024-05-19T11:39:45.197+03:00  INFO 20876 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T11:39:45.420+03:00  INFO 20876 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-05-19T11:39:46.074+03:00  WARN 20876 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-05-19T11:39:46.437+03:00  INFO 20876 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2024-05-19T11:39:47.308+03:00  INFO 20876 --- [main] r.a.A.configuration.Initializer          : Bot @AvitoAnalyticsBot was registered!
+2024-05-19T11:39:47.310+03:00  INFO 20876 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Started AvitoAnalyticsBotApplication in 5.537 seconds (process running for 6.443)
+2024-05-19T12:13:49.727+03:00  WARN 20876 --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=34m5s836ms162µs300ns).
+2024-05-19T12:13:49.751+03:00 ERROR 20876 --- [@AvitoAnalyticsBot Telegram Connection] o.t.t.u.DefaultBotSession                : Connection reset
+
+java.net.SocketException: Connection reset
+	at java.base/sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:313) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:340) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:789) ~[na:na]
+	at java.base/java.net.Socket$SocketInputStream.read(Socket.java:1025) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketInputRecord.read(SSLSocketInputRecord.java:477) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketInputRecord.readHeader(SSLSocketInputRecord.java:471) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketInputRecord.bytesInCompletePacket(SSLSocketInputRecord.java:70) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketImpl.readApplicationRecord(SSLSocketImpl.java:1465) ~[na:na]
+	at java.base/sun.security.ssl.SSLSocketImpl$AppInputStream.read(SSLSocketImpl.java:1069) ~[na:na]
+	at org.apache.http.impl.io.SessionInputBufferImpl.streamRead(SessionInputBufferImpl.java:137) ~[httpcore-4.4.16.jar:4.4.16]
+	at org.apache.http.impl.io.SessionInputBufferImpl.fillBuffer(SessionInputBufferImpl.java:153) ~[httpcore-4.4.16.jar:4.4.16]
+	at org.apache.http.impl.io.SessionInputBufferImpl.readLine(SessionInputBufferImpl.java:280) ~[httpcore-4.4.16.jar:4.4.16]
+	at org.apache.http.impl.conn.DefaultHttpResponseParser.parseHead(DefaultHttpResponseParser.java:138) ~[httpclient-4.5.13.jar:4.5.13]
+	at org.apache.http.impl.conn.DefaultHttpResponseParser.parseHead(DefaultHttpResponseParser.java:56) ~[httpclient-4.5.13.jar:4.5.13]
+	at org.apache.http.impl.io.AbstractMessageParser.parse(AbstractMessageParser.java:259) ~[httpcore-4.4.16.jar:4.4.16]
+	at org.apache.http.impl.DefaultBHttpClientConnection.receiveResponseHeader(DefaultBHttpClientConnection.java:163) ~[httpcore-4.4.16.jar:4.4.16]
+	at org.apache.http.impl.conn.CPoolProxy.receiveResponseHeader(CPoolProxy.java:157) ~[httpclient-4.5.13.jar:4.5.13]
+	at org.apache.http.protocol.HttpRequestExecutor.doReceiveResponse(HttpRequestExecutor.java:273) ~[httpcore-4.4.16.jar:4.4.16]
+	at org.apache.http.protocol.HttpRequestExecutor.execute(HttpRequestExecutor.java:125) ~[httpcore-4.4.16.jar:4.4.16]
+	at org.apache.http.impl.execchain.MainClientExec.execute(MainClientExec.java:272) ~[httpclient-4.5.13.jar:4.5.13]
+	at org.apache.http.impl.execchain.ProtocolExec.execute(ProtocolExec.java:186) ~[httpclient-4.5.13.jar:4.5.13]
+	at org.apache.http.impl.execchain.RetryExec.execute(RetryExec.java:89) ~[httpclient-4.5.13.jar:4.5.13]
+	at org.apache.http.impl.execchain.RedirectExec.execute(RedirectExec.java:110) ~[httpclient-4.5.13.jar:4.5.13]
+	at org.apache.http.impl.client.InternalHttpClient.doExecute(InternalHttpClient.java:185) ~[httpclient-4.5.13.jar:4.5.13]
+	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:83) ~[httpclient-4.5.13.jar:4.5.13]
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$ReaderThread.getUpdatesFromServer(DefaultBotSession.java:249) ~[telegrambots-6.9.0.jar:na]
+	at org.telegram.telegrambots.updatesreceivers.DefaultBotSession$ReaderThread.run(DefaultBotSession.java:188) ~[telegrambots-6.9.0.jar:na]
+
+2024-05-19T12:13:49.828+03:00  INFO 20876 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T12:13:49.830+03:00  INFO 20876 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-05-19T12:13:49.874+03:00  INFO 20876 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-05-19T12:33:09.309+03:00  INFO 2836 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 2836 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-05-19T12:33:09.312+03:00  INFO 2836 --- [main] r.a.A.AvitoAnalyticsBotApplication       : No active profile set, falling back to 1 default profile: "default"
+2024-05-19T12:33:10.073+03:00  INFO 2836 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-05-19T12:33:10.160+03:00  INFO 2836 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 78 ms. Found 4 JPA repository interfaces.
+2024-05-19T12:33:10.702+03:00  INFO 2836 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2024-05-19T12:33:10.711+03:00  INFO 2836 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-05-19T12:33:10.711+03:00  INFO 2836 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+2024-05-19T12:33:10.840+03:00  INFO 2836 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-05-19T12:33:10.840+03:00  INFO 2836 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1473 ms
+2024-05-19T12:33:11.003+03:00  INFO 2836 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.16.3 by Redgate
+2024-05-19T12:33:11.003+03:00  INFO 2836 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-05-19T12:33:11.003+03:00  INFO 2836 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-05-19T12:33:11.015+03:00  INFO 2836 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-05-19T12:33:11.140+03:00  INFO 2836 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@55e1192
+2024-05-19T12:33:11.142+03:00  INFO 2836 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-05-19T12:33:11.157+03:00  INFO 2836 --- [main] o.f.c.i.database.base.BaseDatabaseType   : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
+2024-05-19T12:33:11.205+03:00  INFO 2836 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.030s)
+2024-05-19T12:33:11.261+03:00  INFO 2836 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2024-05-19T12:33:11.261+03:00  INFO 2836 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2024-05-19T12:33:11.380+03:00  INFO 2836 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-05-19T12:33:11.467+03:00  INFO 2836 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.9.Final
+2024-05-19T12:33:11.471+03:00  INFO 2836 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2024-05-19T12:33:11.640+03:00  INFO 2836 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T12:33:11.765+03:00  INFO 2836 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-05-19T12:33:12.085+03:00  INFO 2836 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-05-19T12:33:12.776+03:00  INFO 2836 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2024-05-19T12:33:12.779+03:00  INFO 2836 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T12:33:13.012+03:00  INFO 2836 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-05-19T12:33:13.807+03:00  WARN 2836 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-05-19T12:33:14.308+03:00  INFO 2836 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2024-05-19T12:33:14.753+03:00  INFO 2836 --- [main] r.a.A.configuration.Initializer          : Bot @AvitoAnalyticsBot was registered!
+2024-05-19T12:33:14.755+03:00  INFO 2836 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Started AvitoAnalyticsBotApplication in 6.228 seconds (process running for 7.224)
+2024-05-19T12:35:17.870+03:00  WARN 2836 --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=55s649ms568µs900ns).
+2024-05-19T12:35:17.932+03:00  INFO 2836 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-05-19T12:35:17.934+03:00  INFO 2836 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-05-19T12:35:17.937+03:00  INFO 2836 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
