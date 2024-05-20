@@ -17,31 +17,31 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AdvertisementServiceImpl implements AdvertisementService {
 
-    private static final String URL = "https://api.avito.ru/core/v1/items?page=%s&per_page=%s";
+    private static final String URL = "https://api.avito.ru/core/v1/items?status=active,old,rejected,removed,blocked&page=%s&per_page=%s&updatedAtFrom=%s";
 
     private final AvitoConfiguration avitoConfiguration;
 
     @Override
-    public List<Advertisement> getAllAdvertisements(String token) {
+    public List<Advertisement> getAllAdvertisements(String token, String updatedAtFrom) {
         int page = 1;
         List<Advertisement> result = new ArrayList<>();
         List<Advertisement> advertisementsPage = getAdvertisementsResponse(token,
                 avitoConfiguration.getMaxAdsPerRequest(),
-                page++);
+                page++, updatedAtFrom);
         while (!advertisementsPage.isEmpty()) {
             result.addAll(advertisementsPage);
             advertisementsPage = getAdvertisementsResponse(token,
                     avitoConfiguration.getMaxAdsPerRequest(),
-                    page++);
+                    page++, updatedAtFrom);
         }
         return result;
     }
 
-    private List<Advertisement> getAdvertisementsResponse(String token, Integer perPage, Integer page) {
+    private List<Advertisement> getAdvertisementsResponse(String token, Integer perPage, Integer page, String updatedAtFrom) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
-        String currentUrl = String.format(URL, page, perPage);
+        String currentUrl = String.format(URL, page, perPage, updatedAtFrom);
         var response = restTemplate.exchange(currentUrl, HttpMethod.GET, new HttpEntity<>(null, headers), ListAdvertisement.class);
         return response.getBody() == null ? new ArrayList<>() : response.getBody().getAdvertisementList();
     }

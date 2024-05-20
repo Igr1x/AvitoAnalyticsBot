@@ -42,7 +42,7 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
         if (listAccounts.isEmpty()) return;
         for (AccountData accountData: listAccounts) {
             String token = statisticAvitoService.getToken(accountData.getClientId(), accountData.getClientSecret());
-            List<Advertisement> advertisementList = advertisementService.getAllAdvertisements(token);
+            List<Advertisement> advertisementList = advertisementService.getAllAdvertisements(token, dateFrom);
             Map<String, List<Long>> advertFromCities = getInfoOnAdvertisement(advertisementList);
             String userId = String.valueOf(accountData.getUserId());
             String range = "Города!A3:G200";

@@ -6,9 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Stats {
+    private String dayOfWeek;
     private String date;
     private int uniqContacts;
     private int uniqFavorites;
@@ -19,16 +21,20 @@ public class Stats {
     private double sumRaise = 0.0;
     private double totalSum = 0.0;
     private double sumContact = 0;
-
-    @Setter
     private double cost;
 
 
-    public Stats(String date, int uniqContacts, int uniqFavorites, int uniqViews) {
+    public Stats(String date, int uniqContacts, int uniqFavorites, int uniqViews, double sumRaise) {
         this.date = date;
         this.uniqContacts = uniqContacts;
         this.uniqFavorites = uniqFavorites;
         this.uniqViews = uniqViews;
+        this.sumRaise = sumRaise;
+    }
+
+    public Stats(String dayOfWeek, String date) {
+        this.dayOfWeek = dayOfWeek;
+        this.date = date;
     }
 
     public void updateFields(double cost) {
@@ -42,13 +48,6 @@ public class Stats {
             sumContact = totalSum / uniqContacts;
         }
     }
-
-    /*public void updateSum() {
-        totalSum = sumRaise + sumViews;
-        if (uniqContacts != 0) {
-            sumContact = totalSum / uniqContacts;
-        }
-    }*/
 
     public void updateSumRaise(double sumRaise) {
         this.sumRaise += sumRaise;

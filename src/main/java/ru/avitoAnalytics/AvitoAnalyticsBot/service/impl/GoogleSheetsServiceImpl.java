@@ -121,14 +121,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return itemsIdWithAccount;
     }
 
-    /*@Override
-    public Map<Long, String> getIdFavouritesItems(Map<String, String> itemsId) {
-        *//*return itemsId.stream()
-                .map(s -> s.substring(s.lastIndexOf('_') + 1))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());*//*
-        return itemsId.
-    }*/
     @Override
     public Map<Long, String> getIdFavouritesItems(Map<String, String> itemsId) {
         return itemsId.entrySet().stream()
