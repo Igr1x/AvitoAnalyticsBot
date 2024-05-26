@@ -16,8 +16,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class AdvertisementServiceImpl implements AdvertisementService {
-
-    private static final String URL = "https://api.avito.ru/core/v1/items?status=active,old,rejected,removed,blocked&page=%s&per_page=%s&updatedAtFrom=%s";
+    ///*,old,rejected,removed,blocked*/
+    private static final String URL = "https://api.avito.ru/core/v1/items?status=active&page=%s&per_page=%s&updatedAtFrom=%s";
 
     private final AvitoConfiguration avitoConfiguration;
 
