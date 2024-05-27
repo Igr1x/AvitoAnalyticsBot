@@ -10,10 +10,11 @@ public interface AccountService {
     Long saveAccount(AccountData accountData);
     Optional<User> getUser(Long telegramId);
     void deleteById(long accountId);
-    List<AccountData> findByUserId(Long userId);
+    List<AccountData> findByUserOwnerId(Long userOwnerId);
     Optional<AccountData> findById(Long id);
     List<AccountData> findAll();
     List<String> findUniqueSheetsRef();
     List<AccountData> findAllBySheetsRef(String sheetsRef);
-    Optional<AccountData> findAllByAccountName(String accountName);
+    Optional<AccountData> findByAccountName(String accountName);
+    Optional<AccountData> findByUserId(Long userId);
 }

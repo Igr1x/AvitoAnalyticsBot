@@ -13,7 +13,8 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<AccountData, Long> {
     List<AccountData> findByUserOwnerId(Long userOwnerId);
     List<AccountData> findAllBySheetsRef(String sheetsRef);
-    Optional<AccountData> findAllByAccountName(String accountName);
+    Optional<AccountData> findByAccountName(String accountName);
+    Optional<AccountData> findByUserId(Long userId);
 
     @Query(value = "select distinct a.sheetsRef from AccountData a")
     List<String> findUniqueSheetsRef();

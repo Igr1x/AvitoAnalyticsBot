@@ -7,6 +7,7 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AdsRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AdsService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -22,5 +23,10 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public Ads save(Ads item) {
         return adsRepository.save(item);
+    }
+
+    @Override
+    public void save(List<Ads> adsList) {
+        adsRepository.save(adsList);
     }
 }

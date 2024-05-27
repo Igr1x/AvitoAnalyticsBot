@@ -36,11 +36,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<AccountData> findByUserId(Long userOwnerId) {
-        return accountRepository.findByUserOwnerId(userOwnerId);
-    }
-
-    @Override
     public Optional<AccountData> findById(Long id) {
         return accountRepository.findById(id);
     }
@@ -51,8 +46,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Optional<AccountData> findAllByAccountName(String accountName) {
-        return accountRepository.findAllByAccountName(accountName);
+    public Optional<AccountData> findByAccountName(String accountName) {
+        return accountRepository.findByAccountName(accountName);
     }
 
     @Override
@@ -61,7 +56,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public List<AccountData> findByUserOwnerId(Long userOwnerId) {
+        return accountRepository.findByUserOwnerId(userOwnerId);
+    }
+
+    @Override
     public List<String> findUniqueSheetsRef() {
         return accountRepository.findUniqueSheetsRef();
+    }
+
+    @Override
+    public Optional<AccountData> findByUserId(Long userId) {
+        return accountRepository.findByUserId(userId);
     }
 }

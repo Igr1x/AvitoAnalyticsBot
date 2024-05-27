@@ -63,7 +63,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
 
     private void setAccountStats(Map<String, List<String>> listSheetsRef) throws GeneralSecurityException, IOException {
         for (Map.Entry<String, List<String>> entry : listSheetsRef.entrySet()) {
-            AccountData account = accountService.findAllByAccountName(entry.getValue().get(0)).get();
+            AccountData account = accountService.findByAccountName(entry.getValue().get(0)).get();
             String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
 
             Pattern pattern = Pattern.compile("D[0-9]+");
