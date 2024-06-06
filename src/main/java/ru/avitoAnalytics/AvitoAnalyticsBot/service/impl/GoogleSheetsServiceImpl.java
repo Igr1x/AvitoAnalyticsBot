@@ -52,7 +52,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     @Override
     public List<List<Object>> getDataFromTable(String sheetId, String range) {
         try {
-            return service.spreadsheets().values().get(sheetId, range).execute().getValues();
+            var result = service.spreadsheets().values().get(sheetId, range).execute().getValues();
+            return result;
         } catch (IOException e) {
             throw new RuntimeException(String.format("Error: read from table %s", sheetId),e);
         }

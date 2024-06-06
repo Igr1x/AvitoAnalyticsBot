@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AdsRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AdsService;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.AvitoCostService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,10 +14,11 @@ import java.util.List;
 @AllArgsConstructor
 public class AdsServiceImpl implements AdsService {
     AdsRepository adsRepository;
+    AvitoCostService avitoCostService;
 
     @Override
     public BigDecimal findCostByAvitoId(Long avitoId) {
-         var item = adsRepository.findById(avitoId);
+        var item = adsRepository.findById(avitoId);
         return item.map(Ads::getCost).orElse(BigDecimal.ZERO);
     }
 
