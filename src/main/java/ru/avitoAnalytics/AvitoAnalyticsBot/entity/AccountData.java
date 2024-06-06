@@ -6,9 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "account_data")
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AccountData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +39,12 @@ public class AccountData {
     @Column(name = "account_name")
     private String accountName;
 
-    public AccountData() {
+    @OneToMany(mappedBy = "ownerId", fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Ads> allAds= new ArrayList<>();
+
+    public void addAds(Ads ads) {
+        allAds.add(ads);
+        ads.setOwnerId(this);
     }
 
     public AccountData(User userOwner, Long userId, String clientId, String clientSecret, String sheetsRef, String accountName) {

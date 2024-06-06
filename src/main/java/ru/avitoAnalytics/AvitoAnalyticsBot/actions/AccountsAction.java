@@ -27,7 +27,7 @@ public class AccountsAction implements Actions<SendMessage>{
     @Override
     public SendMessage handleMessage(Update update, Long chatId) {
         User user = userService.getUser(chatId).orElseThrow();
-        List<AccountData> accounts = accountService.findByUserId(user.getId());
+        List<AccountData> accounts = accountService.findByUserOwnerId(user.getId());
         StringBuilder text = new StringBuilder();
         List<Long> accountsId = new ArrayList<>();
         if (accounts.isEmpty()) {

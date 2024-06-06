@@ -1,6 +1,7 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service;
 
 import com.google.api.services.sheets.v4.model.Sheet;
+import com.google.api.services.sheets.v4.model.ValueRange;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoItems;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.StatSummary;
 
@@ -17,11 +18,11 @@ public interface GoogleSheetsService {
     void insertTemplateSheets(String sheetsRef);
     boolean checkExistSheets(String sheetsRef);
     Map<String, String> getLinksIdFavouriteItems(String sheetsId, String sheetTittle, int p1, int p2);
-    //List<Long> getIdFavouritesItems(List<String> itemsId);
     Map<Long, String> getIdFavouritesItems(Map<String, String> itemsId);
     String getNextColumn(String column);
     Map<String, List<AvitoItems>> getItemsWithRange(String sheetsLink, String range, String sheetTittle, Integer param1, Integer param2);
     Optional<LocalDate> getOldestDate(String sheetsLink, String sheetTittle);
     Optional<String> getSheetByName(String nameSheets, String sheetsRef);
     Map<String, List<String>> getAccountsWithRange(String sheetsLink, String range, String sheetTittle);
+    List<List<Object>> getDataFromTable(String sheetId, String range);
 }

@@ -16,6 +16,7 @@ public class AvitoCost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String region;
     private String category;
     private String subcategory;
     private String subcategory1;

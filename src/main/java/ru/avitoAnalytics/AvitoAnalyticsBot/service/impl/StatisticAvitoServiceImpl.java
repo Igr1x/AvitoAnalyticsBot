@@ -16,7 +16,6 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoResponceOperations;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Operations;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
-import ru.avitoAnalytics.AvitoAnalyticsBot.util.AvitoParser;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.AvitoParserSelenium;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.ContactCost;
 

@@ -8,6 +8,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.Sheets.Spreadsheets.SheetsOperations.CopyTo;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.*;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoItems;
@@ -45,6 +46,16 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                     .build();
         } catch (IOException | GeneralSecurityException e) {
             log.error("Error creating the table server");
+        }
+    }
+
+    @Override
+    public List<List<Object>> getDataFromTable(String sheetId, String range) {
+        try {
+            var result = service.spreadsheets().values().get(sheetId, range).execute().getValues();
+            return result;
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Error: read from table %s", sheetId),e);
         }
     }
 
@@ -96,7 +107,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     @Override
     public Map<String, String> getLinksIdFavouriteItems(String sheetsLink, String sheetTittle, int p1, int p2) {
         String sheetsId = parseTokenFromSheetsRef(sheetsLink);
-        //List<Pair<String, String>> itemsId = new ArrayList<>();
         Map<String, String> itemsIdWithAccount = new LinkedHashMap<>();
         String range = String.format(ADS_ID_RANGE, sheetTittle);
         ValueRange value;
@@ -121,14 +131,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return itemsIdWithAccount;
     }
 
-    /*@Override
-    public Map<Long, String> getIdFavouritesItems(Map<String, String> itemsId) {
-        *//*return itemsId.stream()
-                .map(s -> s.substring(s.lastIndexOf('_') + 1))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());*//*
-        return itemsId.
-    }*/
     @Override
     public Map<Long, String> getIdFavouritesItems(Map<String, String> itemsId) {
         return itemsId.entrySet().stream()
@@ -182,11 +184,9 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     @Override
     public Map<String, List<String>> getAccountsWithRange(String sheetsLink, String range, String sheetTittle) {
-        //List<String> accountList = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 12, 2);
         Map<String, String> accountLinks = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 12, 2);
         Map<String, List<String>> itemsRange = new HashMap<>();
         int i = 0;
-        //for (String account : accountList) {
         for (Map.Entry<String, String> entry : accountLinks.entrySet()) {
             int paramForRange = (i * 12) + 2;
             String currentItemRange = String.format(range, paramForRange, paramForRange);

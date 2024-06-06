@@ -7,13 +7,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
-import ru.avitoAnalytics.AvitoAnalyticsBot.entity.FavouriteItems;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
@@ -39,7 +37,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     AccountService accountService;
     GoogleSheetsService googleSheetsService;
     StatisticAvitoService statisticAvitoService;
-    FavouriteItemsService favouriteItemsService;
+    AdsService adsService;
 
     @Override
     @Scheduled(cron = "0 0 1 * * *")
@@ -311,7 +309,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return item;
     }
 
-    private double getCostForItem(AvitoItems item) {
+    /*private double getCostForItem(AvitoItems item) {
         Long avitoId = item.getItemId();
         double cost = favouriteItemsService.findCostById(avitoId).doubleValue();
         if (cost == 0) {
@@ -319,7 +317,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
             favouriteItemsService.save(new FavouriteItems(avitoId, BigDecimal.valueOf(cost)));
         }
         return cost;
-    }
+    }*/
 
     private List<Function<StatSummary, Object>> getStatSummaryMethods() {
         return List.of(StatSummary::getDayOfWeek,
