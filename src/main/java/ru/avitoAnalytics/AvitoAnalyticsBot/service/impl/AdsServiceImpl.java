@@ -9,6 +9,7 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.service.AvitoCostService;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -17,14 +18,14 @@ public class AdsServiceImpl implements AdsService {
     AvitoCostService avitoCostService;
 
     @Override
-    public BigDecimal findCostByAvitoId(Long avitoId) {
+    public Optional<BigDecimal> findCostByAvitoId(Long avitoId) {
         var item = adsRepository.findById(avitoId);
-        return item.map(Ads::getCost).orElse(BigDecimal.ZERO);
+        return Optional.of(item.map(Ads::getCost).orElse(BigDecimal.ZERO));
     }
 
     @Override
-    public Ads save(Ads item) {
-        return adsRepository.save(item);
+    public void save(Ads item) {
+        adsRepository.save(item);
     }
 
     @Override

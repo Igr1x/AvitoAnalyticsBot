@@ -1,8 +1,10 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.AvitoConfiguration;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
@@ -15,6 +17,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdvertisementServiceImpl implements AdvertisementService {
     ///*,old,rejected,removed,blocked*/
     private static final String URL = "https://api.avito.ru/core/v1/items?status=active&page=%s&per_page=%s&updatedAtFrom=%s";
@@ -30,9 +33,13 @@ public class AdvertisementServiceImpl implements AdvertisementService {
                 page++, updatedAtFrom);
         while (!advertisementsPage.isEmpty()) {
             result.addAll(advertisementsPage);
-            advertisementsPage = getAdvertisementsResponse(token,
-                    avitoConfiguration.getMaxAdsPerRequest(),
-                    page++, updatedAtFrom);
+            try {
+                advertisementsPage = getAdvertisementsResponse(token,
+                        avitoConfiguration.getMaxAdsPerRequest(),
+                        page++, updatedAtFrom);
+            } catch (RestClientException e) {
+                log.error("Error waiting for advertisements response: {}", e.getMessage());
+            }
         }
         return result;
     }

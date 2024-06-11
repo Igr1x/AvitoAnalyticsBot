@@ -20,8 +20,8 @@ public class AccountServiceImpl implements AccountService {
     private final UserRepository userRepository;
 
     @Override
-    public Long saveAccount(AccountData accountData) {
-        return accountRepository.save(accountData).getId();
+    public void saveAccount(AccountData accountData) {
+        accountRepository.save(accountData);
     }
 
     @Override
