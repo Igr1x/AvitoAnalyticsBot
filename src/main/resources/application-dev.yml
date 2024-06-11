@@ -1,0 +1,26 @@
+spring:
+  profiles:
+    active: dev
+  flyway:
+    baseline-on-migrate: true
+  datasource:
+    url: jdbc:postgresql://localhost:5555/AvitoAnalytics
+    username: postgres
+    password: 2513
+    driverClassName: org.postgresql.Driver
+  docker:
+    compose:
+      enabled: true
+      skip:
+        in-tests: true
+      lifecycle-management: start_and_stop
+server:
+  port: 8080
+bot:
+  name: '@AvitoAnalyticsDevBot'
+  token: 6590056450:AAE4gtOzAHDmvJ3kPzZdOOX34GIG1nD8xW8
+avito:
+  statistic:
+    max_items_per_request: 200
+  ads:
+    max_items_per_request: 100

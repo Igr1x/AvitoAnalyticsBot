@@ -39,4 +39,5 @@ public class AvitoCostJdbcRepositoryImpl implements AvitoCostJdbcRepository {
                 region, city, address, category, subcategory, param, param, param, param, param
         );
     }
+
 }
