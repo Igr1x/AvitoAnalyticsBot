@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.actions.*;
-import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfig;
+import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfiguration;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.PatternMap;
@@ -29,7 +29,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final Map<Long, String> bindingBy = new ConcurrentHashMap<>();
 
-    private final BotConfig botConfig;
+    private final BotConfiguration botConfig;
     private final UserService userService;
 
     private final BalanceAction balanceAction;
@@ -46,6 +46,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final SelectedAdsStatisticService selService;
     private final AvitoCostService costService;
     private final ReportHandler reportHandler;
+    private final ParserProcessor parserProcessor;
 
     private final PatternMap<String, Actions<?>> actionsCommand = new PatternMap<>();
     private final PatternMap<String, Actions<?>> actionsKeyboard = new PatternMap<>();
@@ -72,13 +73,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         actionsKeyboard.putPattern(key -> key.startsWith("connect"), connectTariff);
     }
 
-    public TelegramBot(BotConfig botConfig, UserService userService,
+    public TelegramBot(BotConfiguration botConfig, UserService userService,
                        BalanceAction balanceAction, ConnectTariff connectTariff,
                        AccountsAction accountsAction, AddAccountAction addAccountAction,
                        SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount,
                        StartAction startAction, HelpAction helpAction,
                        TariffsAction tariffsAction, TariffAction tariffAction, FullAdsStatisticService services,
-                       SelectedAdsStatisticService selService, AvitoCostService costService, ReportHandler reportHandler) {
+                       SelectedAdsStatisticService selService, AvitoCostService costService, ReportHandler reportHandler, ParserProcessor parserProcessor) {
         this.botConfig = botConfig;
         this.userService = userService;
         this.balanceAction = balanceAction;
@@ -95,6 +96,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.selService = selService;
         this.costService = costService;
         this.reportHandler = reportHandler;
+        this.parserProcessor = parserProcessor;
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("/start", ""));
         listOfCommand.add(new BotCommand("/help", ""));
@@ -109,9 +111,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        reportHandler.reportProcess("357725045");
+        //reportHandler.reportProcess("357725045");
         //services.setStatistic();
         //selService.setStatistic();
+        //parserProcessor.addAds(3901726593L);
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();
             var key = update.getMessage().getText();

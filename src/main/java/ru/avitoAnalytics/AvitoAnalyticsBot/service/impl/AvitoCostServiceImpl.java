@@ -7,6 +7,7 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AvitoCostJdbcRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AvitoCostService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
