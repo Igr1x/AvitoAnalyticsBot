@@ -1,10 +1,11 @@
-package ru.avitoAnalytics.AvitoAnalyticsBot.actions;
+package ru.avitoAnalytics.AvitoAnalyticsBot.actions.impl;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import ru.avitoAnalytics.AvitoAnalyticsBot.actions.Actions;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.BotButtons;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.TelegramChatUtils;
 

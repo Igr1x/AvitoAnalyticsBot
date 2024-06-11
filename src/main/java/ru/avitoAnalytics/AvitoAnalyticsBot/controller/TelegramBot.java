@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.actions.*;
+import ru.avitoAnalytics.AvitoAnalyticsBot.actions.impl.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfiguration;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
