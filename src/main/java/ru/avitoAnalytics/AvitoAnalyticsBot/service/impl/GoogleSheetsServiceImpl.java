@@ -46,7 +46,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                     .setApplicationName(APPLICATION_NAME)
                     .build();
         } catch (IOException | GeneralSecurityException e) {
-            log.error("Error: creating the table server");
+            log.error("Error: creating the table server, message: {}", e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -56,7 +56,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         try {
             return service.spreadsheets().values().get(sheetId, range).execute().getValues();
         } catch (IOException e) {
-            throw new GoogleSheetsInsertException(String.format("Error: get data from table %s", sheetId), e);
+            throw new GoogleSheetsReadException(String.format("Error: get data from table %s", sheetId), e);
         }
     }
 
@@ -68,12 +68,12 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                     .setValueInputOption("USER_ENTERED")
                     .execute();
         } catch (IOException e) {
-            throw new GoogleSheetsReadException(String.format("Error: inserting data into table %s", sheetId), e);
+            throw new GoogleSheetsInsertException(String.format("Error: inserting data into table %s", sheetId), e);
         }
     }
 
     @Override
-    public void insertTemplateSheets(String sheetsRef) {
+    public void insertTemplateSheets(String sheetsRef) throws GoogleSheetsReadException, GoogleSheetsInsertException {
         try {
             List<Integer> sheetsId = getSheetsId(FROM_SHEETS_ID);
 
@@ -86,10 +86,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                 request.execute();
             }
             setSheetsTitle(toSheetsId);
-        } catch (GoogleSheetsReadException e) {
-            throw new GoogleSheetsReadException(e);
-        } catch (GoogleSheetsInsertException e) {
-            throw new GoogleSheetsInsertException(e);
         } catch (IOException e) {
             throw new GoogleSheetsInsertException(String.format("Error: inserting new sheets into %s", sheetsRef), e);
         }
@@ -104,21 +100,17 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         }
     }
 
-    private List<Integer> getSheetsId(String sheetsRef) {
-        try {
-            List<Sheet> sheets = getSheetsFromSpreadsheets(sheetsRef);
+    private List<Integer> getSheetsId(String sheetsRef) throws GoogleSheetsReadException {
+        List<Sheet> sheets = getSheetsFromSpreadsheets(sheetsRef);
 
-            List<Integer> sheetsId = new ArrayList<>();
-            for (Sheet sheet : sheets) {
-                sheetsId.add(sheet.getProperties().getSheetId());
-            }
-            return sheetsId;
-        } catch (GoogleSheetsReadException e) {
-            throw new GoogleSheetsReadException(e);
+        List<Integer> sheetsId = new ArrayList<>();
+        for (Sheet sheet : sheets) {
+            sheetsId.add(sheet.getProperties().getSheetId());
         }
+        return sheetsId;
     }
 
-    private void setSheetsTitle(String sheetsId) {
+    private void setSheetsTitle(String sheetsId) throws GoogleSheetsReadException {
         try {
             List<Sheet> sheets = getSheetsFromSpreadsheets(sheetsId);
 
@@ -137,8 +129,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                 BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
                 service.spreadsheets().batchUpdate(sheetsId, body).execute();
             }
-        } catch (GoogleSheetsReadException e) {
-            throw new GoogleSheetsReadException(e);
         } catch (IOException e) {
             throw new GoogleSheetsInsertException(String.format("Error: set new sheets title into %s", sheetsId), e);
         }
@@ -179,7 +169,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             } catch (IOException e) {
                 throw new GoogleSheetsReadException(String.format("Error: read account name from %s", sheetsId));
             } catch (InterruptedException e) {
-
+                throw new RuntimeException(e.getMessage());
             }
         }
         return itemsIdWithAccount;
@@ -215,7 +205,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public Map<String, List<AvitoItems>> getItemsWithRange(String sheetsLink, String range, String sheetTittle, Integer param1, Integer param2) {
+    public Map<String, List<AvitoItems>> getItemsWithRange(String sheetsLink, String range, String sheetTittle, Integer param1, Integer param2) throws GoogleSheetsReadException {
         List<AvitoItems> listItems = getItemsWithLink(sheetsLink, sheetTittle);
         Map<String, List<AvitoItems>> itemsRange = new HashMap<>();
         int i = 0;
@@ -247,7 +237,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public Map<String, List<String>> getAccountsWithRange(String sheetsLink, String range, String sheetTittle) {
+    public Map<String, List<String>> getAccountsWithRange(String sheetsLink, String range, String sheetTittle) throws GoogleSheetsReadException {
         Map<String, String> accountLinks = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 12, 2);
         Map<String, List<String>> itemsRange = new HashMap<>();
         int i = 0;

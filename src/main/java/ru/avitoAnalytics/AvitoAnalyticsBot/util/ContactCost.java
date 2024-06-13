@@ -14,7 +14,7 @@ import java.util.List;
 public class ContactCost {
     private ContactCost(){};
 
-    public static Double GetCostContact(List<String> searchList) throws Exception {
+    public static Double getCostContact(List<String> searchList) throws Exception {
         String excelFilePath = "classpath:cost.xlsx";
         return findRowByValues(excelFilePath, searchList);
     }

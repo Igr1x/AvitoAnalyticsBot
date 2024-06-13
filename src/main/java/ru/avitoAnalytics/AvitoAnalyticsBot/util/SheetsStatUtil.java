@@ -11,6 +11,8 @@ import java.util.Locale;
 @UtilityClass
 public class SheetsStatUtil {
 
+    private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
+
     public static List<StatSummary> setStatsWeek(LocalDate lastDate) {
         String templateForStats = "=SUM(OFFSET(INDIRECT(ADDRESS(ROW();COLUMN();));0;-7;1;7))";
         String templateForCV = "=CELL(\"contents\"; INDIRECT(ADDRESS(ROW()+1;COLUMN();))) / CELL(\"contents\"; INDIRECT(ADDRESS(ROW()-1;COLUMN();)))";
@@ -36,6 +38,10 @@ public class SheetsStatUtil {
             newDate = newDate.minusDays(1);
         }
         return newDate;
+    }
+
+    public static String getSheetsIdFromLink(String googleSheetsLink) {
+        return googleSheetsLink.substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0];
     }
 
 }

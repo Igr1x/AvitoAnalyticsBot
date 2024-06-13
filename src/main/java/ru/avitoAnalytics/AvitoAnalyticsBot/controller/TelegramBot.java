@@ -187,11 +187,10 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void registrationUser(String username, Long chatId) {
-        User user = userService.getUser(chatId).orElseGet(() ->
-        {
+        userService.getUser(chatId).ifPresentOrElse(user -> {}, () -> {
             User added = new User(username, chatId.toString());
             log.info("Added new user with name {} and id {}", username, chatId);
-            return userService.saveUser(added);
+            userService.saveUser(added);
         });
     }
 

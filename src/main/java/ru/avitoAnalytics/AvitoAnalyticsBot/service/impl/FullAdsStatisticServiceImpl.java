@@ -1,13 +1,14 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
@@ -33,7 +34,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
     private final AccountService accountService;
     private final GoogleSheetsService googleSheetsService;
     private final StatisticAvitoService statisticAvitoService;
-    private final AdvertisementService advertisementService;
+    private final AdvertisementAvitoService advertisementAvitoService;
 
     public static String name;
 
@@ -45,27 +46,54 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         if (listLinks.isEmpty()) {
             return;
         }
-        updateAccountStats(listLinks);
+        try {
+            updateAccountStats(listLinks);
+        } catch (SheetsNotExistedException e) {
+
+        }
     }
 
     private void updateAccountStats(List<String> listSheetsRef) {
         for (String sheetRef : listSheetsRef) {
-            String sheetName = googleSheetsService.getSheetByName("StatAcc#", sheetRef.substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
-            name = sheetName;
-            var sheetWithRangeMap = googleSheetsService.getAccountsWithRange(sheetRef, String.format(RANGE_FOR_GET_LAST_COLUMN, sheetName), sheetName);
+            String sheetName;
             try {
+                sheetName = googleSheetsService.getSheetByName("StatAcc#", SheetsStatUtil.getSheetsIdFromLink(sheetRef))
+                        .orElseThrow(() -> new SheetsNotExistedException(String.format("Not found sheet by name, sheet id %s", sheetRef)));
+            } catch (SheetsNotExistedException e) {
+                log.warn(e.getMessage());
+                log.warn(e.getCause().getMessage());
+                continue;
+            }
+            name = sheetName;
+            try {
+                var sheetWithRangeMap = googleSheetsService.getAccountsWithRange(sheetRef, String.format(RANGE_FOR_GET_LAST_COLUMN, sheetName), sheetName);
                 setAccountStats(sheetWithRangeMap);
-            } catch (GeneralSecurityException | IOException e) {
+            } catch (GoogleSheetsReadException e) {
                 log.error(e.getMessage());
+                log.error(e.getCause().getMessage());
             }
         }
     }
 
-    private void setAccountStats(Map<String, List<String>> listSheetsRef) throws GeneralSecurityException, IOException {
+    private void setAccountStats(Map<String, List<String>> listSheetsRef) {
         for (Map.Entry<String, List<String>> entry : listSheetsRef.entrySet()) {
-            AccountData account = accountService.findByAccountName(entry.getValue().get(0)).get();
-            String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
-
+            AccountData account = null;
+            try {
+                account = accountService.findByAccountName(entry.getValue().get(0))
+                        .orElseThrow(() -> new AccountNotFoundException(String.format("Account %s not found", entry.getValue().get(0))));
+            } catch (AccountNotFoundException e) {
+                log.warn(e.getMessage());
+                log.warn(e.getCause().getMessage());
+                continue;
+            }
+            String token;
+            try {
+                token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
+            } catch (JsonProcessingException | AvitoResponseException e) {
+                log.error(e.getMessage());
+                log.error(e.getCause().getMessage());
+                continue;
+            }
             Pattern pattern = Pattern.compile("D[0-9]+");
             Matcher matcher = pattern.matcher(entry.getKey());
             if (matcher.find()) {
@@ -79,8 +107,10 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                             .toList();
                     googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
                     continue;
-                } catch (GeneralSecurityException | IOException e) {
+                } catch (GoogleSheetsInsertException | GoogleSheetsReadException | AdvertisementServiceException | AvitoResponseException e) {
                     log.error(e.getMessage());
+                    log.error(e.getCause().getMessage());
+                    continue;
                 }
             }
             var list = getYesterdayStats(account, token);
@@ -89,12 +119,16 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                             map(mapper)
                             .collect(Collectors.toList()))
                     .toList();
-            googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
-            System.out.println();
+            try {
+                googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), SheetsStatUtil.getSheetsIdFromLink(account.getSheetsRef()));
+            } catch (GoogleSheetsInsertException e) {
+                log.error(e.getMessage());
+                log.error(e.getCause().getMessage());
+            }
         }
     }
 
-    private List<StatSummary> getOldStats(AccountData account, String range, String token) {
+    /*private List<StatSummary> getOldStats(AccountData account, String range, String token) {
         Optional<LocalDate> oldDateOpt = googleSheetsService.getOldestDate(account.getSheetsRef(), name);
         if (oldDateOpt.isEmpty()) {
             LocalDate oldestDate = LocalDate.now().minusDays(270);
@@ -118,18 +152,16 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         }
         allStats.addAll(getYesterdayStats(account, token));
         return allStats;
-    }
+    }*/
 
-    private List<StatSummary> getSummaryStat(AccountData account, String token) {
+    private List<StatSummary> getSummaryStat(AccountData account, String token) throws GoogleSheetsReadException, AdvertisementServiceException, AvitoResponseException {
         LocalDate oldestDate = LocalDate.now().minusDays(269);
         oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), name).orElse(oldestDate);
         LocalDate oldDate = oldestDate;
-        List<Advertisement> allAds1 = advertisementService.getAllAdvertisements(token, "2024-05-20");
-        List<Advertisement> allAds2 = advertisementService.getAllAdvertisements(token, "2024-05-14");
         Map<LocalDate, Stats> mapStats = new TreeMap<>();
         int i = 0;
         while (oldestDate.isBefore(LocalDate.now().minusDays(1))) {
-            List<Advertisement> allAds = advertisementService.getAllAdvertisements(token, oldestDate.toString());
+            List<Advertisement> allAds = advertisementAvitoService.getAllAdvertisements(token, oldestDate.toString());
             List<Long> listId = allAds.stream()
                     .map(Advertisement::getId)
                     .toList();
@@ -137,7 +169,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
 
             for (Items item : itemsWithStats) {
                 var currentItemStats = item.getStats();
-                for (Stats stat: currentItemStats) {
+                for (Stats stat : currentItemStats) {
                     LocalDate currentDate = LocalDate.parse(stat.getDate());
                     if (mapStats.containsKey(currentDate)) {
                         if (currentDate.equals(LocalDate.parse("2024-02-10"))) {
@@ -201,9 +233,9 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         return Pair.of(missingDayStats, date);
     }
 
-    private List<StatSummary> getYesterdayStats(AccountData account, String token) {
+    private List<StatSummary> getYesterdayStats(AccountData account, String token) throws AdvertisementServiceException {
         LocalDate yesterday = LocalDate.now().minusDays(1);
-        List<Advertisement> allAds = advertisementService.getAllAdvertisements(token, yesterday.toString());
+        List<Advertisement> allAds = advertisementAvitoService.getAllAdvertisements(token, yesterday.toString());
         List<Long> listId = allAds.stream()
                 .map(Advertisement::getId)
                 .toList();
@@ -228,7 +260,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
     }
 
 
-    private double getAllExpenses(String token, LocalDate date) {
+    private double getAllExpenses(String token, LocalDate date) throws AvitoResponseException {
         List<Operations> operations = statisticAvitoService.getAmountExpenses(token, date, date);
         return operations.stream()
                 .mapToDouble(Operations::getAmountTotal)

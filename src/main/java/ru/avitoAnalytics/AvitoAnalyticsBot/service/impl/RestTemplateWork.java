@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,7 +23,7 @@ public class RestTemplateWork {
     }
 
     public ResponseEntity<String> getResponse(String URL, MultiValueMap<String, String> map,
-                                               HttpEntity<MultiValueMap<String, String>> request) {
+                                               HttpEntity<MultiValueMap<String, String>> request) throws RestClientException {
         RestTemplate restTemplate = new RestTemplate();
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(URL).queryParams(map);
