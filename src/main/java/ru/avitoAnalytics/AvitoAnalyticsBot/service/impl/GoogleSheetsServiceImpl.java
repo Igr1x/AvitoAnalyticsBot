@@ -28,7 +28,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     private static final String APPLICATION_NAME = "Google Sheets Example";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final String FROM_SHEETS_ID = "1WJ-Url5L6obzKMUtCUxkk3KKZYeV7NmSuCRP6MAWQR4";
+    private static final String FROM_SHEETS_ID = "1c_VR7A-mnR7rpJ6dfcRBnjJGIIX2vIsxiZ2F2TcUrP4";
     private static final String PREFIX_SHEETS_REF = "https://docs.google.com/spreadsheets/d/";
     private static final String ADS_ID_RANGE = "%s!B%%d:C%%d";
     private static final String OLDEST_DATE_ADS_RANGE = "%s!D2:D2";
