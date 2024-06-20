@@ -1,29 +1,32 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Rates;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
-import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.RatesRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.UserRepository;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.RatesService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RatesRepository ratesRepository;
+    private final RatesService ratesService;
 
     @Override
-    public User saveUser(User user) {
-        Rates rates = ratesRepository.findById(4L).get();
+    public void saveUser(User user) {
+        Rates rates = getRates(4L);
         user.setRate(rates);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     @Override
@@ -54,10 +57,9 @@ public class UserServiceImpl implements UserService {
             }
         }
         else {
-            Rates withoutRate = ratesRepository.findById(4L).get();
+            Rates withoutRate = getRates(4L);
             user.setRate(withoutRate);
         }
-
         updateUserData(user);
     }
 
@@ -67,4 +69,10 @@ public class UserServiceImpl implements UserService {
         return currentDate.isBefore(endTariff);
     }
 
+    private Rates getRates(Long id) {
+        return ratesService.getRate(id).orElseThrow(() -> {
+            log.error("Rates {} not found", id);
+            return new RuntimeException();
+        });
+    }
 }

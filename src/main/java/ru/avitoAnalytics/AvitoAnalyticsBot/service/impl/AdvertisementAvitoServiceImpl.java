@@ -1,21 +1,23 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.AvitoConfiguration;
-import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.AdvertisementServiceException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Advertisement;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.ListAdvertisement;
-import ru.avitoAnalytics.AvitoAnalyticsBot.service.AdvertisementService;
-import ru.avitoAnalytics.AvitoAnalyticsBot.service.StatisticAvitoService;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.AdvertisementAvitoService;
 
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class AdvertisementServiceImpl implements AdvertisementService {
+@Slf4j
+public class AdvertisementAvitoServiceImpl implements AdvertisementAvitoService {
     ///*,old,rejected,removed,blocked*/
     private static final String URL = "https://api.avito.ru/core/v1/items?status=active&page=%s&per_page=%s&updatedAtFrom=%s";
 
@@ -30,9 +32,13 @@ public class AdvertisementServiceImpl implements AdvertisementService {
                 page++, updatedAtFrom);
         while (!advertisementsPage.isEmpty()) {
             result.addAll(advertisementsPage);
-            advertisementsPage = getAdvertisementsResponse(token,
-                    avitoConfiguration.getMaxAdsPerRequest(),
-                    page++, updatedAtFrom);
+            try {
+                advertisementsPage = getAdvertisementsResponse(token,
+                        avitoConfiguration.getMaxAdsPerRequest(),
+                        page++, updatedAtFrom);
+            } catch (RestClientException e) {
+                throw new AdvertisementServiceException(String.format("Error: get all ads, page - %d", page), e);
+            }
         }
         return result;
     }

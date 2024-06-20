@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public interface GoogleSheetsService {
 
-    void insertStatisticIntoTable(List<List<Object>> data, String range, String sheetId) throws IOException, GeneralSecurityException;
+    void insertStatisticIntoTable(List<List<Object>> data, String range, String sheetId);
     void insertTemplateSheets(String sheetsRef);
     boolean checkExistSheets(String sheetsRef);
     Map<String, String> getLinksIdFavouriteItems(String sheetsId, String sheetTittle, int p1, int p2);

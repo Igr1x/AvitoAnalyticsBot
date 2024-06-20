@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AccountService {
-    Long saveAccount(AccountData accountData);
+    void saveAccount(AccountData accountData);
     Optional<User> getUser(Long telegramId);
     void deleteById(long accountId);
     List<AccountData> findByUserOwnerId(Long userOwnerId);

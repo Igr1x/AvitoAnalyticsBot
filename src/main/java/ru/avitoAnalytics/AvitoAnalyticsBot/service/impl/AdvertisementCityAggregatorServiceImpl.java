@@ -1,28 +1,34 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.AvitoResponseException;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsInsertException;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsReadException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Advertisement;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Stats;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggregatorService {
 
     private final AccountService accountService;
     private final StatisticAvitoService statisticAvitoService;
-    private final AdvertisementService advertisementService;
+    private final AdvertisementAvitoService advertisementAvitoService;
     private final GoogleSheetsService googleSheetsService;
-
-    private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
 
     @Override
     public Map<String, List<Long>> getInfoOnAdvertisement(List<Advertisement> advertisementList) {
@@ -41,8 +47,14 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
         List<AccountData> listAccounts = accountService.findAll();
         if (listAccounts.isEmpty()) return;
         for (AccountData accountData: listAccounts) {
-            String token = statisticAvitoService.getToken(accountData.getClientId(), accountData.getClientSecret());
-            List<Advertisement> advertisementList = advertisementService.getAllAdvertisements(token, dateFrom);
+            String token = null;
+            try {
+                token = statisticAvitoService.getToken(accountData.getClientId(), accountData.getClientSecret());
+            } catch (JsonProcessingException | AvitoResponseException e) {
+                log.error("Error: while getting token for account {}, error message: {}", accountData.toString(), e.getMessage());
+                continue;
+            }
+            List<Advertisement> advertisementList = advertisementAvitoService.getAllAdvertisements(token, dateFrom);
             Map<String, List<Long>> advertFromCities = getInfoOnAdvertisement(advertisementList);
             String userId = String.valueOf(accountData.getUserId());
             String range = "Города!A3:G200";
@@ -60,9 +72,10 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
                 statsCities.add(statsCity);
             }
             try {
-                googleSheetsService.insertStatisticIntoTable(statsCities, range, accountData.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
-            } catch (IOException | GeneralSecurityException e) {
-                e.printStackTrace();
+                googleSheetsService.insertStatisticIntoTable(statsCities, range, SheetsStatUtil.getSheetsIdFromLink(accountData.getSheetsRef()));
+            } catch (GoogleSheetsReadException | GoogleSheetsInsertException e) {
+                log.error(e.getMessage());
+                log.error(e.getCause().getMessage());
             }
         }
     }

@@ -1,5 +1,6 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -7,6 +8,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.AvitoResponseException;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsInsertException;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsReadException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
@@ -60,19 +64,22 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                 continue;
             }
             for (AccountData account : listAccounts) {
+                try {
+                    String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
 
-                String token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
+                    LocalDate dateNow = LocalDate.now();
 
-                LocalDate dateNow = LocalDate.now();
+                    List<Operations> operations = statisticAvitoService.getAmountExpenses(token, dateNow.minusDays(269), dateNow);
 
-                List<Operations> operations = statisticAvitoService.getAmountExpenses(token, dateNow.minusDays(269), dateNow);
+                    StringBuilder maxRange = new StringBuilder(title + '!' + "D%d:RH%d");
+                    List<Items> statsMaxDepth = statisticAvitoService.getStatistic(getListId(map, k -> k.contains(maxRange), account.getAccountName()), token, account.getUserId().toString(), dateNow.minusDays(270).toString(), dateNow.minusDays(1).toString());
+                    List<Items> statsLastDay = statisticAvitoService.getStatistic(getListId(map, k -> !k.contains(maxRange), account.getAccountName()), token, account.getUserId().toString(), dateNow.minusDays(1).toString(), dateNow.minusDays(1).toString());
 
-                StringBuilder maxRange = new StringBuilder(title + '!' + "D%d:RH%d");
-                List<Items> statsMaxDepth = statisticAvitoService.getStatistic(getListId(map, k -> k.contains(maxRange), account.getAccountName()), token, account.getUserId().toString(), dateNow.minusDays(270).toString(), dateNow.minusDays(1).toString());
-                List<Items> statsLastDay = statisticAvitoService.getStatistic(getListId(map, k -> !k.contains(maxRange), account.getAccountName()), token, account.getUserId().toString(), dateNow.minusDays(1).toString(), dateNow.minusDays(1).toString());
-
-                updateStats(account, statsMaxDepth, operations, map, dateNow, title);
-                updateStats(account, statsLastDay, operations, map, dateNow.minusDays(1), title);
+                    updateStats(account, statsMaxDepth, operations, map, dateNow, title);
+                    updateStats(account, statsLastDay, operations, map, dateNow.minusDays(1), title);
+                } catch (JsonProcessingException | AvitoResponseException e) {
+                    log.error(e.getMessage());
+                }
             }
         }
     }
@@ -93,7 +100,13 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         }
         LocalDate oldestDate = getOldestStatisticDate(itemsList, dateNow.minusDays(270));
         if (dateNow.equals(LocalDate.now())) {
-            oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), tittle).orElse(oldestDate);
+            try {
+                oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), tittle).orElse(oldestDate);
+            } catch (GoogleSheetsReadException e) {
+                log.error(e.getMessage());
+                log.error(e.getCause().getMessage());
+                return;
+            }
         }
         if (dateNow.equals(LocalDate.now().minusDays(1))) {
             oldestDate = LocalDate.now().minusDays(1);
@@ -118,8 +131,10 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                     .collect(Collectors.toList());
             try {
                 googleSheetsService.insertStatisticIntoTable(all, item.getRange(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
-            } catch (IOException | GeneralSecurityException e) {
+            } catch (GoogleSheetsInsertException e) {
                 log.error(e.getMessage());
+                log.error(e.getCause().getMessage());
+                return;
             }
         }
     }
@@ -144,8 +159,9 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         String newRange = createRangeForDate(range, days, tittle);
         try {
             googleSheetsService.insertStatisticIntoTable(daysList, newRange, account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
-        } catch (IOException | GeneralSecurityException e) {
+        } catch (GoogleSheetsInsertException e) {
             log.error(e.getMessage());
+            log.error("Account data - {}", account.toString());
         }
     }
 
@@ -197,9 +213,12 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     private void insertDate(AccountData account, Items item, LocalDate oldestDate, String tittle) {
         Matcher matcher = getMatcherForCololumn(item.getRange());
         String first = null;
-        if (matcher.find()) {
-            first = matcher.group(1);
+        if (!matcher.find()) {
+            //@TODO исключение если не находит матчер
+            log.error("Error: matcher not found range, item range - {}", item.getRange());
+            throw new RuntimeException();
         }
+        first = matcher.group(1);
         int quantityDays = 365;
         if (!first.equals("D")) {
             quantityDays = 30;
@@ -255,8 +274,11 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
 
     private LocalDate getFirstStatisticDay(List<Items> itemsList, LocalDate dateFrom) {
         LocalDate oldestDate = dateFrom;
-        for (int i = 0; i < itemsList.size(); i++) {
-            List<Stats> listStats = itemsList.get(i).getStats();
+        if (itemsList.isEmpty()) {
+            return oldestDate;
+        }
+        for (Items items : itemsList) {
+            List<Stats> listStats = items.getStats();
             if (!listStats.isEmpty()) {
                 oldestDate = LocalDate.parse(listStats.get(0).getDate());
                 break;

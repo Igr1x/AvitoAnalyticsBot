@@ -8,9 +8,10 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.Sheets.Spreadsheets.SheetsOperations.CopyTo;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.*;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsInsertException;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsReadException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.AvitoItems;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.GoogleSheetsService;
 
@@ -27,7 +28,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     private static final String APPLICATION_NAME = "Google Sheets Example";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final String FROM_SHEETS_ID = "1WJ-Url5L6obzKMUtCUxkk3KKZYeV7NmSuCRP6MAWQR4";
+    private static final String FROM_SHEETS_ID = "1c_VR7A-mnR7rpJ6dfcRBnjJGIIX2vIsxiZ2F2TcUrP4";
     private static final String PREFIX_SHEETS_REF = "https://docs.google.com/spreadsheets/d/";
     private static final String ADS_ID_RANGE = "%s!B%%d:C%%d";
     private static final String OLDEST_DATE_ADS_RANGE = "%s!D2:D2";
@@ -45,38 +46,36 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                     .setApplicationName(APPLICATION_NAME)
                     .build();
         } catch (IOException | GeneralSecurityException e) {
-            log.error("Error creating the table server");
+            log.error("Error: creating the table server, message: {}", e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public List<List<Object>> getDataFromTable(String sheetId, String range) {
         try {
-            var result = service.spreadsheets().values().get(sheetId, range).execute().getValues();
-            return result;
+            return service.spreadsheets().values().get(sheetId, range).execute().getValues();
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Error: read from table %s", sheetId),e);
+            throw new GoogleSheetsReadException(String.format("Error: get data from table %s", sheetId), e);
         }
     }
 
     @Override
-    public void insertStatisticIntoTable(List<List<Object>> data, String range, String sheetId) throws IOException {
+    public void insertStatisticIntoTable(List<List<Object>> data, String range, String sheetId) {
         ValueRange body = new ValueRange().setValues(data);
-        service.spreadsheets().values().update(sheetId, range, body)
-                .setValueInputOption("USER_ENTERED")
-                .execute();
+        try {
+            service.spreadsheets().values().update(sheetId, range, body)
+                    .setValueInputOption("USER_ENTERED")
+                    .execute();
+        } catch (IOException e) {
+            throw new GoogleSheetsInsertException(String.format("Error: inserting data into table %s", sheetId), e);
+        }
     }
 
     @Override
-    public void insertTemplateSheets(String sheetsRef) {
+    public void insertTemplateSheets(String sheetsRef) throws GoogleSheetsReadException, GoogleSheetsInsertException {
         try {
-            Spreadsheet spreadsheet = service.spreadsheets().get(FROM_SHEETS_ID).execute();
-            List<Sheet> sheets = spreadsheet.getSheets();
-
-            List<Integer> sheetsId = new ArrayList<>();
-            for (Sheet sheet : sheets) {
-                sheetsId.add(sheet.getProperties().getSheetId());
-            }
+            List<Integer> sheetsId = getSheetsId(FROM_SHEETS_ID);
 
             String toSheetsId = parseTokenFromSheetsRef(sheetsRef);
 
@@ -88,7 +87,50 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             }
             setSheetsTitle(toSheetsId);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new GoogleSheetsInsertException(String.format("Error: inserting new sheets into %s", sheetsRef), e);
+        }
+    }
+
+    private List<Sheet> getSheetsFromSpreadsheets(String sheetsRef) {
+        try {
+            Spreadsheet spreadsheet = service.spreadsheets().get(sheetsRef).execute();
+            return spreadsheet.getSheets();
+        } catch (IOException e) {
+            throw new GoogleSheetsReadException(String.format("Error: get all sheets from sheets %s", sheetsRef), e);
+        }
+    }
+
+    private List<Integer> getSheetsId(String sheetsRef) throws GoogleSheetsReadException {
+        List<Sheet> sheets = getSheetsFromSpreadsheets(sheetsRef);
+
+        List<Integer> sheetsId = new ArrayList<>();
+        for (Sheet sheet : sheets) {
+            sheetsId.add(sheet.getProperties().getSheetId());
+        }
+        return sheetsId;
+    }
+
+    private void setSheetsTitle(String sheetsId) throws GoogleSheetsReadException {
+        try {
+            List<Sheet> sheets = getSheetsFromSpreadsheets(sheetsId);
+
+            for (Sheet sheet : sheets) {
+                SheetProperties properties = sheet.getProperties();
+                String titleSheet = deleteSubstringFromTitleSheet(properties.getTitle(), "(копия)");
+                Integer sheetId = properties.getSheetId();
+                List<Request> requests = new ArrayList<>();
+                Request request = new Request()
+                        .setUpdateSheetProperties(new UpdateSheetPropertiesRequest()
+                                .setProperties(new SheetProperties()
+                                        .setSheetId(sheetId)
+                                        .setTitle(titleSheet))
+                                .setFields("title"));
+                requests.add(request);
+                BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+                service.spreadsheets().batchUpdate(sheetsId, body).execute();
+            }
+        } catch (IOException e) {
+            throw new GoogleSheetsInsertException(String.format("Error: set new sheets title into %s", sheetsId), e);
         }
     }
 
@@ -100,7 +142,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             Spreadsheet spreadsheet = service.spreadsheets().get(sheetsId).execute();
             return spreadsheet != null;
         } catch (IOException ex) {
-            return false;
+            throw new GoogleSheetsReadException(String.format("Error: check exist sheets %s", sheetsRef), ex);
         }
     }
 
@@ -114,7 +156,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             int currentRange = (i * p1) + p2;
             try {
                 value = service.spreadsheets().values().get(sheetsId, String.format(range, currentRange, currentRange)).execute();
-                if (value.getValues() == null) {
+                if (value.getValues() == null || value.getValues().isEmpty()) {
                     break;
                 }
                 String itemId = value.getValues().get(0).get(0).toString();
@@ -123,9 +165,11 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                     accountData = value.getValues().get(0).get(1).toString();
                 }
                 itemsIdWithAccount.put(itemId, accountData);
-                Thread.sleep(5L);
-            } catch (IOException | InterruptedException e) {
-                //@TODO
+                Thread.currentThread().sleep(5L);
+            } catch (IOException e) {
+                throw new GoogleSheetsReadException(String.format("Error: read account name from %s", sheetsId));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e.getMessage());
             }
         }
         return itemsIdWithAccount;
@@ -141,8 +185,6 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                         LinkedHashMap::new
                 ));
     }
-
-
 
     @Override
     public String getNextColumn(String column) {
@@ -163,7 +205,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public Map<String, List<AvitoItems>> getItemsWithRange(String sheetsLink, String range, String sheetTittle, Integer param1, Integer param2) {
+    public Map<String, List<AvitoItems>> getItemsWithRange(String sheetsLink, String range, String sheetTittle, Integer param1, Integer param2) throws GoogleSheetsReadException {
         List<AvitoItems> listItems = getItemsWithLink(sheetsLink, sheetTittle);
         Map<String, List<AvitoItems>> itemsRange = new HashMap<>();
         int i = 0;
@@ -182,8 +224,20 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return itemsRange;
     }
 
+    private List<AvitoItems> getItemsWithLink(String sheetsLink, String sheetTittle) {
+        Map<String, String> itemsId = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 15, 2);
+        Map<Long, String> itemsLongId = getIdFavouritesItems(itemsId);
+        List<AvitoItems> result = new ArrayList<>();
+        int i = 0;
+        for (Map.Entry<Long, String> entry : itemsLongId.entrySet()) {
+            result.add(new AvitoItems((long) i, entry.getKey(), String.format(AVITO, entry.getKey()), entry.getValue()));
+            i++;
+        }
+        return result;
+    }
+
     @Override
-    public Map<String, List<String>> getAccountsWithRange(String sheetsLink, String range, String sheetTittle) {
+    public Map<String, List<String>> getAccountsWithRange(String sheetsLink, String range, String sheetTittle) throws GoogleSheetsReadException {
         Map<String, String> accountLinks = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 12, 2);
         Map<String, List<String>> itemsRange = new HashMap<>();
         int i = 0;
@@ -202,6 +256,39 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return itemsRange;
     }
 
+    private String createRange(String nextColumn, String dopColumn, String sheetTittle) {
+        if (nextColumn.equals("C")) {
+            String range = "%s!D%%d:RH%%d";
+            return String.format(range, sheetTittle);
+        }
+        StringBuilder range = new StringBuilder(sheetTittle);
+        range.append("!").append(nextColumn).append("%d:").append(dopColumn).append("%d");
+        return range.toString();
+    }
+
+    private String getDopColumn(String column) {
+        char[] chars = column.toCharArray();
+        int length = chars.length;
+        int index = length - 1;
+
+        while (index >= 0) {
+            if (chars[index] == 'Z') {
+                chars[index] = 'B';
+                index--;
+                if (index < 0) {
+                    return "AB";
+                }
+            } else if (chars[index] == 'Y') {
+                chars[index] = 'A';
+                return "B" + new String(chars);
+            } else {
+                chars[index] += 2;
+                return new String(chars);
+            }
+        }
+        return "B" + new String(chars);
+    }
+
     @Override
     public Optional<LocalDate> getOldestDate(String sheetsLink, String sheetTittle) {
         String range = String.format(OLDEST_DATE_ADS_RANGE, sheetTittle);
@@ -211,10 +298,10 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             if (value.getValues() != null) {
                 return Optional.of(LocalDate.parse(value.getValues().get(0).get(0).toString()));
             }
+            return Optional.empty();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new GoogleSheetsReadException(String.format("Error: read oldest date from %s", sheetsLink), e);
         }
-        return Optional.empty();
     }
 
     @Override
@@ -226,60 +313,10 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                     return Optional.of(sheet.getProperties().getTitle());
                 }
             }
+            return Optional.empty();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new GoogleSheetsReadException(String.format("Error: read by sheets name %s from %s", nameSheets, sheetsRef), e);
         }
-        return Optional.empty();
-    }
-
-    private String getDopColumn(String column) {
-        char[] chars = column.toCharArray();
-        int length = chars.length;
-        int index = length - 1;
-
-        while (index >= 0) {
-            if (chars[index] == 'Z') {
-                chars[index] = 'B'; // Z -> B
-                index--;
-                if (index < 0) {
-                    return "AB"; // Если Z был первым и единственным символом, вернем AB
-                }
-            } else if (chars[index] == 'Y') {
-                chars[index] = 'A'; // Y -> A
-                return "B" + new String(chars); // Добавляем B перед строкой
-            } else {
-                chars[index] += 2; // Увеличиваем символ на 2
-                return new String(chars);
-            }
-        }
-        return "B" + new String(chars); // Для случая, когда все символы были Z
-    }
-
-    private List<AvitoItems> getItemsWithLink(String sheetsLink, String sheetTittle) {
-        //List<String> itemsId = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 15, 2);
-        Map<String, String> itemsId = getLinksIdFavouriteItems(sheetsLink, sheetTittle, 15, 2);
-        //List<Long> itemsLongId = getIdFavouritesItems(itemsId);
-        Map<Long, String> itemsLongId = getIdFavouritesItems(itemsId);
-        List<AvitoItems> result = new ArrayList<>();
-        /*for (int i = 0; i < itemsLongId.size(); i++) {
-            result.add(new AvitoItems((long) i, itemsLongId.get(i), itemsId.get(i)));
-        }*/
-        int i = 0;
-        for (Map.Entry<Long, String> entry : itemsLongId.entrySet()) {
-            result.add(new AvitoItems((long) i, entry.getKey(), String.format(AVITO, entry.getKey()),entry.getValue()));
-            i++;
-        }
-        return result;
-    }
-
-    private String createRange(String nextColumn, String dopColumn, String sheetTittle) {
-        if (nextColumn.equals("C")) {
-            String range = "%s!D%%d:RH%%d";
-            return String.format(range, sheetTittle);
-        }
-        StringBuilder range = new StringBuilder(sheetTittle);
-        range.append("!").append(nextColumn).append("%d:").append(dopColumn).append("%d");
-        return range.toString();
     }
 
     private String getColumnLetter(int columnNumber) {
@@ -299,31 +336,9 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             if (!values.isEmpty()) {
                 lastColumn = values.getValues().get(0).size();
             }
+            return lastColumn;
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return lastColumn;
-    }
-
-
-    private void setSheetsTitle(String sheetsId) throws IOException {
-        Spreadsheet spreadsheet = service.spreadsheets().get(sheetsId).execute();
-        List<Sheet> sheets = spreadsheet.getSheets();
-
-        for (Sheet sheet : sheets) {
-            SheetProperties properties = sheet.getProperties();
-            String titleSheet = deleteSubstringFromTitleSheet(properties.getTitle(), "(копия)");
-            Integer sheetId = properties.getSheetId();
-            List<Request> requests = new ArrayList<>();
-            Request request = new Request()
-                    .setUpdateSheetProperties(new UpdateSheetPropertiesRequest()
-                            .setProperties(new SheetProperties()
-                                    .setSheetId(sheetId)
-                                    .setTitle(titleSheet))
-                            .setFields("title"));
-            requests.add(request);
-            BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-            service.spreadsheets().batchUpdate(sheetsId, body).execute();
+            throw new GoogleSheetsReadException(String.format("Error: get last column from %s, range %s", sheetsLink, range), e);
         }
     }
 
