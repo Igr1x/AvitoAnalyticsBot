@@ -10,7 +10,9 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AvitoCostJdbcRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.ParserService;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class ParserProcessor extends Thread {
 
     private final BlockingQueue<Long> queue = new LinkedBlockingQueue<>();
+    private final Set<Long> set = ConcurrentHashMap.newKeySet();
 
     private final ParserService parserService;
     private final AdsRepository adsRepository;
@@ -30,7 +33,11 @@ public class ParserProcessor extends Thread {
     }
 
     public void addAds(Long id) {
-        queue.add(id);
+        offer(id);
+    }
+
+    private boolean offer(Long value) {
+        return set.add(value) & queue.offer(value);
     }
 
     @Override
@@ -39,6 +46,7 @@ public class ParserProcessor extends Thread {
             try {
                 Long id = queue.poll(5, TimeUnit.MINUTES);
                 if (id != null) {
+                    set.remove(id);
                     processAd(id);
                 } else {
                     System.out.println("Очередь пуста");
