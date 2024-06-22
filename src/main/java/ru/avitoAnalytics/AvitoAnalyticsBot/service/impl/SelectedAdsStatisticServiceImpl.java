@@ -1,12 +1,13 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.avitoAnalytics.AvitoAnalyticsBot.controller.ParserProcessor;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.AvitoResponseException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsInsertException;
@@ -15,8 +16,7 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -31,17 +31,18 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticService {
     private final String RANGE_FOR_GET_LAST_COLUMN = "%s!A%%d:ZZZ%%d";
     private final String RANGE_MAX_DEPTH = "%s!D%d:RH%d";
     private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
 
-    AccountService accountService;
-    GoogleSheetsService googleSheetsService;
-    StatisticAvitoService statisticAvitoService;
-    AdsService adsService;
+    private final AccountService accountService;
+    private final GoogleSheetsService googleSheetsService;
+    private final StatisticAvitoService statisticAvitoService;
+    private final AdsService adsService;
+    private final ParserProcessor parser;
 
     @Override
     @Scheduled(cron = "0 0 1 * * *")
@@ -251,7 +252,6 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                     stats.getSumViews(), stats.getSumRaise(), stats.getTotalSum(),
                     stats.getSumContact()));
             if (dayOfWeek.equals("вс")) {
-                item.getRange();
                 statsList.addAll(SheetsStatUtil.setStatsWeek(LocalDate.parse(stats.getDate())));
             }
             currentDate = currentDate.plusDays(1);
@@ -319,7 +319,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                 Long avitoId = itemAvito.getItemId();
                 if (avitoId.equals(idItem)) {
                     item.setRange(String.format(currentRange, (currentSheetId * 15) + 1, (currentSheetId * 15) + 10));
-                    item.setCost(0.0);
+                    item.setCost(getCostForItem(avitoId).doubleValue());
                     item.setSheetsLink(itemAvito.getSheetsLink());
                     break;
                 }
@@ -331,15 +331,13 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return item;
     }
 
-    /*private double getCostForItem(AvitoItems item) {
-        Long avitoId = item.getItemId();
-        double cost = favouriteItemsService.findCostById(avitoId).doubleValue();
-        if (cost == 0) {
-            cost = statisticAvitoService.getCost(item.getSheetsLink());
-            favouriteItemsService.save(new FavouriteItems(avitoId, BigDecimal.valueOf(cost)));
-        }
-        return cost;
-    }*/
+    private BigDecimal getCostForItem(Long avitoId) {
+        return adsService.findCostByAvitoId(avitoId)
+                .orElseGet(() -> {
+                    parser.addAds(avitoId);
+                    return BigDecimal.ZERO;
+                });
+    }
 
     private List<Function<StatSummary, Object>> getStatSummaryMethods() {
         return List.of(StatSummary::getDayOfWeek,
