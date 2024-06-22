@@ -114,7 +114,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         //reportHandler.reportProcess("357725045");
         //services.setStatistic();
-        //selService.setStatistic();
+        selService.setStatistic();
         //parserProcessor.addAds(3901726593L);
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();

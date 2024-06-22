@@ -257,7 +257,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     private String createRange(String nextColumn, String dopColumn, String sheetTittle) {
-        if (nextColumn.equals("C")) {
+        if (nextColumn.equals("D")) {
             String range = "%s!D%%d:RH%%d";
             return String.format(range, sheetTittle);
         }

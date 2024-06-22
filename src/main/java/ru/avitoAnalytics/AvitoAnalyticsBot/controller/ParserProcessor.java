@@ -3,11 +3,13 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.controller;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.ItemNotFoundException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Product;
 import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AdsRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AvitoCostJdbcRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.ParserService;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.AdsServiceImpl;
 
 import java.util.List;
 import java.util.Set;
@@ -26,6 +28,7 @@ public class ParserProcessor extends Thread {
     private final ParserService parserService;
     private final AdsRepository adsRepository;
     private final AvitoCostJdbcRepository avitoCostJdbcRepository;
+    private final AdsServiceImpl adsServiceImpl;
 
     @PostConstruct
     public void init() {
@@ -37,6 +40,7 @@ public class ParserProcessor extends Thread {
     }
 
     private boolean offer(Long value) {
+        System.out.println("Try to add in queue: " + value);
         return set.add(value) & queue.offer(value);
     }
 
@@ -44,10 +48,11 @@ public class ParserProcessor extends Thread {
     public void run() {
         while (true) {
             try {
-                Long id = queue.poll(5, TimeUnit.MINUTES);
+                Long id = queue.poll(1, TimeUnit.MINUTES);
                 if (id != null) {
                     set.remove(id);
                     processAd(id);
+                    System.out.printf("объявление спаршено! %d\n", id);
                 } else {
                     System.out.println("Очередь пуста");
                 }
@@ -78,6 +83,7 @@ public class ParserProcessor extends Thread {
         String subcategory = categoryProcess(categories.get(2));
         String lastCategory = categories.get(categories.size() - 1);
         var item = avitoCostJdbcRepository.findAvitoCost(region, city, street, category, subcategory, lastCategory);
+
         System.out.println(ads.toString());
     }
 
