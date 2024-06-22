@@ -332,15 +332,11 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
     }
 
     private BigDecimal getCostForItem(Long avitoId) {
-        var cost = adsService.findCostByAvitoId(avitoId);
-        if (cost.isEmpty()) {
-            parser.addAds(avitoId);
-            return BigDecimal.ZERO;
-        }
-                /*.orElseGet(() -> {
-
-        });*/
-        return cost.get();
+        return adsService.findCostByAvitoId(avitoId)
+                .orElseGet(() -> {
+                    parser.addAds(avitoId);
+                    return BigDecimal.ZERO;
+                });
     }
 
     private List<Function<StatSummary, Object>> getStatSummaryMethods() {
