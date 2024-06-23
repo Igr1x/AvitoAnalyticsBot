@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.avitoAnalytics.AvitoAnalyticsBot.controller.ParserProcessor;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
+import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.AvitoResponseException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsInsertException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsReadException;
@@ -319,7 +320,9 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                 Long avitoId = itemAvito.getItemId();
                 if (avitoId.equals(idItem)) {
                     item.setRange(String.format(currentRange, (currentSheetId * 15) + 1, (currentSheetId * 15) + 10));
-                    item.setCost(getCostForItem(avitoId).doubleValue());
+                    var ownerAdId = accountService.findByAccountName(itemAvito.getAccountName()).orElseGet(() -> null);
+                    Ads ad = new Ads(avitoId, ownerAdId);
+                    item.setCost(getCostForItem(ad).doubleValue());
                     item.setSheetsLink(itemAvito.getSheetsLink());
                     break;
                 }
@@ -331,10 +334,10 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return item;
     }
 
-    private BigDecimal getCostForItem(Long avitoId) {
-        return adsService.findCostByAvitoId(avitoId)
+    private BigDecimal getCostForItem(Ads ad) {
+        return adsService.findCostByAvitoId(ad.getAvitoId())
                 .orElseGet(() -> {
-                    parser.addAds(avitoId);
+                    parser.addAds(ad);
                     return BigDecimal.ZERO;
                 });
     }

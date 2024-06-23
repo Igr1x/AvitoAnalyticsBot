@@ -20,7 +20,7 @@ public class ParserClientRetryListener implements RetryListener {
             try {
                 astroProxyClient.changeProxy();
             } catch (HttpServerErrorException.InternalServerError ignored) {
-
+                System.out.println("ошибка тут");
             }
         }
     }
