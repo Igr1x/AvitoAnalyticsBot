@@ -12,6 +12,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.avitoAnalytics.AvitoAnalyticsBot.clients.ParserClient;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.ParserConfiguration;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.ItemNotFoundException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.ParserProxyException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Product;
 
@@ -50,6 +51,6 @@ public class ParserClientImpl implements ParserClient {
                 throw new ParserProxyException(e);
             }
         }
-        throw new RuntimeException("Не удалось спарсить объявление с id: " + id);
+        throw new ItemNotFoundException("Не удалось спарсить объявление с id: " + id);
     }
 }

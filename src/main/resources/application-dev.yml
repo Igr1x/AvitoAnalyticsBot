@@ -1,10 +1,8 @@
 spring:
-  profiles:
-    active: dev
   flyway:
     baseline-on-migrate: true
   datasource:
-    url: jdbc:postgresql://localhost:5555/AvitoAnalytics
+    url: jdbc:postgresql://localhost:8001/AvitoAnalytics
     username: postgres
     password: 2513
     driverClassName: org.postgresql.Driver

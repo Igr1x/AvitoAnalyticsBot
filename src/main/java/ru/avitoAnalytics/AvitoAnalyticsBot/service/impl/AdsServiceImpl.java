@@ -19,9 +19,8 @@ public class AdsServiceImpl implements AdsService {
 
     @Override
     public Optional<BigDecimal> findCostByAvitoId(Long avitoId) {
-        var item = adsRepository.findById(avitoId);
+        var item = adsRepository.findByAvitoId(avitoId);
         return item.map(Ads::getCost);
-        //return Optional.ofNullable(item.map(Ads::getCost));
     }
 
     @Override
