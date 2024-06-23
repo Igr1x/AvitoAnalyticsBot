@@ -103,7 +103,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         LocalDate oldestDate = getOldestStatisticDate(itemsList, dateNow.minusDays(270));
         if (dateNow.equals(LocalDate.now())) {
             try {
-                oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), tittle).orElse(oldestDate);
+                oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), tittle).orElse(SheetsStatUtil.getDayOfStartWeek(dateNow.minusDays(270)));
             } catch (GoogleSheetsReadException e) {
                 log.error(e.getMessage());
                 log.error(e.getCause().getMessage());
@@ -216,7 +216,6 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         Matcher matcher = getMatcherForCololumn(item.getRange());
         String first = null;
         if (!matcher.find()) {
-            //@TODO исключение если не находит матчер
             log.error("Error: matcher not found range, item range - {}", item.getRange());
             throw new RuntimeException();
         }
