@@ -21,7 +21,7 @@ public class ReportHandlerImpl implements ReportHandler {
 
     private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
     private static final String RANGE = "%s!A2:G100000";
-    private static final String NAME_SHEETS = "HistoryAcc#357725045";
+    private static final String NAME_SHEETS = "HistoryAcc#%s";
 
     private final GoogleSheetsService googleSheetsService;
     private final AdsService adsService;
@@ -29,14 +29,14 @@ public class ReportHandlerImpl implements ReportHandler {
     private final AccountService accountService;
 
     @Override
-    public void reportProcess(String userId) {
-        AccountData account = accountService.findByUserId(Long.parseLong(userId)).orElseThrow(() -> {
+    public void reportProcess(AccountData account) {
+        /*AccountData account = accountService.findByUserId(Long.parseLong(userId)).orElseThrow(() -> {
             log.error("Account with userId {} not found", userId);
             return new RuntimeException();
-        });
+        });*/
         //var name = googleSheetsService.getSheetByName(String.format(NAME_SHEETS, userId), account.getSheetsRef());
         try {
-            var name = googleSheetsService.getSheetByName(NAME_SHEETS, account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
+            var name = googleSheetsService.getSheetByName(String.format(NAME_SHEETS, account.getUserId()), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
             var rang = String.format(RANGE, name);
             var res = googleSheetsService.getDataFromTable(account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0], rang);
             if (res.isEmpty()) {
@@ -53,8 +53,9 @@ public class ReportHandlerImpl implements ReportHandler {
                             .orElseGet(AvitoCost::new)
                             .getCost();
                 }
-                if (cost.equals(BigDecimal.ZERO)) {
+                if (cost == null || cost.equals(BigDecimal.ZERO)) {
                     log.warn("Warning: cost equals zero, ads id - {}", ad.getAvitoId());
+                    continue;
                 }
                 ad.setCost(cost);
                 adsService.save(ad);

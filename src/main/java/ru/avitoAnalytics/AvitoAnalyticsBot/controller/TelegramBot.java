@@ -39,6 +39,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final AddAccountAction addAccountAction;
     private final SelectAccountAction selectAccountAction;
     private final DeleteAccountAction deleteAccount;
+    private final ReportHandlerAction reportHandlerAction;
     private final StartAction startAction;
     private final HelpAction helpAction;
     private final TariffsAction tariffsAction;
@@ -70,6 +71,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         actionsKeyboard.putPattern(key -> key.startsWith("accountId-"), selectAccountAction);
         actionsKeyboard.putPattern(key -> key.startsWith("back-"), accountsAction);
         actionsKeyboard.putPattern(key -> key.startsWith("deleteAccountId-"), deleteAccount);
+        actionsKeyboard.putPattern(key -> key.startsWith("handleReport-"), reportHandlerAction);
         actionsKeyboard.putPattern(key -> key.startsWith("tariff"), tariffAction);
         actionsKeyboard.putPattern(key -> key.startsWith("connect"), connectTariff);
     }
@@ -77,7 +79,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     public TelegramBot(BotConfiguration botConfig, UserService userService,
                        BalanceAction balanceAction, ConnectTariff connectTariff,
                        AccountsAction accountsAction, AddAccountAction addAccountAction,
-                       SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount,
+                       SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount, ReportHandlerAction reportHandlerAction,
                        StartAction startAction, HelpAction helpAction,
                        TariffsAction tariffsAction, TariffAction tariffAction, FullAdsStatisticService services,
                        SelectedAdsStatisticService selService, AvitoCostService costService, ReportHandler reportHandler, ParserProcessor parserProcessor) {
@@ -89,6 +91,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.addAccountAction = addAccountAction;
         this.selectAccountAction = selectAccountAction;
         this.deleteAccount = deleteAccount;
+        this.reportHandlerAction = reportHandlerAction;
         this.startAction = startAction;
         this.helpAction = helpAction;
         this.tariffsAction = tariffsAction;
@@ -114,7 +117,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         //reportHandler.reportProcess("357725045");
         //services.setStatistic();
-        selService.setStatistic();
+        //selService.setStatistic();
         //parserProcessor.addAds(3901726593L);
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();
@@ -166,7 +169,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                         key.equals("/accounts") ||
                         key.contains("accountId-") ||
                         key.contains("back-") ||
-                        key.contains("deleteAccountId-")) {
+                        key.contains("deleteAccountId-") ||
+                        key.contains("handleReport-")) {
                     try {
                         executeAsync((SendMessage) msg);
                     } catch (TelegramApiException e) {
