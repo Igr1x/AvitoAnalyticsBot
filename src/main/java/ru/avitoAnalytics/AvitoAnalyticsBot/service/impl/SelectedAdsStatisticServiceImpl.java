@@ -103,7 +103,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         LocalDate oldestDate = getOldestStatisticDate(itemsList, dateNow.minusDays(270));
         if (dateNow.equals(LocalDate.now())) {
             try {
-                oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), tittle).orElse(oldestDate);
+                oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), tittle).orElse(SheetsStatUtil.getDayOfStartWeek(dateNow.minusDays(270)));
             } catch (GoogleSheetsReadException e) {
                 log.error(e.getMessage());
                 log.error(e.getCause().getMessage());
@@ -216,7 +216,6 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         Matcher matcher = getMatcherForCololumn(item.getRange());
         String first = null;
         if (!matcher.find()) {
-            //@TODO исключение если не находит матчер
             log.error("Error: matcher not found range, item range - {}", item.getRange());
             throw new RuntimeException();
         }
@@ -322,7 +321,8 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                     item.setRange(String.format(currentRange, (currentSheetId * 15) + 1, (currentSheetId * 15) + 10));
                     var ownerAdId = accountService.findByAccountName(itemAvito.getAccountName()).orElseGet(() -> null);
                     Ads ad = new Ads(avitoId, ownerAdId);
-                    item.setCost(getCostForItem(ad).doubleValue());
+                    //item.setCost(getCostForItem(ad).doubleValue());
+                    item.setCost(0.0);
                     item.setSheetsLink(itemAvito.getSheetsLink());
                     break;
                 }
@@ -334,13 +334,13 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
         return item;
     }
 
-    private BigDecimal getCostForItem(Ads ad) {
+    /*private BigDecimal getCostForItem(Ads ad) {
         return adsService.findCostByAvitoId(ad.getAvitoId())
                 .orElseGet(() -> {
                     parser.addAds(ad);
                     return BigDecimal.ZERO;
                 });
-    }
+    }*/
 
     private List<Function<StatSummary, Object>> getStatSummaryMethods() {
         return List.of(StatSummary::getDayOfWeek,

@@ -94,7 +94,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 log.error(e.getCause().getMessage());
                 continue;
             }
-            Pattern pattern = Pattern.compile("D[0-9]+");
+            Pattern pattern = Pattern.compile("!D[0-9]+");
             Matcher matcher = pattern.matcher(entry.getKey());
             if (matcher.find()) {
                 try {

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -299,7 +300,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                 return Optional.of(LocalDate.parse(value.getValues().get(0).get(0).toString()));
             }
             return Optional.empty();
-        } catch (IOException e) {
+        } catch (IOException | DateTimeParseException e) {
             throw new GoogleSheetsReadException(String.format("Error: read oldest date from %s", sheetsLink), e);
         }
     }
