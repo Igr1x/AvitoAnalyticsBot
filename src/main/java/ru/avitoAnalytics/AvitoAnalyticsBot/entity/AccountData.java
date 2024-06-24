@@ -1,10 +1,8 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +36,10 @@ public class AccountData {
 
     @Column(name = "account_name")
     private String accountName;
+
+    @Column(name = "report")
+    @NotNull
+    private boolean report;
 
     @OneToMany(mappedBy = "ownerId", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Ads> allAds= new ArrayList<>();
