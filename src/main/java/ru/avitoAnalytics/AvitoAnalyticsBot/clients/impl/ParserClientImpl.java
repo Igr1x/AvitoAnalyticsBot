@@ -21,7 +21,7 @@ import java.util.Objects;
 
 @Component
 public class ParserClientImpl implements ParserClient {
-    public static final String ENDPOINT_PARSE = "/v1/parser";
+    public static final String ENDPOINT_PARSE = "/process_id";
     @Qualifier("parserRestTemplate")
     private final RestTemplate restTemplate;
     private final ParserConfiguration configuration;
@@ -37,10 +37,10 @@ public class ParserClientImpl implements ParserClient {
     @Retryable(retryFor = ParserProxyException.class, maxAttempts = 2, listeners = "parserRetryListener")
     public Product parseAdvertisement(long id) {
 
-        Map<String, String> body = Map.of("proxy", configuration.getProxy(),
-                "url", "https://www.avito.ru/" + id);
+        Map<String, String> body = Map.of(/*"proxy", configuration.getProxy(),*/
+                "id", String.valueOf(id));
         try {
-            ResponseEntity<String> exchange = restTemplate.exchange(RequestEntity.put(ENDPOINT_PARSE).body(body), String.class);
+            ResponseEntity<String> exchange = restTemplate.postForEntity(ENDPOINT_PARSE, body, String.class);
             JsonObject object = JsonParser.parseString(Objects.requireNonNull(exchange.getBody())).getAsJsonObject();
             String status = object.get("status").getAsJsonPrimitive().getAsString();
             if (status.equals("ok")) {
