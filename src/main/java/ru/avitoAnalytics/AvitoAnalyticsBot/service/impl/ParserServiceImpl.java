@@ -19,7 +19,7 @@ public class ParserServiceImpl implements ParserService {
     private Logger log = LoggerFactory.getLogger(ParserService.class);
 
     @Override
-    public Product parseProduct(long id) {
+    public Product parseProduct(long id) throws Exception {
         return parserClient.parseAdvertisement(id);
     }
 

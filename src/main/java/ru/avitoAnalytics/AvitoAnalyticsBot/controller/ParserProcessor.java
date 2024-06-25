@@ -56,19 +56,18 @@ public class ParserProcessor extends Thread {
                     var cost = processAd(ad.getAvitoId());
                     ad.setCost(cost);
                     adsService.save(ad);
-                    System.out.printf("объявление спаршено! %d\n", ad.getAvitoId());
-                } else {
-                    System.out.println("Очередь пуста");
                 }
             } catch (ItemNotFoundException e) {
                 log.error(e.getMessage());
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
+            } catch (Exception e) {
+                log.error(e.getMessage());
             }
         }
     }
 
-    private BigDecimal processAd(Long id) {
+    private BigDecimal processAd(Long id) throws Exception {
         Product ads = parserService.parseProduct(id);
         List<String> categories = ads.getCategories();
         if (categories == null || categories.isEmpty()) {
@@ -85,28 +84,19 @@ public class ParserProcessor extends Thread {
         if (addressParts.size() >= 3) {
             street = addressParts.get(2);
         }
-        String category = categoryProcess(categories.get(1));
-        String subcategory = categoryProcess(categories.get(2));
-        String lastCategory = categories.get(categories.size() - 1);
+        String category;
+        String subcategory;
+        String lastCategory;
+        if (ads.getCategories().size() == 3) {
+            category = categories.get(0);
+            subcategory = categories.get(1);
+            lastCategory = categories.get(2);
+        } else {
+            throw new ItemNotFoundException(String.format("Item %d has empty categories", id));
+        }
         return avitoCostJdbcRepository.findAvitoCost(region, city, street, category, subcategory, lastCategory)
                 .map(AvitoCost::getCost)
                 .orElse(BigDecimal.ZERO);
-    }
-
-    private String categoryProcess(String category) {
-        String[] parts = category.split(" ");
-        StringBuilder sb = new StringBuilder();
-        int size = parts.length;
-        if (size <= 2) {
-            throw new ItemNotFoundException(String.format("Item has incorrect address - %s", parts));
-        }
-        for (int i = 0; i < size - 2; i++) {
-            sb.append(parts[i]);
-            if (i != size - 3) {
-                sb.append(" ");
-            }
-        }
-        return sb.toString();
     }
 }
 
