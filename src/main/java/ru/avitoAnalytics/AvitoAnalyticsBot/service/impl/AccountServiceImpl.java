@@ -69,4 +69,9 @@ public class AccountServiceImpl implements AccountService {
     public Optional<AccountData> findByUserId(Long userId) {
         return accountRepository.findByUserId(userId);
     }
+
+    @Override
+    public List<AccountData> findBySheetsRef(String sheetsRef) {
+        return accountRepository.findBySheetsRef(sheetsRef);
+    }
 }

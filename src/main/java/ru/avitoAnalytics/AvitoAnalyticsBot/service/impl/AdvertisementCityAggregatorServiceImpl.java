@@ -72,7 +72,7 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
                 statsCities.add(statsCity);
             }
             try {
-                googleSheetsService.insertStatisticIntoTable(statsCities, range, SheetsStatUtil.getSheetsIdFromLink(accountData.getSheetsRef()));
+                googleSheetsService.insertStatisticIntoTable(statsCities, range, accountData.getSheetsRef());
             } catch (GoogleSheetsReadException | GoogleSheetsInsertException e) {
                 log.error(e.getMessage());
                 log.error(e.getCause().getMessage());

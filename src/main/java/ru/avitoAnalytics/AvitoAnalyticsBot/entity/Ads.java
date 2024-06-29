@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "ads")
@@ -27,6 +28,9 @@ public class Ads {
 
     @Column(precision = 2, scale = 2)
     private BigDecimal cost;
+
+    private LocalDate pubDate;
+    private LocalDate closingDate;
 
     public Ads(Long avitoId, AccountData ownerId) {
         this.avitoId = avitoId;

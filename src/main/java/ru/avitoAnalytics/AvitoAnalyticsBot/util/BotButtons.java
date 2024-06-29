@@ -41,8 +41,8 @@ public class BotButtons {
     public List<List<InlineKeyboardButton>> getSelectAccountButtons(long chatId, long accountId) {
         List<InlineKeyboardButton> rowInLine = new ArrayList<>();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-        rowInLine.add(createButton("Обработать отчёт", "handleReport-" + accountId));
-        rowsInLine.add(rowInLine);
+        /*rowInLine.add(createButton("Обработать отчёт", "handleReport-" + accountId));
+        rowsInLine.add(rowInLine);*/
         rowInLine = new ArrayList<>();
         rowInLine.add(createButton("Удалить", "deleteAccountId-" + accountId));
         rowsInLine.add(rowInLine);
@@ -51,6 +51,10 @@ public class BotButtons {
         rowsInLine.add(rowInLine);
         rowsInLine.addAll(getHelpButtons());
         return rowsInLine;
+    }
+
+    public List<InlineKeyboardButton> getReportButton(long accountId) {
+        return List.of(createButton("Обработать отчёт", "handleReport-" + accountId));
     }
 
     public List<List<InlineKeyboardButton>> getTariffButtons(String tariffId) {

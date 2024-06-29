@@ -2,6 +2,7 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.actions.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,10 +12,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.avitoAnalytics.AvitoAnalyticsBot.actions.Actions;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
+import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.AccountNotFoundException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AccountService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.GoogleSheetsService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.UserService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.BotButtons;
+import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.TelegramChatUtils;
 
 @Component
@@ -25,6 +28,7 @@ public class AddAccountAction implements Actions<SendMessage> {
     private final GoogleSheetsService googleSheetsService;
     private final UserService userService;
     private final AccountService accountService;
+    private final ThreadPoolTaskScheduler taskExecutor;
 
     @Override
     public SendMessage handleMessage(Update update, Long chatId) {
@@ -42,14 +46,19 @@ public class AddAccountAction implements Actions<SendMessage> {
         Message msg = update.getMessage();
         String[] requestsUser = msg.getText().split("\n");
         String accountName = requestsUser[0];
-        Long userId = Long.parseLong(requestsUser[1]);
+        Long userId = Long.parseLong(requestsUser[1].replaceAll("\s", ""));
         String clientId = requestsUser[2];
         String clientSecret = requestsUser[3];
         String sheetsRef = requestsUser[4];
         if (googleSheetsService.checkExistSheets(sheetsRef)) {
-            User user = userService.getUser(chatId).orElseThrow();
-            AccountData accountData = new AccountData(user, userId, clientId, clientSecret, sheetsRef, accountName);
-            googleSheetsService.insertTemplateSheets(sheetsRef);
+            User user = userService.getUser(chatId).orElseThrow(() -> new AccountNotFoundException(String.format("Account not found %s", chatId)));
+            AccountData accountData = new AccountData(user, userId, clientId, clientSecret, SheetsStatUtil.getSheetsIdFromLink(sheetsRef), accountName);
+            if (accountService.findBySheetsRef(SheetsStatUtil.getSheetsIdFromLink(sheetsRef)).isEmpty()) {
+                taskExecutor.execute(() -> {
+                    log.info("Start creating tables {}", sheetsRef);
+                    googleSheetsService.insertTemplateSheets(sheetsRef);
+                });
+            }
             accountService.saveAccount(accountData);
             String text = "Ваш аккаунт успешно добавлен";
             log.info("Account was added successfully for client: " + clientId);
@@ -58,5 +67,4 @@ public class AddAccountAction implements Actions<SendMessage> {
         String text = "Таблицы по данной ссылке не существует либо вы не предоставили открытый доступ!";
         return TelegramChatUtils.getMessage(chatId, text, new InlineKeyboardMarkup(BotButtons.getHelpButtons()));
     }
-
 }

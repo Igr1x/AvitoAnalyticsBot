@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.avitoAnalytics.AvitoAnalyticsBot.actions.Actions;
+import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfiguration;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AccountService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.BotButtons;
@@ -24,6 +25,10 @@ public class SelectAccountAction implements Actions<SendMessage> {
         int indexBeforeId = callbackData.indexOf('-') + 1;
         long accountId = Long.parseLong(callbackData.substring(indexBeforeId));
         AccountData account = accountService.findById(accountId).orElseThrow();
-        return TelegramChatUtils.getMessage(chatId, account.toString(), new InlineKeyboardMarkup(BotButtons.getSelectAccountButtons(chatId, accountId)));
+        var keyboard = BotButtons.getSelectAccountButtons(chatId, accountId);
+        if (!account.isReport()) {
+            keyboard.add(0, BotButtons.getReportButton(accountId));
+        }
+        return TelegramChatUtils.getMessage(chatId, account.toString(), new InlineKeyboardMarkup(keyboard));
     }
 }

@@ -61,8 +61,9 @@ public class AccountData {
     @Override
     public String toString() {
         return "Данные аккаунта:\n" +
+                "Название аккаунта - " + accountName + '\n' +
                 "clientId - " + clientId + '\n' +
                 "clientSecret - " + clientSecret + '\n' +
-                "Ссылка на таблицу - " + sheetsRef;
+                "Ссылка на таблицу - " + "https://docs.google.com/spreadsheets/d/" + sheetsRef;
     }
 }

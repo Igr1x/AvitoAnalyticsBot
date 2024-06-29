@@ -2,12 +2,14 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AdsRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AdsService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.AvitoCostService;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,5 +33,10 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public void save(List<Ads> adsList) {
         adsRepository.save(adsList);
+    }
+
+    @Override
+    public List<Ads> findAllActiveAdsByAccountId(AccountData ownerId, LocalDate date) {
+        return adsRepository.findAllActiveAdsByAccountId(ownerId, date);
     }
 }

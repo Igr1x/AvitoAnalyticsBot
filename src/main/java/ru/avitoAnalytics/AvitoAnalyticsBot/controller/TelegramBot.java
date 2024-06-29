@@ -17,8 +17,11 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.actions.impl.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfiguration;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.AccountServiceImpl;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.AdsServiceImpl;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.PatternMap;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +49,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final TariffAction tariffAction;
     private final FullAdsStatisticService services;
     private final SelectedAdsStatisticService selService;
-    private final AvitoCostService costService;
-    private final ReportHandler reportHandler;
-    private final ParserProcessor parserProcessor;
 
     private final PatternMap<String, Actions<?>> actionsCommand = new PatternMap<>();
     private final PatternMap<String, Actions<?>> actionsKeyboard = new PatternMap<>();
@@ -82,7 +82,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                        SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount, ReportHandlerAction reportHandlerAction,
                        StartAction startAction, HelpAction helpAction,
                        TariffsAction tariffsAction, TariffAction tariffAction, FullAdsStatisticService services,
-                       SelectedAdsStatisticService selService, AvitoCostService costService, ReportHandler reportHandler, ParserProcessor parserProcessor) {
+                       SelectedAdsStatisticService selService) {
         this.botConfig = botConfig;
         this.userService = userService;
         this.balanceAction = balanceAction;
@@ -98,9 +98,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.tariffAction = tariffAction;
         this.services = services;
         this.selService = selService;
-        this.costService = costService;
-        this.reportHandler = reportHandler;
-        this.parserProcessor = parserProcessor;
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("/start", ""));
         listOfCommand.add(new BotCommand("/help", ""));
@@ -115,9 +112,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        //reportHandler.reportProcess("357725045");
         //services.setStatistic();
-        selService.setStatistic();
+        //selService.setStatistic();
         //parserProcessor.addAds(3901726593L);
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();

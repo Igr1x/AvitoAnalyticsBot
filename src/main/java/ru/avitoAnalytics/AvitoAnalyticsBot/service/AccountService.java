@@ -17,4 +17,5 @@ public interface AccountService {
     List<AccountData> findAllBySheetsRef(String sheetsRef);
     Optional<AccountData> findByAccountName(String accountName);
     Optional<AccountData> findByUserId(Long userId);
+    List<AccountData> findBySheetsRef(String sheetsRef);
 }
