@@ -29,7 +29,7 @@ public class ReportHandlerAction implements Actions {
             reportHandler.reportProcess(account);
             return TelegramChatUtils.getMessage(chatId, "Отчёт отправлен на обработку", null);
         } catch (Exception e) {
-            System.out.println("пиздец");
+            System.out.println("ошибка");
         }
         return TelegramChatUtils.getMessage(chatId, "Что то пошло не так!", null);
     }
