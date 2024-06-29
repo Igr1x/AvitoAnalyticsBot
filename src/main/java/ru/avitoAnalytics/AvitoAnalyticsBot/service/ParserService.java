@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ParserService {
 
-    Product parseProduct(long id);
+    Product parseProduct(long id) throws Exception;
 
     List<Product> parseProducts(List<Long> ids);
 }

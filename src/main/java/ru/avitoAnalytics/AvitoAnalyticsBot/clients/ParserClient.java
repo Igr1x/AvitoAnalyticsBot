@@ -4,6 +4,6 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.models.Product;
 
 public interface ParserClient {
 
-    Product  parseAdvertisement(long id);
+    Product  parseAdvertisement(long id) throws Exception;
 
 }

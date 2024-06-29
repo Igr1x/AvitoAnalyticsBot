@@ -15,8 +15,6 @@ import org.springframework.web.client.RestTemplate;
 @EnableRetry
 @Getter
 public class ParserConfiguration {
-    @Value("${parser.proxy:socks5://avitoparser:7a6288@node-ru-202.astroproxy.com:10006}")
-    private String proxy;
 
     @Value("${parser.url:http://127.0.0.1:8000}")
     private String parserUri;

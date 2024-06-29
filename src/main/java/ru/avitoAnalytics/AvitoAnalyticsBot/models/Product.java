@@ -1,16 +1,14 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.models;
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class Product {
-
-    private String url;
-    @SerializedName("is_new")
-    private boolean isNew;
+    @JsonProperty("item_id")
+    private Long id;
     private String address;
     private List<String> categories;
-
+    private List<Characteristic> characteristics;
 }
