@@ -40,9 +40,17 @@ public class ParserProcessor extends Thread {
     }
 
     public void addAds(Ads ad) {
-        System.out.println("Try to add in queue: " + ad.getAvitoId());
         if (set.add(ad.getAvitoId())) {
             queue.add(ad);
+        }
+    }
+
+    public void addListAds(List<Ads> adsList) {
+        System.out.println("getListAds: " + adsList.size());
+        for (Ads ad : adsList) {
+            if (set.add(ad.getAvitoId())) {
+                queue.add(ad);
+            }
         }
     }
 

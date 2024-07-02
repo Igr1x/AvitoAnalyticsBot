@@ -7,12 +7,15 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.avitoAnalytics.AvitoAnalyticsBot.controller.ParserProcessor;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
+import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -32,6 +35,8 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
     private final GoogleSheetsService googleSheetsService;
     private final StatisticAvitoService statisticAvitoService;
     private final AdvertisementAvitoService advertisementAvitoService;
+    private final ParserProcessor parserProcessor;
+    private final AdsService adsService;
 
     public static String name;
 
@@ -106,7 +111,8 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                             .toList();
                     googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), account.getSheetsRef());
                     continue;
-                } catch (GoogleSheetsInsertException | GoogleSheetsReadException | AdvertisementServiceException | AvitoResponseException e) {
+                } catch (GoogleSheetsInsertException | GoogleSheetsReadException | AdvertisementServiceException |
+                         AvitoResponseException e) {
                     log.error(e.getMessage());
                     log.error(e.getCause().getMessage());
                     continue;
@@ -133,6 +139,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         LocalDate oldDate = oldestDate;
         Map<LocalDate, Stats> mapStats = new TreeMap<>();
         int i = 0;
+        var cost = adsService.findAvgCostAdsByAccountId(account).orElse(BigDecimal.ZERO).doubleValue();
         while (oldestDate.isBefore(LocalDate.now().minusDays(1))) {
             List<Advertisement> allAds = advertisementAvitoService.getAllAdvertisements(token, oldestDate.toString());
             List<Long> listId = allAds.stream()
@@ -171,7 +178,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
 
             currentDate = getMissingDayStats(currentDateStats, currentDate).getValue();
 
-            stats.updateFields(0.0);
+            stats.updateFields(cost);
 
             LocalDate date = LocalDate.parse(stats.getDate());
             String dayOfWeek = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("ru"));
@@ -206,6 +213,9 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         List<Long> listId = allAds.stream()
                 .map(Advertisement::getId)
                 .toList();
+
+        var cost = getCost(listId, account);
+
         List<Items> stats = statisticAvitoService.getStatistic(listId, token, account.getUserId().toString(), yesterday.toString(), yesterday.toString());
 
         Integer sumV = getSumStatistic(stats, Stats::getUniqViews);
@@ -214,8 +224,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         Double allExpenses = getAllExpenses(token, yesterday);
 
         Stats statistic = new Stats(yesterday.toString(), sumC, sumF, sumV, allExpenses);
-
-        statistic.updateFields(0.0);
+        statistic.updateFields(cost);
         List<StatSummary> result = new ArrayList<>();
         result.add(new StatSummary(SheetsStatUtil.getDayOfWeek(yesterday), statistic.getDate(), statistic.getUniqViews(),
                 statistic.getCv(), statistic.getUniqContacts(), statistic.getUniqFavorites(), statistic.getSumViews(),
@@ -254,4 +263,44 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 StatSummary::getTotalSum,
                 StatSummary::getSumContact);
     }
+
+    private double getCost(List<Long> activeAds, AccountData account) {
+        var adsFromDB = adsService.findAllAdsByAccountIdAndDate(account, LocalDate.now().minusDays(1));
+
+        Set<Long> adsIdFromAvito = new HashSet<>(activeAds);
+        Set<Long> adsFromDb = adsFromDB.stream()
+                .map(Ads::getId)
+                .collect(Collectors.toSet());
+
+        //1 получить все активные, которых нет в бд
+        List<Ads> newAds = new ArrayList<>();
+        List<Long> newAdsId = new ArrayList<>(adsIdFromAvito);
+        newAdsId.removeAll(adsFromDb);
+        for (Long id : newAdsId) {
+            newAds.add(Ads.builder()
+                    .avitoId(id)
+                    .ownerId(account)
+                    .pubDate(LocalDate.now().minusDays(1))
+                    .closingDate(null)
+                    .build());
+        }
+        //parserProcessor.addListAds(newAdsAvito);
+
+        //2 получение всех старых и установка их даты
+
+        List<Long> oldAds = new ArrayList<>(adsFromDb);
+        oldAds.removeAll(adsIdFromAvito);
+        var adsWithNullDate = adsFromDB.stream()
+                .filter(ad -> ad.getClosingDate() == null)
+                .map(Ads::getAvitoId)
+                .toList();
+        List<Ads> adsList = adsService.findByAvitoId(adsWithNullDate);
+        for (Ads ad : adsList) {
+            ad.setClosingDate(LocalDate.now().minusDays(1));
+        }
+        adsService.save(adsList);
+
+        return adsService.findAvgCostAdsByAccountIdAndDate(account, LocalDate.now().minusDays(1)).orElse(BigDecimal.ZERO).doubleValue();
+    }
+
 }

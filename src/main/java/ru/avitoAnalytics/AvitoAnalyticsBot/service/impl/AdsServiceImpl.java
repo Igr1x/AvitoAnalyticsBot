@@ -36,7 +36,22 @@ public class AdsServiceImpl implements AdsService {
     }
 
     @Override
-    public List<Ads> findAllActiveAdsByAccountId(AccountData ownerId, LocalDate date) {
-        return adsRepository.findAllActiveAdsByAccountId(ownerId, date);
+    public Optional<BigDecimal> findAvgCostAdsByAccountIdAndDate(AccountData ownerId, LocalDate date) {
+        return adsRepository.findAvgCostAdsByAccountIdAndDate(ownerId, date);
+    }
+
+    @Override
+    public Optional<BigDecimal> findAvgCostAdsByAccountId(AccountData ownerId) {
+        return adsRepository.findAvgCostAdsByAccountId(ownerId);
+    }
+
+    @Override
+    public List<Ads> findAllAdsByAccountIdAndDate(AccountData ownerId, LocalDate date) {
+        return adsRepository.findAllAdsByAccountIdAndDate(ownerId, date);
+    }
+
+    @Override
+    public List<Ads> findByAvitoId(List<Long> avitoIds) {
+        return adsRepository.findByAvitoId(avitoIds);
     }
 }
