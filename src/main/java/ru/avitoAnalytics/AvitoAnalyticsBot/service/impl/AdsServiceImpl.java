@@ -50,8 +50,8 @@ public class AdsServiceImpl implements AdsService {
         return adsRepository.findAllAdsByAccountIdAndDate(ownerId, date);
     }
 
-    @Override
+    /*@Override
     public List<Ads> findByAvitoId(List<Long> avitoIds) {
         return adsRepository.findByAvitoId(avitoIds);
-    }
+    }*/
 }

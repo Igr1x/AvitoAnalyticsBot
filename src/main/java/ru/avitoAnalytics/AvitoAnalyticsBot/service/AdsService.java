@@ -15,5 +15,5 @@ public interface AdsService {
     Optional<BigDecimal> findAvgCostAdsByAccountIdAndDate(AccountData ownerId, LocalDate date);
     Optional<BigDecimal> findAvgCostAdsByAccountId(AccountData ownerId);
     List<Ads> findAllAdsByAccountIdAndDate(AccountData ownerId, LocalDate date);
-    List<Ads> findByAvitoId(List<Long> avitoIds);
+    //List<Ads> findByAvitoId(List<Long> avitoIds);
 }

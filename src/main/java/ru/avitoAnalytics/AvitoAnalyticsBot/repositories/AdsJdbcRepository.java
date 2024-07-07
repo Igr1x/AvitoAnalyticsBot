@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface AdsJdbcRepository {
     void save(List<Ads> adsList);
-    List<Ads> findByAvitoId(List<Long> avitoId);
+    //List<Ads> findByAvitoId(List<Long> avitoId);
 }

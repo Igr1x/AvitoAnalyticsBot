@@ -275,7 +275,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         //1 получить все активные, которых нет в бд
         List<Ads> newAds = new ArrayList<>();
         List<Long> newAdsId = new ArrayList<>(adsIdFromAvito);
-        newAdsId.removeAll(adsFromDb);
+        newAdsId.removeAll(adsFromDb.stream().toList());
         for (Long id : newAdsId) {
             newAds.add(Ads.builder()
                     .avitoId(id)
@@ -294,11 +294,12 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 .filter(ad -> ad.getClosingDate() == null)
                 .map(Ads::getAvitoId)
                 .toList();
-        List<Ads> adsList = adsService.findByAvitoId(adsWithNullDate);
-        for (Ads ad : adsList) {
+        //List<Ads> adsList = adsService.findByAvitoId(adsWithNullDate);
+        /*for (Ads ad : adsList) {
+            ad.setOwnerId(account);
             ad.setClosingDate(LocalDate.now().minusDays(1));
         }
-        adsService.save(adsList);
+        adsService.save(adsList);*/
 
         return adsService.findAvgCostAdsByAccountIdAndDate(account, LocalDate.now().minusDays(1)).orElse(BigDecimal.ZERO).doubleValue();
     }

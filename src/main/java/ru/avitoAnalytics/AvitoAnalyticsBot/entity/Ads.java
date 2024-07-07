@@ -27,6 +27,8 @@ public class Ads {
     @Column(precision = 2, scale = 2)
     private BigDecimal cost;
 
+    private String city;
+
     private LocalDate pubDate;
     private LocalDate closingDate;
 
