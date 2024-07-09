@@ -24,4 +24,7 @@ public interface AdsRepository extends JpaRepository<Ads, Long>, AdsJdbcReposito
 
     @Query(value = "select avg(a.cost) from Ads a where a.ownerId = :ownerId")
     Optional<BigDecimal> findAvgCostAdsByAccountId(AccountData ownerId);
+
+    @Query(value = "select a from Ads a where a.ownerId = :ownerId and a.pubDate <= :pubDate")
+    List<Ads> findAdsFilter(AccountData ownerId, LocalDate pubDate);
 }

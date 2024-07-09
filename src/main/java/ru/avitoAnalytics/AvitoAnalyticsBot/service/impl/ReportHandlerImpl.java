@@ -52,6 +52,7 @@ public class ReportHandlerImpl implements ReportHandler {
                     log.warn("Warning: cost equals zero, ads id - {}", ad.getAvitoId());
                     continue;
                 }
+                ad.setCity(row.get(2).toString());
                 ad.setPubDate(LocalDate.parse(row.get(8).toString()));
                 ad.setClosingDate(LocalDate.parse(row.get(9).toString()));
                 ad.setCost(cost);
@@ -62,5 +63,6 @@ public class ReportHandlerImpl implements ReportHandler {
             accountService.saveAccount(account);
             log.error(e.getMessage(), e);
         }
+        log.info("End reposrt processing, account {}", account);
     }
 }

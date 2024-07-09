@@ -284,23 +284,22 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                     .closingDate(null)
                     .build());
         }
-        //parserProcessor.addListAds(newAdsAvito);
+        parserProcessor.addListAds(newAds);
 
         //2 получение всех старых и установка их даты
 
         List<Long> oldAds = new ArrayList<>(adsFromDb);
         oldAds.removeAll(adsIdFromAvito);
-        var adsWithNullDate = adsFromDB.stream()
-                .filter(ad -> ad.getClosingDate() == null)
-                .map(Ads::getAvitoId)
-                .toList();
-        //List<Ads> adsList = adsService.findByAvitoId(adsWithNullDate);
-        /*for (Ads ad : adsList) {
-            ad.setOwnerId(account);
-            ad.setClosingDate(LocalDate.now().minusDays(1));
-        }
-        adsService.save(adsList);*/
 
+
+
+        for (Long id : oldAds) {
+            adsService.findByAvitoId(id).ifPresent(it -> {
+                it.setOwnerId(account);
+                it.setClosingDate(LocalDate.now().minusDays(1));
+                adsService.save(it);
+            });
+        }
         return adsService.findAvgCostAdsByAccountIdAndDate(account, LocalDate.now().minusDays(1)).orElse(BigDecimal.ZERO).doubleValue();
     }
 

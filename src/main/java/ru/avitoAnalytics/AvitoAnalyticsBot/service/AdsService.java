@@ -1,5 +1,6 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.service;
 
+import org.slf4j.spi.LocationAwareLogger;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 
@@ -15,5 +16,6 @@ public interface AdsService {
     Optional<BigDecimal> findAvgCostAdsByAccountIdAndDate(AccountData ownerId, LocalDate date);
     Optional<BigDecimal> findAvgCostAdsByAccountId(AccountData ownerId);
     List<Ads> findAllAdsByAccountIdAndDate(AccountData ownerId, LocalDate date);
-    //List<Ads> findByAvitoId(List<Long> avitoIds);
+    List<Ads> findAdsFilter(AccountData ownerId, LocalDate pubDate);
+    Optional<Ads> findByAvitoId(Long avitoId);
 }

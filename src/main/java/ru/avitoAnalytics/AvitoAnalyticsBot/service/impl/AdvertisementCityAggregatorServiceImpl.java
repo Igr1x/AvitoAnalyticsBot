@@ -9,11 +9,9 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.AvitoResponseException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsInsertException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsReadException;
-import ru.avitoAnalytics.AvitoAnalyticsBot.models.Advertisement;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Items;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Stats;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
-import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -41,15 +39,12 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
     private final AdsService adsService;
 
     @Override
-    public Map<String, List<Long>> getInfoOnAdvertisement(List<Advertisement> advertisementList) {
+    public Map<String, List<Long>> getInfoOnAdvertisement(List<Ads> advertisementList) {
         Map<String, List<Long>> advertisementsFromCity = new HashMap<>();
-        for (Advertisement advertisement : advertisementList) {
-            String address = advertisement.getAddress();
-            String city = getCityFromAddress(address);
-            Long adId = advertisement.getId();
-            List<Long> adIds = advertisementsFromCity.computeIfAbsent(city, k -> new ArrayList<>());
-            // Если списка нет, создаем новый и добавляем его в карту
-            // Добавляем id объявления в список
+        for (Ads advertisement : advertisementList) {
+            String address = advertisement.getCity();
+            Long adId = advertisement.getAvitoId();
+            List<Long> adIds = advertisementsFromCity.computeIfAbsent(address, k -> new ArrayList<>());
             adIds.add(adId);
         }
         return advertisementsFromCity;
@@ -104,8 +99,8 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
         } catch (JsonProcessingException | AvitoResponseException e) {
             log.error("Error: while getting token for account {}, error message: {}", accountData.toString(), e.getMessage());
         }
-        List<Advertisement> advertisementList = advertisementAvitoService.getAllAdvertisements(token, dateFrom.toString());
-        Map<String, List<Long>> advertFromCities = getInfoOnAdvertisement(advertisementList);
+        List<Ads> allAds = adsService.findAdsFilter(accountData, dateFrom);
+        Map<String, List<Long>> advertFromCities = getInfoOnAdvertisement(allAds);
         String userId = String.valueOf(accountData.getUserId());
         String range = sheetsName + "!" + rightColumn + "3:" + leftColumn + "500";
         List<List<Object>> statsCities = new ArrayList<>();
@@ -116,6 +111,7 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
             for (Long id : ids) {
                 cost += adsService.findCostByAvitoId(id).orElse(BigDecimal.ZERO).doubleValue();
             }
+            cost = cost / ids.size();
             List<Items> stats = statisticAvitoService.getStatistic(ids, token, userId, dateFrom.toString(), dateTo.toString());
             statsCity.add(city);
             statsCity.add(getSumStatisticInt(stats, Stats::getUniqViews));
@@ -134,20 +130,6 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
         }
     }
 
-    private String getCityFromAddress(String address) {
-        String[] arr = address.split(", ");
-        String city = arr[0];
-        if (arr.length >= 2) {
-            city = arr[1];
-        }
-        if (arr.length >= 3) {
-            if (city.contains("р-н")) {
-                city = arr[2];
-            }
-        }
-        return city;
-    }
-
     private Integer getSumStatisticInt(List<Items> itemsList, Function<Stats, Integer> getValue) {
         return itemsList.stream()
                 .flatMap(items -> items.getStats().stream())
@@ -161,5 +143,4 @@ public class AdvertisementCityAggregatorServiceImpl implements AdvertisementAggr
                 .mapToDouble(getValue::apply)
                 .sum();
     }
-
 }

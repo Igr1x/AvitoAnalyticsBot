@@ -50,8 +50,13 @@ public class AdsServiceImpl implements AdsService {
         return adsRepository.findAllAdsByAccountIdAndDate(ownerId, date);
     }
 
-    /*@Override
-    public List<Ads> findByAvitoId(List<Long> avitoIds) {
-        return adsRepository.findByAvitoId(avitoIds);
-    }*/
+    @Override
+    public List<Ads> findAdsFilter(AccountData ownerId, LocalDate pubDate) {
+        return adsRepository.findAdsFilter(ownerId, pubDate);
+    }
+
+    @Override
+    public Optional<Ads> findByAvitoId(Long avitoId) {
+        return adsRepository.findByAvitoId(avitoId);
+    }
 }

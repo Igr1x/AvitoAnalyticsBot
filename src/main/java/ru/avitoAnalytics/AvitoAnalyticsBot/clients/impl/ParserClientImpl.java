@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import ru.avitoAnalytics.AvitoAnalyticsBot.clients.ParserClient;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.ItemNotFoundException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Product;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.CityService;
 
 import java.util.Map;
 
