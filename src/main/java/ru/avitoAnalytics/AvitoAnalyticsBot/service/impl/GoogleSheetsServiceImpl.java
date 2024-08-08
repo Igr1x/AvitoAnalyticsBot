@@ -79,7 +79,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             List<Integer> sheetsId = getSheetsId(FROM_SHEETS_ID);
 
             CopySheetToAnotherSpreadsheetRequest requestBody = new CopySheetToAnotherSpreadsheetRequest();
-            requestBody.setDestinationSpreadsheetId(toSheetsId);
+            requestBody.setDestinationSpreadsheetId(parseTokenFromSheetsRef(toSheetsId));
+
             for (Integer sheetId : sheetsId) {
                 CopyTo request = service.spreadsheets().sheets().copyTo(FROM_SHEETS_ID, sheetId, requestBody);
                 request.execute();
