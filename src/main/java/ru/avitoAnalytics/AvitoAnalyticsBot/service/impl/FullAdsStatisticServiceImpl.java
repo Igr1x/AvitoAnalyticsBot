@@ -7,14 +7,15 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.avitoAnalytics.AvitoAnalyticsBot.controller.ParserProcessor;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
+import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -28,13 +29,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
 
-    private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
     private final String RANGE_FOR_GET_LAST_COLUMN = "%s!A%%d:ZZZ%%d";
 
     private final AccountService accountService;
     private final GoogleSheetsService googleSheetsService;
     private final StatisticAvitoService statisticAvitoService;
     private final AdvertisementAvitoService advertisementAvitoService;
+    private final ParserProcessor parserProcessor;
+    private final AdsService adsService;
 
     public static String name;
 
@@ -57,7 +59,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         for (String sheetRef : listSheetsRef) {
             String sheetName;
             try {
-                sheetName = googleSheetsService.getSheetByName("StatAcc#", SheetsStatUtil.getSheetsIdFromLink(sheetRef))
+                sheetName = googleSheetsService.getSheetByName("StatAcc#", sheetRef)
                         .orElseThrow(() -> new SheetsNotExistedException(String.format("Not found sheet by name, sheet id %s", sheetRef)));
             } catch (SheetsNotExistedException e) {
                 log.warn(e.getMessage());
@@ -69,8 +71,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 var sheetWithRangeMap = googleSheetsService.getAccountsWithRange(sheetRef, String.format(RANGE_FOR_GET_LAST_COLUMN, sheetName), sheetName);
                 setAccountStats(sheetWithRangeMap);
             } catch (GoogleSheetsReadException e) {
-                log.error(e.getMessage());
-                log.error(e.getCause().getMessage());
+                log.error(e.getMessage(), e);
             }
         }
     }
@@ -86,6 +87,10 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 log.warn(e.getCause().getMessage());
                 continue;
             }
+
+            if (!account.isReport()) {
+                continue;
+            }
             String token;
             try {
                 token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
@@ -98,16 +103,16 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
             Matcher matcher = pattern.matcher(entry.getKey());
             if (matcher.find()) {
                 try {
-                    /*var listOldStat = getOldStats(account, entry.getKey(), token);*/
                     var listOldStat = getSummaryStat(account, token);
                     List<List<Object>> all = getStatSummaryMethods().stream()
                             .map(mapper -> listOldStat.stream().
                                     map(mapper)
                                     .collect(Collectors.toList()))
                             .toList();
-                    googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
+                    googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), account.getSheetsRef());
                     continue;
-                } catch (GoogleSheetsInsertException | GoogleSheetsReadException | AdvertisementServiceException | AvitoResponseException e) {
+                } catch (GoogleSheetsInsertException | GoogleSheetsReadException | AdvertisementServiceException |
+                         AvitoResponseException e) {
                     log.error(e.getMessage());
                     log.error(e.getCause().getMessage());
                     continue;
@@ -120,7 +125,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                             .collect(Collectors.toList()))
                     .toList();
             try {
-                googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), SheetsStatUtil.getSheetsIdFromLink(account.getSheetsRef()));
+                googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), account.getSheetsRef());
             } catch (GoogleSheetsInsertException e) {
                 log.error(e.getMessage());
                 log.error(e.getCause().getMessage());
@@ -128,38 +133,13 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         }
     }
 
-    /*private List<StatSummary> getOldStats(AccountData account, String range, String token) {
-        Optional<LocalDate> oldDateOpt = googleSheetsService.getOldestDate(account.getSheetsRef(), name);
-        if (oldDateOpt.isEmpty()) {
-            LocalDate oldestDate = LocalDate.now().minusDays(270);
-            LocalDate startWeekDate = SheetsStatUtil.getDayOfStartWeek(oldestDate);
-            List<StatSummary> startWeekList = new ArrayList<>();
-            while (!oldestDate.equals(startWeekDate)) {
-                startWeekList.add(new StatSummary(SheetsStatUtil.getDayOfWeek(startWeekDate), startWeekDate.toString()));
-                startWeekDate = startWeekDate.plusDays(1);
-            }
-            startWeekList.addAll(getYesterdayStats(account, token));
-            return startWeekList;
-        }
-        LocalDate oldDate = oldDateOpt.get();
-        List<StatSummary> allStats = new ArrayList<>();
-        while (!oldDate.equals(LocalDate.now().minusDays(1))) {
-            allStats.add(new StatSummary(SheetsStatUtil.getDayOfWeek(oldDate), oldDate.toString()));
-            if (SheetsStatUtil.getDayOfWeek(oldDate).equals("вс")) {
-                allStats.addAll(SheetsStatUtil.setStatsWeek(oldDate));
-            }
-            oldDate = oldDate.plusDays(1);
-        }
-        allStats.addAll(getYesterdayStats(account, token));
-        return allStats;
-    }*/
-
     private List<StatSummary> getSummaryStat(AccountData account, String token) throws GoogleSheetsReadException, AdvertisementServiceException, AvitoResponseException {
         LocalDate oldestDate = LocalDate.now().minusDays(269);
         oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), name).orElse(oldestDate);
         LocalDate oldDate = oldestDate;
         Map<LocalDate, Stats> mapStats = new TreeMap<>();
         int i = 0;
+        var cost = adsService.findAvgCostAdsByAccountId(account).orElse(BigDecimal.ZERO).doubleValue();
         while (oldestDate.isBefore(LocalDate.now().minusDays(1))) {
             List<Advertisement> allAds = advertisementAvitoService.getAllAdvertisements(token, oldestDate.toString());
             List<Long> listId = allAds.stream()
@@ -172,18 +152,12 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 for (Stats stat : currentItemStats) {
                     LocalDate currentDate = LocalDate.parse(stat.getDate());
                     if (mapStats.containsKey(currentDate)) {
-                        if (currentDate.equals(LocalDate.parse("2024-02-10"))) {
-                            i++;
-                        }
                         Stats existingStat = mapStats.get(currentDate);
                         existingStat.setUniqContacts(existingStat.getUniqContacts() + stat.getUniqContacts());
                         existingStat.setUniqFavorites(existingStat.getUniqFavorites() + stat.getUniqFavorites());
                         existingStat.setUniqViews(existingStat.getUniqViews() + stat.getUniqViews());
                         existingStat.setSumViews(existingStat.getSumViews() + stat.getSumViews());
                     } else {
-                        if (currentDate.equals(LocalDate.parse("2024-02-10"))) {
-                            i++;
-                        }
                         mapStats.put(currentDate, stat);
                     }
                 }
@@ -204,7 +178,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
 
             currentDate = getMissingDayStats(currentDateStats, currentDate).getValue();
 
-            stats.updateFields(0.0);
+            stats.updateFields(cost);
 
             LocalDate date = LocalDate.parse(stats.getDate());
             String dayOfWeek = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("ru"));
@@ -239,6 +213,9 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         List<Long> listId = allAds.stream()
                 .map(Advertisement::getId)
                 .toList();
+
+        var cost = getCost(listId, account);
+
         List<Items> stats = statisticAvitoService.getStatistic(listId, token, account.getUserId().toString(), yesterday.toString(), yesterday.toString());
 
         Integer sumV = getSumStatistic(stats, Stats::getUniqViews);
@@ -247,7 +224,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         Double allExpenses = getAllExpenses(token, yesterday);
 
         Stats statistic = new Stats(yesterday.toString(), sumC, sumF, sumV, allExpenses);
-        statistic.updateFields(0.0);
+        statistic.updateFields(cost);
         List<StatSummary> result = new ArrayList<>();
         result.add(new StatSummary(SheetsStatUtil.getDayOfWeek(yesterday), statistic.getDate(), statistic.getUniqViews(),
                 statistic.getCv(), statistic.getUniqContacts(), statistic.getUniqFavorites(), statistic.getSumViews(),
@@ -286,4 +263,44 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 StatSummary::getTotalSum,
                 StatSummary::getSumContact);
     }
+
+    private double getCost(List<Long> activeAds, AccountData account) {
+        var adsFromDB = adsService.findAllAdsByAccountIdAndDate(account, LocalDate.now().minusDays(1));
+
+        Set<Long> adsIdFromAvito = new HashSet<>(activeAds);
+        Set<Long> adsFromDb = adsFromDB.stream()
+                .map(Ads::getId)
+                .collect(Collectors.toSet());
+
+        //1 получить все активные, которых нет в бд
+        List<Ads> newAds = new ArrayList<>();
+        List<Long> newAdsId = new ArrayList<>(adsIdFromAvito);
+        newAdsId.removeAll(adsFromDb.stream().toList());
+        for (Long id : newAdsId) {
+            newAds.add(Ads.builder()
+                    .avitoId(id)
+                    .ownerId(account)
+                    .pubDate(LocalDate.now().minusDays(1))
+                    .closingDate(null)
+                    .build());
+        }
+        parserProcessor.addListAds(newAds);
+
+        //2 получение всех старых и установка их даты
+
+        List<Long> oldAds = new ArrayList<>(adsFromDb);
+        oldAds.removeAll(adsIdFromAvito);
+
+
+
+        for (Long id : oldAds) {
+            adsService.findByAvitoId(id).ifPresent(it -> {
+                it.setOwnerId(account);
+                it.setClosingDate(LocalDate.now().minusDays(1));
+                adsService.save(it);
+            });
+        }
+        return adsService.findAvgCostAdsByAccountIdAndDate(account, LocalDate.now().minusDays(1)).orElse(BigDecimal.ZERO).doubleValue();
+    }
+
 }

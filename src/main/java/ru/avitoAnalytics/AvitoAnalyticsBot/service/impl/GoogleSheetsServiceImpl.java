@@ -74,21 +74,20 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public void insertTemplateSheets(String sheetsRef) throws GoogleSheetsReadException, GoogleSheetsInsertException {
+    public void insertTemplateSheets(String toSheetsId) throws GoogleSheetsReadException, GoogleSheetsInsertException {
         try {
             List<Integer> sheetsId = getSheetsId(FROM_SHEETS_ID);
 
-            String toSheetsId = parseTokenFromSheetsRef(sheetsRef);
-
             CopySheetToAnotherSpreadsheetRequest requestBody = new CopySheetToAnotherSpreadsheetRequest();
-            requestBody.setDestinationSpreadsheetId(toSheetsId);
+            requestBody.setDestinationSpreadsheetId(parseTokenFromSheetsRef(toSheetsId));
+
             for (Integer sheetId : sheetsId) {
                 CopyTo request = service.spreadsheets().sheets().copyTo(FROM_SHEETS_ID, sheetId, requestBody);
                 request.execute();
             }
             setSheetsTitle(toSheetsId);
         } catch (IOException e) {
-            throw new GoogleSheetsInsertException(String.format("Error: inserting new sheets into %s", sheetsRef), e);
+            throw new GoogleSheetsInsertException(String.format("Error: inserting new sheets into %s", toSheetsId), e);
         }
     }
 
@@ -149,18 +148,21 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
 
     @Override
     public Map<String, String> getLinksIdFavouriteItems(String sheetsLink, String sheetTittle, int p1, int p2) {
-        String sheetsId = parseTokenFromSheetsRef(sheetsLink);
         Map<String, String> itemsIdWithAccount = new LinkedHashMap<>();
         String range = String.format(ADS_ID_RANGE, sheetTittle);
         ValueRange value;
         for (int i = 0; ; i++) {
             int currentRange = (i * p1) + p2;
             try {
-                value = service.spreadsheets().values().get(sheetsId, String.format(range, currentRange, currentRange)).execute();
-                if (value.getValues() == null || value.getValues().isEmpty()) {
+                value = service.spreadsheets().values().get(sheetsLink, String.format(range, currentRange, currentRange)).execute();
+                if (value.getValues() == null || value.getValues().isEmpty() || value.getValues().get(0) == null) {
                     break;
                 }
                 String itemId = value.getValues().get(0).get(0).toString();
+                if (itemId.equals("Просмотров")) {
+                    break;
+                }
+
                 String accountData = "unknown";
                 if (value.getValues().get(0).size() == 2) {
                     accountData = value.getValues().get(0).get(1).toString();
@@ -168,7 +170,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                 itemsIdWithAccount.put(itemId, accountData);
                 Thread.currentThread().sleep(5L);
             } catch (IOException e) {
-                throw new GoogleSheetsReadException(String.format("Error: read account name from %s", sheetsId));
+                throw new GoogleSheetsReadException(String.format("Error: read account name from %s", sheetsLink));
             } catch (InterruptedException e) {
                 throw new RuntimeException(e.getMessage());
             }
@@ -291,9 +293,8 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
     }
 
     @Override
-    public Optional<LocalDate> getOldestDate(String sheetsLink, String sheetTittle) {
+    public Optional<LocalDate> getOldestDate(String sheetsId, String sheetTittle) {
         String range = String.format(OLDEST_DATE_ADS_RANGE, sheetTittle);
-        String sheetsId = parseTokenFromSheetsRef(sheetsLink);
         try {
             ValueRange value = service.spreadsheets().values().get(sheetsId, range).execute();
             if (value.getValues() != null) {
@@ -301,7 +302,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             }
             return Optional.empty();
         } catch (IOException | DateTimeParseException e) {
-            throw new GoogleSheetsReadException(String.format("Error: read oldest date from %s", sheetsLink), e);
+            throw new GoogleSheetsReadException(String.format("Error: read oldest date from %s", sheetsId), e);
         }
     }
 
@@ -329,8 +330,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return column.toString();
     }
 
-    private int getLastColumnNumber(String sheetsLink, String range) {
-        String sheetsId = parseTokenFromSheetsRef(sheetsLink);
+    private int getLastColumnNumber(String sheetsId, String range) {
         int lastColumn = 0;
         try {
             ValueRange values = service.spreadsheets().values().get(sheetsId, range).execute();
@@ -339,7 +339,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
             }
             return lastColumn;
         } catch (IOException e) {
-            throw new GoogleSheetsReadException(String.format("Error: get last column from %s, range %s", sheetsLink, range), e);
+            throw new GoogleSheetsReadException(String.format("Error: get last column from %s, range %s", sheetsId, range), e);
         }
     }
 

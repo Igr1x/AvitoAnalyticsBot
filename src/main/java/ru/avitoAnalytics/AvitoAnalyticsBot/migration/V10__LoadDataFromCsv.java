@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +26,7 @@ public class V10__LoadDataFromCsv extends BaseJavaMigration {
     @Override
     public void migrate(Context context) throws Exception {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
-        try (Reader reader = new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/cost.csv")))) {
+        try (Reader reader = new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/cost.csv")), StandardCharsets.UTF_8)) {
             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withHeader());
 
             List<CSVRecord> records = csvParser.getRecords();

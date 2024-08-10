@@ -8,12 +8,13 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AvitoCost;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.ItemNotFoundException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.models.Product;
-import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AdsRepository;
 import ru.avitoAnalytics.AvitoAnalyticsBot.repositories.AvitoCostJdbcRepository;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.AdsService;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.CityService;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.ParserService;
-import ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.AdsServiceImpl;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -30,9 +31,9 @@ public class ParserProcessor extends Thread {
     private final Set<Long> set = ConcurrentHashMap.newKeySet();
 
     private final ParserService parserService;
-    private final AdsRepository adsRepository;
     private final AvitoCostJdbcRepository avitoCostJdbcRepository;
-    private final AdsServiceImpl adsService;
+    private final AdsService adsService;
+    private final CityService cityService;
 
     @PostConstruct
     public void init() {
@@ -40,9 +41,17 @@ public class ParserProcessor extends Thread {
     }
 
     public void addAds(Ads ad) {
-        System.out.println("Try to add in queue: " + ad.getAvitoId());
         if (set.add(ad.getAvitoId())) {
             queue.add(ad);
+        }
+    }
+
+    public void addListAds(List<Ads> adsList) {
+        System.out.println("getListAds: " + adsList.size());
+        for (Ads ad : adsList) {
+            if (set.add(ad.getAvitoId())) {
+                queue.add(ad);
+            }
         }
     }
 
@@ -53,9 +62,8 @@ public class ParserProcessor extends Thread {
                 Ads ad = queue.poll(1, TimeUnit.MINUTES);
                 if (ad != null) {
                     set.remove(ad.getAvitoId());
-                    var cost = processAd(ad.getAvitoId());
-                    ad.setCost(cost);
-                    adsService.save(ad);
+                    var newAd = processAd(ad);
+                    adsService.save(newAd);
                 }
             } catch (ItemNotFoundException e) {
                 log.error(e.getMessage());
@@ -67,23 +75,13 @@ public class ParserProcessor extends Thread {
         }
     }
 
-    private BigDecimal processAd(Long id) throws Exception {
-        Product ads = parserService.parseProduct(id);
+    private Ads processAd(Ads ad) throws Exception {
+        Product ads = parserService.parseProduct(ad.getAvitoId());
         List<String> categories = ads.getCategories();
         if (categories == null || categories.isEmpty()) {
-            throw new ItemNotFoundException(String.format("Item %d has empty categories", id));
+            throw new ItemNotFoundException(String.format("Item %d has empty categories", ad));
         }
-        String address = ads.getAddress();
-        List<String> addressParts = List.of(address.split(", "));
-        String region = addressParts.get(0);
-        String city = "";
-        String street = "";
-        if (addressParts.size() >= 2) {
-            city = addressParts.get(1);
-        }
-        if (addressParts.size() >= 3) {
-            street = addressParts.get(2);
-        }
+        String address = addressProcessor(ads.getAddress());
         String category;
         String subcategory;
         String lastCategory;
@@ -92,11 +90,36 @@ public class ParserProcessor extends Thread {
             subcategory = categories.get(1);
             lastCategory = categories.get(2);
         } else {
-            throw new ItemNotFoundException(String.format("Item %d has empty categories", id));
+            throw new ItemNotFoundException(String.format("Item %d has empty categories", ad));
         }
-        return avitoCostJdbcRepository.findAvitoCost(region, city, street, category, subcategory, lastCategory)
+        var cost = avitoCostJdbcRepository.findAvitoCost(address, address, address, category, subcategory, lastCategory)
                 .map(AvitoCost::getCost)
                 .orElse(BigDecimal.ZERO);
+        ad.setCost(cost);
+        ad.setPubDate(LocalDate.now().minusDays(1));
+        ad.setCity(address);
+        return ad;
+    }
+
+    private String addressProcessor(String address) {
+        List<String> addressParts = List.of(address.split(", "));
+        var city = cityService.getCityByName(addressParts.get(0));
+        if (city.isPresent()) {
+            return city.get().getCityName();
+        }
+        if (addressParts.size() >= 2) {
+            city = cityService.getCityByName(addressParts.get(1));
+            if (city.isPresent()) {
+                return city.get().getCityName();
+            }
+        }
+        if (addressParts.size() >= 3) {
+            city = cityService.getCityByName(addressParts.get(2));
+            if (city.isPresent()) {
+                return city.get().getCityName();
+            }
+        }
+        return null;
     }
 }
 

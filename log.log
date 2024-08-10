@@ -1,35 +1,389 @@
-2024-06-13T18:18:03.093+03:00  INFO 3244 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 3244 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
-2024-06-13T18:18:03.101+03:00  INFO 3244 --- [main] r.a.A.AvitoAnalyticsBotApplication       : The following 1 profile is active: "prod"
-2024-06-13T18:18:03.838+03:00  INFO 3244 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-06-13T18:18:03.931+03:00  INFO 3244 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 86 ms. Found 4 JPA repository interfaces.
-2024-06-13T18:18:04.476+03:00  INFO 3244 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
-2024-06-13T18:18:04.484+03:00  INFO 3244 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2024-06-13T18:18:04.485+03:00  INFO 3244 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
-2024-06-13T18:18:04.582+03:00  INFO 3244 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2024-06-13T18:18:04.582+03:00  INFO 3244 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1404 ms
-2024-06-13T18:18:04.744+03:00  INFO 3244 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.16.3 by Redgate
-2024-06-13T18:18:04.744+03:00  INFO 3244 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
-2024-06-13T18:18:04.744+03:00  INFO 3244 --- [main] o.f.c.internal.license.VersionPrinter    : 
-2024-06-13T18:18:04.755+03:00  INFO 3244 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-06-13T18:18:04.922+03:00  INFO 3244 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@349c4d1c
-2024-06-13T18:18:04.924+03:00  INFO 3244 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-06-13T18:18:04.950+03:00  INFO 3244 --- [main] o.f.c.i.database.base.BaseDatabaseType   : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
-2024-06-13T18:18:05.043+03:00  INFO 3244 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 11 migrations (execution time 00:00.046s)
-2024-06-13T18:18:05.081+03:00  INFO 3244 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 11
-2024-06-13T18:18:05.081+03:00  INFO 3244 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
-2024-06-13T18:18:05.190+03:00  INFO 3244 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-06-13T18:18:05.264+03:00  INFO 3244 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.9.Final
-2024-06-13T18:18:05.267+03:00  INFO 3244 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
-2024-06-13T18:18:05.436+03:00  INFO 3244 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
-2024-06-13T18:18:05.582+03:00  INFO 3244 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-06-13T18:18:05.867+03:00  INFO 3244 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
-2024-06-13T18:18:06.541+03:00  INFO 3244 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
-2024-06-13T18:18:06.544+03:00  INFO 3244 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-06-13T18:18:06.824+03:00  INFO 3244 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2024-06-13T18:18:07.559+03:00  WARN 3244 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2024-06-13T18:18:07.893+03:00  INFO 3244 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
-2024-06-13T18:18:09.696+03:00  INFO 3244 --- [main] r.a.A.configuration.Initializer          : Bot @AvitoAnalyticsBot was registered!
-2024-06-13T18:18:09.697+03:00  INFO 3244 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Started AvitoAnalyticsBotApplication in 7.045 seconds (process running for 7.976)
-2024-06-13T18:19:08.230+03:00  INFO 3244 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2024-06-13T18:19:08.232+03:00  INFO 3244 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2024-06-13T18:19:08.235+03:00  INFO 3244 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-07-17T11:46:22.523+03:00  INFO 17336 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 17336 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-07-17T11:46:22.531+03:00  INFO 17336 --- [main] r.a.A.AvitoAnalyticsBotApplication       : The following 1 profile is active: "prod"
+2024-07-17T11:46:23.603+03:00  INFO 17336 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-07-17T11:46:23.784+03:00  INFO 17336 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 168 ms. Found 5 JPA repository interfaces.
+2024-07-17T11:46:26.118+03:00  INFO 17336 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-07-17T11:46:26.155+03:00  INFO 17336 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-07-17T11:46:26.155+03:00  INFO 17336 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2024-07-17T11:46:26.277+03:00  INFO 17336 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-07-17T11:46:26.278+03:00  INFO 17336 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3652 ms
+2024-07-17T11:46:26.514+03:00  INFO 17336 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-07-17T11:46:27.633+03:00 ERROR 17336 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Exception during pool initialization.
+
+org.postgresql.util.PSQLException: FATAL: database "AvitoAnalytics" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2713) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:2825) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:175) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:313) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:54) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:263) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.Driver.makeConnection(Driver.java:443) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.Driver.connect(Driver.java:297) ~[postgresql-42.6.2.jar:42.6.2]
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:359) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:201) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:470) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:561) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:100) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:112) ~[HikariCP-5.0.1.jar:na]
+	at org.flywaydb.core.api.configuration.ClassicConfiguration.setDataSource(ClassicConfiguration.java:1094) ~[flyway-core-9.22.3.jar:na]
+	at org.flywaydb.core.api.configuration.FluentConfiguration.dataSource(FluentConfiguration.java:624) ~[flyway-core-9.22.3.jar:na]
+	at org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration$FlywayConfiguration.configureDataSource(FlywayAutoConfiguration.java:185) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration$FlywayConfiguration.flyway(FlywayAutoConfiguration.java:172) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:578) ~[na:na]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:140) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:644) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:636) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1335) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1165) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:326) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:324) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1234) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:952) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.5.jar:3.2.5]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.AvitoAnalyticsBotApplication.main(AvitoAnalyticsBotApplication.java:12) ~[classes/:na]
+
+2024-07-17T11:46:27.720+03:00  INFO 17336 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.22.3 by Redgate
+2024-07-17T11:46:27.720+03:00  INFO 17336 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-07-17T11:46:27.720+03:00  INFO 17336 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-07-17T11:46:27.733+03:00  INFO 17336 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-07-17T11:46:28.745+03:00 ERROR 17336 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Exception during pool initialization.
+
+org.postgresql.util.PSQLException: FATAL: database "AvitoAnalytics" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2713) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:2825) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:175) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:313) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:54) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:263) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.Driver.makeConnection(Driver.java:443) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.Driver.connect(Driver.java:297) ~[postgresql-42.6.2.jar:42.6.2]
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:359) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:201) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:470) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:561) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:100) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:112) ~[HikariCP-5.0.1.jar:na]
+	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:48) ~[flyway-core-9.22.3.jar:na]
+	at org.flywaydb.core.internal.jdbc.JdbcConnectionFactory.<init>(JdbcConnectionFactory.java:74) ~[flyway-core-9.22.3.jar:na]
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:142) ~[flyway-core-9.22.3.jar:na]
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:140) ~[flyway-core-9.22.3.jar:na]
+	at org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer.afterPropertiesSet(FlywayMigrationInitializer.java:66) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1833) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1782) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:326) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:324) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1234) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:952) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.5.jar:3.2.5]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.AvitoAnalyticsBotApplication.main(AvitoAnalyticsBotApplication.java:12) ~[classes/:na]
+
+2024-07-17T11:46:28.748+03:00  WARN 17336 --- [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: FATAL: database "AvitoAnalytics" does not exist
+------------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "AvitoAnalytics" does not exist
+
+2024-07-17T11:46:28.751+03:00  INFO 17336 --- [main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2024-07-17T11:46:28.764+03:00  INFO 17336 --- [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2024-07-17T11:46:28.781+03:00 ERROR 17336 --- [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Unable to obtain connection from database: FATAL: database "AvitoAnalytics" does not exist
+------------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "AvitoAnalytics" does not exist
+
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1786) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:326) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:324) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1234) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:952) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.5.jar:3.2.5]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.AvitoAnalyticsBotApplication.main(AvitoAnalyticsBotApplication.java:12) ~[classes/:na]
+Caused by: org.flywaydb.core.internal.exception.FlywaySqlException: Unable to obtain connection from database: FATAL: database "AvitoAnalytics" does not exist
+------------------------------------------------------------------------------------------
+SQL State  : 3D000
+Error Code : 0
+Message    : FATAL: database "AvitoAnalytics" does not exist
+
+	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:60) ~[flyway-core-9.22.3.jar:na]
+	at org.flywaydb.core.internal.jdbc.JdbcConnectionFactory.<init>(JdbcConnectionFactory.java:74) ~[flyway-core-9.22.3.jar:na]
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:142) ~[flyway-core-9.22.3.jar:na]
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:140) ~[flyway-core-9.22.3.jar:na]
+	at org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer.afterPropertiesSet(FlywayMigrationInitializer.java:66) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1833) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1782) ~[spring-beans-6.1.6.jar:6.1.6]
+	... 18 common frames omitted
+Caused by: org.postgresql.util.PSQLException: FATAL: database "AvitoAnalytics" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2713) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:2825) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:175) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:313) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:54) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:263) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.Driver.makeConnection(Driver.java:443) ~[postgresql-42.6.2.jar:42.6.2]
+	at org.postgresql.Driver.connect(Driver.java:297) ~[postgresql-42.6.2.jar:42.6.2]
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:359) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:201) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:470) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:561) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:100) ~[HikariCP-5.0.1.jar:na]
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:112) ~[HikariCP-5.0.1.jar:na]
+	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:48) ~[flyway-core-9.22.3.jar:na]
+	... 24 common frames omitted
+
+2024-07-17T11:48:00.533+03:00  INFO 17616 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 17616 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-07-17T11:48:00.536+03:00  INFO 17616 --- [main] r.a.A.AvitoAnalyticsBotApplication       : The following 1 profile is active: "prod"
+2024-07-17T11:48:01.490+03:00  INFO 17616 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-07-17T11:48:01.624+03:00  INFO 17616 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 121 ms. Found 5 JPA repository interfaces.
+2024-07-17T11:48:02.327+03:00  INFO 17616 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-07-17T11:48:02.345+03:00  INFO 17616 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-07-17T11:48:02.345+03:00  INFO 17616 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2024-07-17T11:48:02.425+03:00  INFO 17616 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-07-17T11:48:02.426+03:00  INFO 17616 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1801 ms
+2024-07-17T11:48:02.549+03:00  INFO 17616 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-07-17T11:48:02.756+03:00  INFO 17616 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4ae2e781
+2024-07-17T11:48:02.758+03:00  INFO 17616 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-07-17T11:48:02.887+03:00  INFO 17616 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.22.3 by Redgate
+2024-07-17T11:48:02.887+03:00  INFO 17616 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-07-17T11:48:02.887+03:00  INFO 17616 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-07-17T11:48:02.909+03:00  INFO 17616 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
+2024-07-17T11:48:03.017+03:00  WARN 17616 --- [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Validate failed: Migrations have failed validation
+Migration checksum mismatch for migration version 9
+-> Applied to database : -530568006
+-> Resolved locally    : 400386509
+Either revert the changes to the migration, or run repair to update the schema history.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+2024-07-17T11:48:03.017+03:00  INFO 17616 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-07-17T11:48:03.060+03:00  INFO 17616 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-07-17T11:48:03.063+03:00  INFO 17616 --- [main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2024-07-17T11:48:03.075+03:00  INFO 17616 --- [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2024-07-17T11:48:03.094+03:00 ERROR 17616 --- [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flywayInitializer' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Validate failed: Migrations have failed validation
+Migration checksum mismatch for migration version 9
+-> Applied to database : -530568006
+-> Resolved locally    : 400386509
+Either revert the changes to the migration, or run repair to update the schema history.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1786) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:326) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:324) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:313) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1234) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:952) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624) ~[spring-context-6.1.6.jar:6.1.6]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.5.jar:3.2.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.5.jar:3.2.5]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.AvitoAnalyticsBotApplication.main(AvitoAnalyticsBotApplication.java:12) ~[classes/:na]
+Caused by: org.flywaydb.core.api.exception.FlywayValidateException: Validate failed: Migrations have failed validation
+Migration checksum mismatch for migration version 9
+-> Applied to database : -530568006
+-> Resolved locally    : 400386509
+Either revert the changes to the migration, or run repair to update the schema history.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.flywaydb.core.Flyway.lambda$migrate$0(Flyway.java:146) ~[flyway-core-9.22.3.jar:na]
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:213) ~[flyway-core-9.22.3.jar:na]
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:140) ~[flyway-core-9.22.3.jar:na]
+	at org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer.afterPropertiesSet(FlywayMigrationInitializer.java:66) ~[spring-boot-autoconfigure-3.2.5.jar:3.2.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1833) ~[spring-beans-6.1.6.jar:6.1.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1782) ~[spring-beans-6.1.6.jar:6.1.6]
+	... 18 common frames omitted
+
+2024-07-17T11:49:53.140+03:00  INFO 14284 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 14284 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-07-17T11:49:53.142+03:00  INFO 14284 --- [main] r.a.A.AvitoAnalyticsBotApplication       : The following 1 profile is active: "prod"
+2024-07-17T11:49:54.043+03:00  INFO 14284 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-07-17T11:49:54.142+03:00  INFO 14284 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 92 ms. Found 5 JPA repository interfaces.
+2024-07-17T11:49:54.737+03:00  INFO 14284 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-07-17T11:49:54.749+03:00  INFO 14284 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-07-17T11:49:54.750+03:00  INFO 14284 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2024-07-17T11:49:54.822+03:00  INFO 14284 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-07-17T11:49:54.822+03:00  INFO 14284 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1610 ms
+2024-07-17T11:49:54.932+03:00  INFO 14284 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-07-17T11:49:55.075+03:00  INFO 14284 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@49580ca8
+2024-07-17T11:49:55.076+03:00  INFO 14284 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-07-17T11:49:55.155+03:00  INFO 14284 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.22.3 by Redgate
+2024-07-17T11:49:55.156+03:00  INFO 14284 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-07-17T11:49:55.156+03:00  INFO 14284 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-07-17T11:49:55.172+03:00  INFO 14284 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
+2024-07-17T11:49:55.235+03:00  INFO 14284 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.046s)
+2024-07-17T11:49:55.252+03:00  INFO 14284 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 17
+2024-07-17T11:49:55.257+03:00  INFO 14284 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2024-07-17T11:49:55.399+03:00  INFO 14284 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-07-17T11:49:55.491+03:00  INFO 14284 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2024-07-17T11:49:55.535+03:00  INFO 14284 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-07-17T11:49:55.859+03:00  INFO 14284 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-07-17T11:49:57.084+03:00  INFO 14284 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-07-17T11:49:57.087+03:00  INFO 14284 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-07-17T11:49:57.340+03:00  INFO 14284 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-07-17T11:49:58.409+03:00  WARN 14284 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-07-17T11:49:58.837+03:00  INFO 14284 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2024-07-17T11:49:59.329+03:00  INFO 14284 --- [main] r.a.A.configuration.Initializer          : Bot @AvitoAnalyticsBot was registered!
+2024-07-17T11:49:59.330+03:00  INFO 14284 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Started AvitoAnalyticsBotApplication in 6.719 seconds (process running for 7.755)
+2024-07-17T11:50:06.644+03:00  INFO 14284 --- [scheduling-1] r.a.A.actions.impl.AddAccountAction      : Start creating tables https://docs.google.com/spreadsheets/d/1CJ6VSWhZA3Wluxv-HKN0frch6-OLuDpCbXNqvYYaqKk/edit?hl=ru&gid=0#gid=0
+2024-07-17T11:50:06.710+03:00  INFO 14284 --- [@AvitoAnalyticsBot Telegram Executor] r.a.A.actions.impl.AddAccountAction      : Account was added successfully for client: iGHCfa2TLFa4qWDJNz3O
+2024-07-17T11:50:49.404+03:00  WARN 14284 --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=54s213ms893µs700ns).
+2024-07-17T11:50:59.556+03:00 ERROR 14284 --- [scheduling-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task
+
+ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsInsertException: Error: inserting new sheets into https://docs.google.com/spreadsheets/d/1CJ6VSWhZA3Wluxv-HKN0frch6-OLuDpCbXNqvYYaqKk/edit?hl=ru&gid=0#gid=0
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.GoogleSheetsServiceImpl.insertTemplateSheets(GoogleSheetsServiceImpl.java:89) ~[classes/:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.actions.impl.AddAccountAction.lambda$callback$1(AddAccountAction.java:59) ~[classes/:na]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-6.1.6.jar:6.1.6]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:577) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.run$$$capture(FutureTask.java:317) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1589) ~[na:na]
+Caused by: com.google.api.client.googleapis.json.GoogleJsonResponseException: 400 Bad Request
+POST https://sheets.googleapis.com/v4/spreadsheets/1c_VR7A-mnR7rpJ6dfcRBnjJGIIX2vIsxiZ2F2TcUrP4/sheets/1298383994:copyTo
+{
+  "code" : 400,
+  "errors" : [ {
+    "domain" : "global",
+    "message" : "Invalid destinationSpreadsheetId [https://docs.google.com/spreadsheets/d/1CJ6VSWhZA3Wluxv-HKN0frch6-OLuDpCbXNqvYYaqKk/edit?hl=ru&gid=0#gid=0]",
+    "reason" : "badRequest"
+  } ],
+  "message" : "Invalid destinationSpreadsheetId [https://docs.google.com/spreadsheets/d/1CJ6VSWhZA3Wluxv-HKN0frch6-OLuDpCbXNqvYYaqKk/edit?hl=ru&gid=0#gid=0]",
+  "status" : "INVALID_ARGUMENT"
+}
+	at com.google.api.client.googleapis.json.GoogleJsonResponseException.from(GoogleJsonResponseException.java:150) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest.newExceptionOnError(AbstractGoogleJsonClientRequest.java:113) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest.newExceptionOnError(AbstractGoogleJsonClientRequest.java:40) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.AbstractGoogleClientRequest$1.interceptResponse(AbstractGoogleClientRequest.java:321) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.http.HttpRequest.execute(HttpRequest.java:1111) ~[google-http-client-1.43.3.jar:1.43.3]
+	at com.google.api.client.googleapis.services.AbstractGoogleClientRequest.executeUnparsed(AbstractGoogleClientRequest.java:419) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.AbstractGoogleClientRequest.executeUnparsed(AbstractGoogleClientRequest.java:352) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.AbstractGoogleClientRequest.execute(AbstractGoogleClientRequest.java:469) ~[google-api-client-1.25.0.jar:1.25.0]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.GoogleSheetsServiceImpl.insertTemplateSheets(GoogleSheetsServiceImpl.java:85) ~[classes/:na]
+	... 9 common frames omitted
+
+2024-07-17T11:50:59.638+03:00  INFO 14284 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-07-17T11:50:59.640+03:00  INFO 14284 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-07-17T11:50:59.644+03:00  INFO 14284 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-07-17T11:51:38.641+03:00  INFO 20948 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Starting AvitoAnalyticsBotApplication using Java 19.0.1 with PID 20948 (C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot\target\classes started by Igrix in C:\Users\Igrix\Desktop\code\Projects\AvitoBot\AvitoAnalyticsBot)
+2024-07-17T11:51:38.643+03:00  INFO 20948 --- [main] r.a.A.AvitoAnalyticsBotApplication       : The following 1 profile is active: "prod"
+2024-07-17T11:51:39.419+03:00  INFO 20948 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-07-17T11:51:39.519+03:00  INFO 20948 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 93 ms. Found 5 JPA repository interfaces.
+2024-07-17T11:51:40.112+03:00  INFO 20948 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-07-17T11:51:40.124+03:00  INFO 20948 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-07-17T11:51:40.125+03:00  INFO 20948 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2024-07-17T11:51:40.198+03:00  INFO 20948 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-07-17T11:51:40.199+03:00  INFO 20948 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1494 ms
+2024-07-17T11:51:40.302+03:00  INFO 20948 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-07-17T11:51:40.449+03:00  INFO 20948 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@7c1503a3
+2024-07-17T11:51:40.449+03:00  INFO 20948 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-07-17T11:51:40.537+03:00  INFO 20948 --- [main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.22.3 by Redgate
+2024-07-17T11:51:40.537+03:00  INFO 20948 --- [main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2024-07-17T11:51:40.537+03:00  INFO 20948 --- [main] o.f.c.internal.license.VersionPrinter    : 
+2024-07-17T11:51:40.557+03:00  INFO 20948 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/AvitoAnalytics (PostgreSQL 15.2)
+2024-07-17T11:51:40.632+03:00  INFO 20948 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.052s)
+2024-07-17T11:51:40.642+03:00  INFO 20948 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 17
+2024-07-17T11:51:40.645+03:00  INFO 20948 --- [main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2024-07-17T11:51:40.761+03:00  INFO 20948 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-07-17T11:51:40.843+03:00  INFO 20948 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2024-07-17T11:51:40.885+03:00  INFO 20948 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-07-17T11:51:41.154+03:00  INFO 20948 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-07-17T11:51:42.585+03:00  INFO 20948 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-07-17T11:51:42.587+03:00  INFO 20948 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-07-17T11:51:42.868+03:00  INFO 20948 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-07-17T11:51:44.041+03:00  WARN 20948 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-07-17T11:51:44.487+03:00  INFO 20948 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2024-07-17T11:51:44.958+03:00  INFO 20948 --- [main] r.a.A.configuration.Initializer          : Bot @AvitoAnalyticsBot was registered!
+2024-07-17T11:51:44.958+03:00  INFO 20948 --- [main] r.a.A.AvitoAnalyticsBotApplication       : Started AvitoAnalyticsBotApplication in 6.785 seconds (process running for 7.637)
+2024-07-17T11:52:06.582+03:00  INFO 20948 --- [scheduling-1] r.a.A.actions.impl.AddAccountAction      : Start creating tables https://docs.google.com/spreadsheets/d/1CJ6VSWhZA3Wluxv-HKN0frch6-OLuDpCbXNqvYYaqKk/edit?hl=ru&gid=0#gid=0
+2024-07-17T11:52:06.602+03:00  INFO 20948 --- [@AvitoAnalyticsBot Telegram Executor] r.a.A.actions.impl.AddAccountAction      : Account was added successfully for client: iGHCfa2TLFa4qWDJNz3O
+2024-07-17T11:52:31.981+03:00 ERROR 20948 --- [scheduling-1] o.s.s.s.TaskUtils$LoggingErrorHandler    : Unexpected error occurred in scheduled task
+
+ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsReadException: Error: get all sheets from sheets https://docs.google.com/spreadsheets/d/1CJ6VSWhZA3Wluxv-HKN0frch6-OLuDpCbXNqvYYaqKk/edit?hl=ru&gid=0#gid=0
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.GoogleSheetsServiceImpl.getSheetsFromSpreadsheets(GoogleSheetsServiceImpl.java:99) ~[classes/:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.GoogleSheetsServiceImpl.setSheetsTitle(GoogleSheetsServiceImpl.java:115) ~[classes/:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.GoogleSheetsServiceImpl.insertTemplateSheets(GoogleSheetsServiceImpl.java:88) ~[classes/:na]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.actions.impl.AddAccountAction.lambda$callback$1(AddAccountAction.java:59) ~[classes/:na]
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54) ~[spring-context-6.1.6.jar:6.1.6]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:577) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1589) ~[na:na]
+Caused by: com.google.api.client.googleapis.json.GoogleJsonResponseException: 404 Not Found
+GET https://sheets.googleapis.com/v4/spreadsheets/https:%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1CJ6VSWhZA3Wluxv-HKN0frch6-OLuDpCbXNqvYYaqKk%2Fedit%3Fhl=ru&gid=0%23gid=0
+{
+  "code" : 404,
+  "errors" : [ {
+    "domain" : "global",
+    "message" : "Requested entity was not found.",
+    "reason" : "notFound"
+  } ],
+  "message" : "Requested entity was not found.",
+  "status" : "NOT_FOUND"
+}
+	at com.google.api.client.googleapis.json.GoogleJsonResponseException.from(GoogleJsonResponseException.java:150) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest.newExceptionOnError(AbstractGoogleJsonClientRequest.java:113) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest.newExceptionOnError(AbstractGoogleJsonClientRequest.java:40) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.AbstractGoogleClientRequest$1.interceptResponse(AbstractGoogleClientRequest.java:321) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.http.HttpRequest.execute(HttpRequest.java:1111) ~[google-http-client-1.43.3.jar:1.43.3]
+	at com.google.api.client.googleapis.services.AbstractGoogleClientRequest.executeUnparsed(AbstractGoogleClientRequest.java:419) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.AbstractGoogleClientRequest.executeUnparsed(AbstractGoogleClientRequest.java:352) ~[google-api-client-1.25.0.jar:1.25.0]
+	at com.google.api.client.googleapis.services.AbstractGoogleClientRequest.execute(AbstractGoogleClientRequest.java:469) ~[google-api-client-1.25.0.jar:1.25.0]
+	at ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.GoogleSheetsServiceImpl.getSheetsFromSpreadsheets(GoogleSheetsServiceImpl.java:96) ~[classes/:na]
+	... 10 common frames omitted
+
+2024-07-17T11:52:32.013+03:00  INFO 20948 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-07-17T11:52:32.016+03:00  INFO 20948 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-07-17T11:52:32.019+03:00  INFO 20948 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

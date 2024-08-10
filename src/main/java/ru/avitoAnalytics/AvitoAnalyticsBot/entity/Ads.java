@@ -1,12 +1,10 @@
 package ru.avitoAnalytics.AvitoAnalyticsBot.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "ads")
@@ -14,6 +12,7 @@ import java.math.BigDecimal;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Ads {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +26,11 @@ public class Ads {
 
     @Column(precision = 2, scale = 2)
     private BigDecimal cost;
+
+    private String city;
+
+    private LocalDate pubDate;
+    private LocalDate closingDate;
 
     public Ads(Long avitoId, AccountData ownerId) {
         this.avitoId = avitoId;

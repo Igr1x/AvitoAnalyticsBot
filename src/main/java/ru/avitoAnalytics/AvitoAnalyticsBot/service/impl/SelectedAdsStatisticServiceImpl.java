@@ -60,8 +60,8 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
             if (listAccounts.isEmpty()) {
                 continue;
             }
-            String title = googleSheetsService.getSheetByName("StatFav#", sheetName.substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
-            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(sheetName, String.format(RANGE_FOR_GET_LAST_COLUMN, title), title, 15, 3);
+            String title = googleSheetsService.getSheetByName("StatFav#", sheetName).get();
+            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(GOOGLE_SHEETS_PREFIX + sheetName, String.format(RANGE_FOR_GET_LAST_COLUMN, title), title, 15, 3);
             if (map.isEmpty()) {
                 continue;
             }
@@ -132,7 +132,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                             .collect(Collectors.toList()))
                     .collect(Collectors.toList());
             try {
-                googleSheetsService.insertStatisticIntoTable(all, item.getRange(), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
+                googleSheetsService.insertStatisticIntoTable(all, item.getRange(), account.getSheetsRef());
             } catch (GoogleSheetsInsertException e) {
                 log.error(e.getMessage());
                 log.error(e.getCause().getMessage());
@@ -160,7 +160,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
 
         String newRange = createRangeForDate(range, days, tittle);
         try {
-            googleSheetsService.insertStatisticIntoTable(daysList, newRange, account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]);
+            googleSheetsService.insertStatisticIntoTable(daysList, newRange, account.getSheetsRef());
         } catch (GoogleSheetsInsertException e) {
             log.error(e.getMessage());
             log.error("Account data - {}", account.toString());

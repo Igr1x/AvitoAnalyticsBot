@@ -8,10 +8,9 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.entity.Ads;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AvitoCost;
 import ru.avitoAnalytics.AvitoAnalyticsBot.exceptions.GoogleSheetsReadException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
-import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
-import javax.print.attribute.standard.MediaSize;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -19,26 +18,22 @@ import java.util.List;
 @Slf4j
 public class ReportHandlerImpl implements ReportHandler {
 
-    private final String GOOGLE_SHEETS_PREFIX = "https://docs.google.com/spreadsheets/d/";
-    private static final String RANGE = "%s!A2:G100000";
+    private static final String RANGE = "%s!A2:J100000";
     private static final String NAME_SHEETS = "HistoryAcc#%s";
 
     private final GoogleSheetsService googleSheetsService;
     private final AdsService adsService;
     private final AvitoCostService avitoCostService;
-    private final AccountService accountService;
+    private final AccountServiceImpl accountService;
 
     @Override
     public void reportProcess(AccountData account) {
-        /*AccountData account = accountService.findByUserId(Long.parseLong(userId)).orElseThrow(() -> {
-            log.error("Account with userId {} not found", userId);
-            return new RuntimeException();
-        });*/
-        //var name = googleSheetsService.getSheetByName(String.format(NAME_SHEETS, userId), account.getSheetsRef());
         try {
-            var name = googleSheetsService.getSheetByName(String.format(NAME_SHEETS, account.getUserId()), account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0]).get();
+            account.setReport(true);
+            accountService.saveAccount(account);
+            var name = googleSheetsService.getSheetByName(String.format(NAME_SHEETS, account.getUserId()), account.getSheetsRef()).orElseThrow(() -> new GoogleSheetsReadException("Sheet not found"));
             var rang = String.format(RANGE, name);
-            var res = googleSheetsService.getDataFromTable(account.getSheetsRef().substring(GOOGLE_SHEETS_PREFIX.length()).split("/")[0], rang);
+            var res = googleSheetsService.getDataFromTable(account.getSheetsRef(), rang);
             if (res.isEmpty()) {
                 return;
             }
@@ -57,12 +52,17 @@ public class ReportHandlerImpl implements ReportHandler {
                     log.warn("Warning: cost equals zero, ads id - {}", ad.getAvitoId());
                     continue;
                 }
+                ad.setCity(row.get(2).toString());
+                ad.setPubDate(LocalDate.parse(row.get(8).toString()));
+                ad.setClosingDate(LocalDate.parse(row.get(9).toString()));
                 ad.setCost(cost);
                 adsService.save(ad);
             }
-        } catch (GoogleSheetsReadException e) {
-            log.error(e.getMessage());
-            log.error(e.getCause().getMessage());
+        } catch (Exception e) {
+            account.setReport(false);
+            accountService.saveAccount(account);
+            log.error(e.getMessage(), e);
         }
+        log.info("End reposrt processing, account {}", account);
     }
 }

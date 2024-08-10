@@ -36,8 +36,11 @@ public class AccountsAction implements Actions<SendMessage> {
         }
         for (int i = 0; i < accounts.size(); i++) {
             text.append("Аккаунт №").append(i + 1).append('\n');
+            text.append(accounts.get(i).toString()).append("\n\n");
+            /*text.append("Аккаунт №").append(i + 1).append('\n');
+            text.append("")
             text.append("Client_id - ").append(accounts.get(i).getClientId()).append('\n');
-            text.append("Client_secret - ").append(accounts.get(i).getClientSecret()).append("\n\n");
+            text.append("Client_secret - ").append(accounts.get(i).getClientSecret()).append("\n\n");*/
             accountsId.add(accounts.get(i).getId());
         }
         return TelegramChatUtils.getMessage(chatId, text.toString(), new InlineKeyboardMarkup(BotButtons.getAccountsButtons(accounts.size(), accountsId)));

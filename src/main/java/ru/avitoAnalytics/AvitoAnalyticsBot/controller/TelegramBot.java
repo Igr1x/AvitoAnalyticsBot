@@ -17,8 +17,11 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.actions.impl.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.configuration.BotConfiguration;
 import ru.avitoAnalytics.AvitoAnalyticsBot.entity.User;
 import ru.avitoAnalytics.AvitoAnalyticsBot.service.*;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.AccountServiceImpl;
+import ru.avitoAnalytics.AvitoAnalyticsBot.service.impl.AdsServiceImpl;
 import ru.avitoAnalytics.AvitoAnalyticsBot.util.PatternMap;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +49,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final TariffAction tariffAction;
     private final FullAdsStatisticService services;
     private final SelectedAdsStatisticService selService;
-    private final AvitoCostService costService;
-    private final ReportHandler reportHandler;
-    private final ParserProcessor parserProcessor;
+    private final CityButtonAction cityButtonAction;
 
     private final PatternMap<String, Actions<?>> actionsCommand = new PatternMap<>();
     private final PatternMap<String, Actions<?>> actionsKeyboard = new PatternMap<>();
@@ -69,6 +70,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         actionsKeyboard.put("/balance", balanceAction);
         actionsKeyboard.put("/accounts", accountsAction);
         actionsKeyboard.putPattern(key -> key.startsWith("accountId-"), selectAccountAction);
+        actionsKeyboard.putPattern(key -> key.startsWith("cityTab-"), cityButtonAction);
         actionsKeyboard.putPattern(key -> key.startsWith("back-"), accountsAction);
         actionsKeyboard.putPattern(key -> key.startsWith("deleteAccountId-"), deleteAccount);
         actionsKeyboard.putPattern(key -> key.startsWith("handleReport-"), reportHandlerAction);
@@ -82,7 +84,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                        SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount, ReportHandlerAction reportHandlerAction,
                        StartAction startAction, HelpAction helpAction,
                        TariffsAction tariffsAction, TariffAction tariffAction, FullAdsStatisticService services,
-                       SelectedAdsStatisticService selService, AvitoCostService costService, ReportHandler reportHandler, ParserProcessor parserProcessor) {
+                       SelectedAdsStatisticService selService, CityButtonAction cityButtonAction) {
         this.botConfig = botConfig;
         this.userService = userService;
         this.balanceAction = balanceAction;
@@ -98,9 +100,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.tariffAction = tariffAction;
         this.services = services;
         this.selService = selService;
-        this.costService = costService;
-        this.reportHandler = reportHandler;
-        this.parserProcessor = parserProcessor;
+        this.cityButtonAction = cityButtonAction;
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("/start", ""));
         listOfCommand.add(new BotCommand("/help", ""));
@@ -115,9 +115,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        //reportHandler.reportProcess("357725045");
         //services.setStatistic();
-        selService.setStatistic();
+        //selService.setStatistic();
         //parserProcessor.addAds(3901726593L);
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();
@@ -166,11 +165,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                     }
                 }
                 if (key.contains("connect") ||
-                        key.equals("/accounts") ||
-                        key.contains("accountId-") ||
-                        key.contains("back-") ||
-                        key.contains("deleteAccountId-") ||
-                        key.contains("handleReport-")) {
+                    key.equals("/accounts") ||
+                    key.contains("accountId-") ||
+                    key.contains("back-") ||
+                    key.contains("deleteAccountId-") ||
+                    key.contains("handleReport-") ||
+                    key.contains("cityTab-")) {
                     try {
                         executeAsync((SendMessage) msg);
                     } catch (TelegramApiException e) {
@@ -191,7 +191,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void registrationUser(String username, Long chatId) {
-        userService.getUser(chatId).ifPresentOrElse(user -> {}, () -> {
+        userService.getUser(chatId).ifPresentOrElse(user -> {
+        }, () -> {
             User added = new User(username, chatId.toString());
             log.info("Added new user with name {} and id {}", username, chatId);
             userService.saveUser(added);

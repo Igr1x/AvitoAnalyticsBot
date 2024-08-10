@@ -19,7 +19,8 @@ import java.util.*;
 @Slf4j
 public class AdvertisementAvitoServiceImpl implements AdvertisementAvitoService {
     ///*,old,rejected,removed,blocked*/
-    private static final String URL = "https://api.avito.ru/core/v1/items?status=active&page=%s&per_page=%s&updatedAtFrom=%s";
+    //private static final String URL = "https://api.avito.ru/core/v1/items?&page=%s&per_page=%s&updatedAtFrom=%s";
+    private static final String URL = "https://api.avito.ru/core/v1/items?&page=%s&per_page=%s";
 
     private final AvitoConfiguration avitoConfiguration;
 
@@ -47,7 +48,7 @@ public class AdvertisementAvitoServiceImpl implements AdvertisementAvitoService 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
-        String currentUrl = String.format(URL, page, perPage, updatedAtFrom);
+        String currentUrl = String.format(URL, page, perPage);
         var response = restTemplate.exchange(currentUrl, HttpMethod.GET, new HttpEntity<>(null, headers), ListAdvertisement.class);
         return response.getBody() == null ? new ArrayList<>() : response.getBody().getAdvertisementList();
     }
