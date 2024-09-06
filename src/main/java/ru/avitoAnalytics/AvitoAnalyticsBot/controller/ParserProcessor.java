@@ -58,18 +58,22 @@ public class ParserProcessor extends Thread {
     @Override
     public void run() {
         while (true) {
+            Long adId = 0L;
             try {
                 Ads ad = queue.poll(1, TimeUnit.MINUTES);
+                adId = ad.getAvitoId();
                 if (ad != null) {
-                    set.remove(ad.getAvitoId());
+                    set.remove(adId);
                     var newAd = processAd(ad);
                     adsService.save(newAd);
                 }
             } catch (ItemNotFoundException e) {
+                set.remove(adId);
                 log.error(e.getMessage());
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (Exception e) {
+                set.remove(adId);
                 log.error(e.getMessage());
             }
         }

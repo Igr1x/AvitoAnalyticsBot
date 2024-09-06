@@ -159,7 +159,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                     break;
                 }
                 String itemId = value.getValues().get(0).get(0).toString();
-                if (itemId.equals("Просмотров")) {
+                if (itemId.equals("Просмотров") || itemId.equals("Аккаунт ХХХ")) {
                     break;
                 }
 
@@ -334,12 +334,15 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         int lastColumn = 0;
         try {
             ValueRange values = service.spreadsheets().values().get(sheetsId, range).execute();
+            Thread.sleep(5L);
             if (!values.isEmpty()) {
                 lastColumn = values.getValues().get(0).size();
             }
             return lastColumn;
         } catch (IOException e) {
             throw new GoogleSheetsReadException(String.format("Error: get last column from %s, range %s", sheetsId, range), e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -63,7 +63,6 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                         .orElseThrow(() -> new SheetsNotExistedException(String.format("Not found sheet by name, sheet id %s", sheetRef)));
             } catch (SheetsNotExistedException e) {
                 log.warn(e.getMessage());
-                log.warn(e.getCause().getMessage());
                 continue;
             }
             name = sheetName;
@@ -80,11 +79,11 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         for (Map.Entry<String, List<String>> entry : listSheetsRef.entrySet()) {
             AccountData account = null;
             try {
-                account = accountService.findByAccountName(entry.getValue().get(0))
+                var accountName = entry.getValue().get(0).trim();
+                 account = accountService.findByAccountName(accountName)
                         .orElseThrow(() -> new AccountNotFoundException(String.format("Account %s not found", entry.getValue().get(0))));
             } catch (AccountNotFoundException e) {
                 log.warn(e.getMessage());
-                log.warn(e.getCause().getMessage());
                 continue;
             }
 
@@ -96,7 +95,6 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 token = statisticAvitoService.getToken(account.getClientId(), account.getClientSecret());
             } catch (JsonProcessingException | AvitoResponseException e) {
                 log.error(e.getMessage());
-                log.error(e.getCause().getMessage());
                 continue;
             }
             Pattern pattern = Pattern.compile("!D[0-9]+");
@@ -114,7 +112,6 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 } catch (GoogleSheetsInsertException | GoogleSheetsReadException | AdvertisementServiceException |
                          AvitoResponseException e) {
                     log.error(e.getMessage());
-                    log.error(e.getCause().getMessage());
                     continue;
                 }
             }
@@ -128,7 +125,6 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                 googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), account.getSheetsRef());
             } catch (GoogleSheetsInsertException e) {
                 log.error(e.getMessage());
-                log.error(e.getCause().getMessage());
             }
         }
     }
