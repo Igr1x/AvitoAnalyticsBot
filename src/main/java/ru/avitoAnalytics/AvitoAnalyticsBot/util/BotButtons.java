@@ -2,6 +2,7 @@ package ru.avitoAnalytics.AvitoAnalyticsBot.util;
 
 import lombok.experimental.UtilityClass;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.avitoAnalytics.AvitoAnalyticsBot.entity.AccountData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,11 +27,11 @@ public class BotButtons {
         return createButtons(BalanceButtons.class);
     }
 
-    public List<List<InlineKeyboardButton>> getAccountsButtons(int quantity, List<Long> accountsId) {
+    public List<List<InlineKeyboardButton>> getAccountsButtons(int quantity, List<AccountData> accounts) {
         List<InlineKeyboardButton> rowInLine = new ArrayList<>();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
         for (int i = 0; i < quantity; i++) {
-            rowInLine.add(createButton("Аккаунт №" + (i + 1), "accountId-" + accountsId.get(i)));
+            rowInLine.add(createButton(accounts.get(i).getAccountName(), "accountId-" + accounts.get(i).getId()));
             rowsInLine.add(rowInLine);
             rowInLine = new ArrayList<>();
         }
@@ -41,8 +42,6 @@ public class BotButtons {
     public List<List<InlineKeyboardButton>> getSelectAccountButtons(long chatId, long accountId) {
         List<InlineKeyboardButton> rowInLine = new ArrayList<>();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-        /*rowInLine.add(createButton("Обработать отчёт", "handleReport-" + accountId));
-        rowsInLine.add(rowInLine);*/
         rowInLine.add(createButton("Заполнить вкладку с городами", "cityTab-" + accountId));
         rowsInLine.add(rowInLine);
         rowInLine = new ArrayList<>();
