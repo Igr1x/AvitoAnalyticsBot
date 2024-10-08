@@ -15,8 +15,8 @@ spring:
 server:
   port: 8080
 bot:
-  name: '@AvitoAnalyticsDevBot'
-  token: 6590056450:AAE4gtOzAHDmvJ3kPzZdOOX34GIG1nD8xW8
+  name: '@AvitoAnalyticsDevelopmentBot'
+  token: 7741282007:AAEdXGpLGe7fImfInHTsCnvChHrDnoTkhdo
 avito:
   statistic:
     max_items_per_request: 200

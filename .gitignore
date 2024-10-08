@@ -5,7 +5,9 @@ target/
 !**/src/test/**/target/
 
 src/main/resources/application.properties
+src/main/resources/application-dev.yml
 *.log
+*.gz
 
 ### STS ###
 .apt_generated

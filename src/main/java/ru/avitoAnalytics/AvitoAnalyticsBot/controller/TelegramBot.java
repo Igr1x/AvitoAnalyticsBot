@@ -4,13 +4,17 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerPreCheckoutQuery;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
+import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
+import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice;
+import org.telegram.telegrambots.meta.api.objects.payments.PreCheckoutQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.avitoAnalytics.AvitoAnalyticsBot.actions.*;
 import ru.avitoAnalytics.AvitoAnalyticsBot.actions.impl.*;
@@ -32,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final Map<Long, String> bindingBy = new ConcurrentHashMap<>();
+    private final Map<Long, String> paymentUsers = new ConcurrentHashMap<>();
 
     private final BotConfiguration botConfig;
     private final UserService userService;
@@ -47,9 +52,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final HelpAction helpAction;
     private final TariffsAction tariffsAction;
     private final TariffAction tariffAction;
+    private final PaymentAction payment;
     private final FullAdsStatisticService services;
     private final SelectedAdsStatisticService selService;
     private final CityButtonAction cityButtonAction;
+
+    private final PaymentService paymentService;
 
     private final PatternMap<String, Actions<?>> actionsCommand = new PatternMap<>();
     private final PatternMap<String, Actions<?>> actionsKeyboard = new PatternMap<>();
@@ -62,6 +70,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         actionsCommand.put("/tariffs", tariffsAction);
         actionsCommand.put("/balance", balanceAction);
         actionsCommand.put("/accounts", accountsAction);
+        actionsCommand.put("/payment", payment);
 
         actionsKeyboard.put("/start", startAction);
         actionsKeyboard.put("/help", helpAction);
@@ -69,6 +78,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         actionsKeyboard.put("/tariffs", tariffsAction);
         actionsKeyboard.put("/balance", balanceAction);
         actionsKeyboard.put("/accounts", accountsAction);
+        actionsKeyboard.put("/payment", payment);
         actionsKeyboard.putPattern(key -> key.startsWith("accountId-"), selectAccountAction);
         actionsKeyboard.putPattern(key -> key.startsWith("cityTab-"), cityButtonAction);
         actionsKeyboard.putPattern(key -> key.startsWith("back-"), accountsAction);
@@ -84,7 +94,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                        SelectAccountAction selectAccountAction, DeleteAccountAction deleteAccount, ReportHandlerAction reportHandlerAction,
                        StartAction startAction, HelpAction helpAction,
                        TariffsAction tariffsAction, TariffAction tariffAction, FullAdsStatisticService services,
-                       SelectedAdsStatisticService selService, CityButtonAction cityButtonAction) {
+                       SelectedAdsStatisticService selService, CityButtonAction cityButtonAction,
+                       PaymentAction payment, PaymentService paymentService) {
         this.botConfig = botConfig;
         this.userService = userService;
         this.balanceAction = balanceAction;
@@ -100,7 +111,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.tariffAction = tariffAction;
         this.services = services;
         this.selService = selService;
+        this.payment = payment;
         this.cityButtonAction = cityButtonAction;
+        this.paymentService = paymentService;
         List<BotCommand> listOfCommand = new ArrayList<>();
         listOfCommand.add(new BotCommand("/start", ""));
         listOfCommand.add(new BotCommand("/help", ""));
@@ -118,9 +131,42 @@ public class TelegramBot extends TelegramLongPollingBot {
         //services.setStatistic();
         //selService.setStatistic();
         //parserProcessor.addAds(3901726593L);
+        if (update.hasPreCheckoutQuery()) {
+            PreCheckoutQuery preCheckoutQuery = update.getPreCheckoutQuery();
+            try {
+                var answer = paymentService.processPayment(preCheckoutQuery);
+                execute(answer);
+                return;
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        }
         if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();
             var key = update.getMessage().getText();
+            if (key == null) {
+                return;
+            }
+            if (paymentUsers.containsKey(chatId)) {
+                paymentUsers.remove(chatId);
+                var msg = actionsCommand.get("/payment").callback(update, chatId);
+                try {
+                    executeAsync((SendInvoice) msg);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+                return;
+            }
+            if (key.equals("/payment")) {
+                paymentUsers.put(chatId, key);
+                var msg = actionsCommand.get(key).handleMessage(update, chatId);
+                try {
+                    executeAsync((SendMessage) msg);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+                return;
+            }
             if (key.equals("/start")) {
                 registrationUser(update.getMessage().getChat().getUserName(), chatId);
             }
@@ -150,6 +196,26 @@ public class TelegramBot extends TelegramLongPollingBot {
         } else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             var key = update.getCallbackQuery().getData();
+            if (paymentUsers.containsKey(chatId)) {
+                paymentUsers.remove(chatId);
+                var msg = actionsCommand.get("/payment").callback(update, chatId);
+                try {
+                    executeAsync((SendInvoice) msg);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+                return;
+            }
+            if (key.equals("/payment")) {
+                paymentUsers.put(chatId, key);
+                var msg = actionsCommand.get(key).handleMessage(update, chatId);
+                try {
+                    executeAsync((SendMessage) msg);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+                return;
+            }
             if (actionsKeyboard.containsKey(key)) {
                 var msg = actionsKeyboard.get(key).handleMessage(update, chatId);
                 bindingBy.put(chatId, key);
