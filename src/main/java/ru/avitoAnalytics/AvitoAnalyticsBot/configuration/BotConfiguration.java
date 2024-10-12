@@ -14,4 +14,7 @@ public class BotConfiguration {
     @Value("${bot.token}")
     String token;
 
+    @Value("${paymentToken}")
+    String paymentToken;
+
 }
