@@ -51,6 +51,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public List<AccountData> findAll() {
         return accountRepository.findAll();
     }
@@ -73,5 +74,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountData> findBySheetsRef(String sheetsRef) {
         return accountRepository.findBySheetsRef(sheetsRef);
+    }
+
+    @Override
+    public int getCountAccountByUserId(Long userId) {
+        return accountRepository.countAccountByUserId(userId);
     }
 }

@@ -22,4 +22,7 @@ public class Rates {
     @Column(columnDefinition = "text")
     private String description;
 
+    private int costPerDay;
+
+    private int maxAccountCount;
 }
