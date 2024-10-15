@@ -65,6 +65,9 @@ public class UserServiceImpl implements UserService {
 
     private boolean isNotExpiredRate(User user) {
         LocalDate endTariff = user.getEndRate();
+        if (endTariff == null) {
+            return true;
+        }
         LocalDate currentDate = LocalDate.now();
         return currentDate.isBefore(endTariff);
     }

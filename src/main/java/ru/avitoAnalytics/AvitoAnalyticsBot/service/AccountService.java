@@ -18,4 +18,5 @@ public interface AccountService {
     Optional<AccountData> findByAccountName(String accountName);
     Optional<AccountData> findByUserId(Long userId);
     List<AccountData> findBySheetsRef(String sheetsRef);
+    int getCountAccountByUserId(Long userId);
 }

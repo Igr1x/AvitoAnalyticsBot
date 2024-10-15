@@ -44,7 +44,16 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
     @Scheduled(cron = "0 0 1 * * *")
     @Async
     public void setStatistic() {
-        List<String> listLinks = accountService.findUniqueSheetsRef();
+        var listLinks = accountService.findAll().stream()
+                .filter(account -> {
+                    var userOwner = account.getUserOwner();
+                    return userOwner != null && userOwner.getRate().getId() != 4;
+                })
+                .map(AccountData::getSheetsRef)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
         if (listLinks.isEmpty()) {
             return;
         }
@@ -80,7 +89,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
             AccountData account = null;
             try {
                 var accountName = entry.getValue().get(0).trim();
-                 account = accountService.findByAccountName(accountName)
+                account = accountService.findByAccountName(accountName)
                         .orElseThrow(() -> new AccountNotFoundException(String.format("Account %s not found", entry.getValue().get(0))));
             } catch (AccountNotFoundException e) {
                 log.warn(e.getMessage());
@@ -286,7 +295,6 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
 
         List<Long> oldAds = new ArrayList<>(adsFromDb);
         oldAds.removeAll(adsIdFromAvito);
-
 
 
         for (Long id : oldAds) {

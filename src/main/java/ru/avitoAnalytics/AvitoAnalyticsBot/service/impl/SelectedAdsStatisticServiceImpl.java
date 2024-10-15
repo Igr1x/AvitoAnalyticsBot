@@ -61,7 +61,7 @@ public class SelectedAdsStatisticServiceImpl implements SelectedAdsStatisticServ
                 continue;
             }
             String title = googleSheetsService.getSheetByName("StatFav#", sheetName).get();
-            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(GOOGLE_SHEETS_PREFIX + sheetName, String.format(RANGE_FOR_GET_LAST_COLUMN, title), title, 15, 3);
+            Map<String, List<AvitoItems>> map = googleSheetsService.getItemsWithRange(sheetName, String.format(RANGE_FOR_GET_LAST_COLUMN, title), title, 15, 2);
             if (map.isEmpty()) {
                 continue;
             }
