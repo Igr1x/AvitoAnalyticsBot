@@ -129,7 +129,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         //services.setStatistic();
-        selService.setStatistic();
+        //selService.setStatistic();
         //parserProcessor.addAds(3901726593L);
         if (update.hasPreCheckoutQuery()) {
             PreCheckoutQuery preCheckoutQuery = update.getPreCheckoutQuery();
