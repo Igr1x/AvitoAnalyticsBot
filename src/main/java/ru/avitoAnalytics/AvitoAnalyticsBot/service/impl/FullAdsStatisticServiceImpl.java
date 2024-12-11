@@ -17,7 +17,9 @@ import ru.avitoAnalytics.AvitoAnalyticsBot.util.SheetsStatUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -108,15 +110,40 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
             }
             Pattern pattern = Pattern.compile("!D[0-9]+");
             Matcher matcher = pattern.matcher(entry.getKey());
-            if (matcher.find()) {
+            var days = checkLastDate(entry.getKey(), account.getSheetsRef());
+            var range = entry.getKey();
+            if (matcher.find() || days != 0) {
                 try {
-                    var listOldStat = getSummaryStat(account, token);
+                    if (days == 0) {
+                        days = 269;
+                    } else {
+                        var index = range.lastIndexOf('!');
+                        var index2 = range.lastIndexOf(':');
+                        var rangeWithoutTitleFirst = range.substring(index + 1, index2);
+                        var rangeWithoutTitleSecond = range.substring(index2 + 1);
+                        StringBuilder letters = new StringBuilder();
+                        StringBuilder numbers = new StringBuilder();
+                        for (char c : rangeWithoutTitleSecond.toCharArray()) {
+                            if (Character.isLetter(c)) {
+                                letters.append(c);
+                            } else if (Character.isDigit(c)) {
+                                numbers.append(c);
+                            }
+                        }
+                        String newLastColumn = letters.toString();
+                        for (int i = 0; i < days; i++) {
+                            newLastColumn = googleSheetsService.getNextColumn(newLastColumn);
+                        }
+                        range = name + '!' + rangeWithoutTitleFirst + ':' + newLastColumn + numbers;
+                    }
+                    days = days == 0 ? 269 : days;
+                    var listOldStat = getSummaryStat(account, token, LocalDate.now().minusDays(days));
                     List<List<Object>> all = getStatSummaryMethods().stream()
                             .map(mapper -> listOldStat.stream().
                                     map(mapper)
                                     .collect(Collectors.toList()))
                             .toList();
-                    googleSheetsService.insertStatisticIntoTable(all, entry.getKey(), account.getSheetsRef());
+                    googleSheetsService.insertStatisticIntoTable(all, range, account.getSheetsRef());
                     continue;
                 } catch (GoogleSheetsInsertException | GoogleSheetsReadException | AdvertisementServiceException |
                          AvitoResponseException e) {
@@ -138,10 +165,14 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         }
     }
 
-    private List<StatSummary> getSummaryStat(AccountData account, String token) throws GoogleSheetsReadException, AdvertisementServiceException, AvitoResponseException {
-        LocalDate oldestDate = LocalDate.now().minusDays(269);
-        oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), name).orElse(oldestDate);
-        LocalDate oldDate = oldestDate;
+    private List<StatSummary> getSummaryStat(AccountData account, String token, LocalDate dateFrom) throws GoogleSheetsReadException, AdvertisementServiceException, AvitoResponseException {
+        LocalDate oldestDate = dateFrom;
+        LocalDate oldDate = dateFrom;
+        if (dateFrom.equals(LocalDate.now().minusDays(269))) {
+            oldestDate = googleSheetsService.getOldestDate(account.getSheetsRef(), name).orElse(dateFrom);
+            oldDate = googleSheetsService.getOldestDate(account.getSheetsRef(), name).orElse(dateFrom);
+        }
+
         Map<LocalDate, Stats> mapStats = new TreeMap<>();
         int i = 0;
         var cost = adsService.findAvgCostAdsByAccountId(account).orElse(BigDecimal.ZERO).doubleValue();
@@ -173,15 +204,22 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         List<Stats> summaryStats = new ArrayList<>(mapStats.values());
         List<Operations> operations = statisticAvitoService.getAmountExpenses(token, oldDate, LocalDate.now());
         List<StatSummary> statsList = new ArrayList<>();
-        LocalDate currentDate = SheetsStatUtil.getDayOfStartWeek(oldDate);
+        LocalDate currentDate = oldDate;
+        if (dateFrom.equals(LocalDate.now().minusDays(269))) {
+            currentDate = SheetsStatUtil.getDayOfStartWeek(oldDate);
+        }
         for (Stats stats : summaryStats) {
+            if (LocalDate.parse(stats.getDate()).equals(LocalDate.now())) {
+                continue;
+            }
             operations.stream()
                     .filter(operation -> operation.getUpdatedAt().equals(stats.getDate()))
                     .forEach(operation -> stats.updateSumRaise(operation.getAmountTotal()));
             LocalDate currentDateStats = LocalDate.parse(stats.getDate());
-            statsList.addAll(getMissingDayStats(currentDateStats, currentDate).getKey());
-
-            currentDate = getMissingDayStats(currentDateStats, currentDate).getValue();
+            //if (dateFrom.equals(LocalDate.now().minusDays(269))) {
+                statsList.addAll(getMissingDayStats(currentDateStats, currentDate).getKey());
+                currentDate = getMissingDayStats(currentDateStats, currentDate).getValue();
+            //}
 
             stats.updateFields(cost);
 
@@ -196,7 +234,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
             }
             currentDate = currentDate.plusDays(1);
         }
-        statsList.addAll(getMissingDayStats(LocalDate.now(), currentDate.minusDays(1)).getKey());
+        statsList.addAll(getMissingDayStats(LocalDate.now().minusDays(1), currentDate.minusDays(1)).getKey());
         return statsList;
     }
 
@@ -307,4 +345,57 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
         return adsService.findAvgCostAdsByAccountIdAndDate(account, LocalDate.now().minusDays(1)).orElse(BigDecimal.ZERO).doubleValue();
     }
 
+    private long checkLastDate(String range, String sheetsRef) {
+        var index = range.lastIndexOf('!');
+        var index2 = range.lastIndexOf(':');
+        var rangeWithoutTitle = range.substring(index + 1, index2);
+        StringBuilder letters = new StringBuilder();
+        StringBuilder numbers = new StringBuilder();
+        for (char c : rangeWithoutTitle.toCharArray()) {
+            if (Character.isLetter(c)) {
+                letters.append(c);
+            } else if (Character.isDigit(c)) {
+                numbers.append(c);
+            }
+        }
+        int intRange = Integer.parseInt(numbers.toString()) + 1;
+        String letterColumn = getLetterColumn(letters.toString());
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+
+        var rangeForCheck = letterColumn + intRange;
+        var rangeForCheck2 = name + '!' + rangeForCheck + ':' + rangeForCheck;
+
+            var values = googleSheetsService.getDataFromTable(sheetsRef, rangeForCheck2);
+            try {
+                var previosDate = LocalDate.parse(values.get(0).get(0).toString());
+                if (!previosDate.equals(yesterday.minusDays(1))) {
+                    return ChronoUnit.DAYS.between(previosDate, yesterday);
+                }
+            } catch (DateTimeParseException e) {
+                return 0;
+            }
+
+
+        return 0;
+    }
+
+    private static String getLetterColumn(String currentColumn) {
+        var charArr = currentColumn.toCharArray();
+        int length = currentColumn.length();
+
+        for (int i = length - 1; i >= 0; i--) {
+            if (charArr[i] == 'A') {
+                charArr[i] = 'Z';
+            } else {
+                charArr[i] = (char) (charArr[i] - 1);
+                break;
+            }
+        }
+
+        if (charArr[0] == 'Z') {
+            return new String(charArr, 1, length - 1);
+        }
+
+        return new String(charArr);
+    }
 }
