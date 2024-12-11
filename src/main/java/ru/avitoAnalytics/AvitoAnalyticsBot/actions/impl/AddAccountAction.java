@@ -32,19 +32,19 @@ public class AddAccountAction implements Actions<SendMessage> {
 
     @Override
     public SendMessage handleMessage(Update update, Long chatId) {
-        User user = userService.getUser(chatId).orElseThrow(() -> new AccountNotFoundException(String.format("Account not found %s", chatId)));
+        /*User user = userService.getUser(chatId).orElseThrow(() -> new AccountNotFoundException(String.format("Account not found %s", chatId)));
         if (user.getRate().getMaxAccountCount() == 0) {
             return new SendMessage(chatId.toString(), "Вы не можете добавить аккаунт, так как у вас нет подключенного тарифа");
-        }
+        }*/
         String text = "Введите следующие данные об аккаунте:\n" +
                       "Название аккаунта\n" +
                       "user id\n" +
                       "client id\n" +
                       "client secret\n" +
                       "ссылку на таблицу";
-        if (!canUserAddNewAccount(user)) {
+        /*if (!canUserAddNewAccount(user)) {
             text = "Вы добавили максимальное возможное количество аккаунтов";
-        }
+        }*/
         return new SendMessage(chatId.toString(), text);
     }
 
