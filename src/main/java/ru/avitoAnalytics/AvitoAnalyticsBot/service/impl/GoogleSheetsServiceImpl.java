@@ -110,9 +110,10 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
         return sheetsId;
     }
 
-    private void setSheetsTitle(String sheetsId) throws GoogleSheetsReadException {
+    private void setSheetsTitle(String sheetsRef) throws GoogleSheetsReadException {
         try {
-            List<Sheet> sheets = getSheetsFromSpreadsheets(sheetsId);
+            var sheetToken = parseTokenFromSheetsRef(sheetsRef);
+            List<Sheet> sheets = getSheetsFromSpreadsheets(sheetToken);
 
             for (Sheet sheet : sheets) {
                 SheetProperties properties = sheet.getProperties();
@@ -127,10 +128,10 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                                 .setFields("title"));
                 requests.add(request);
                 BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-                service.spreadsheets().batchUpdate(sheetsId, body).execute();
+                service.spreadsheets().batchUpdate(sheetToken, body).execute();
             }
         } catch (IOException e) {
-            throw new GoogleSheetsInsertException(String.format("Error: set new sheets title into %s", sheetsId), e);
+            throw new GoogleSheetsInsertException(String.format("Error: set new sheets title into %s", sheetsRef), e);
         }
     }
 
