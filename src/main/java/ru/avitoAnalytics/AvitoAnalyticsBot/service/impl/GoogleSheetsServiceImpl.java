@@ -160,7 +160,7 @@ public class GoogleSheetsServiceImpl implements GoogleSheetsService {
                     break;
                 }
                 String itemId = value.getValues().get(0).get(0).toString();
-                if (itemId.equals("Просмотров") || itemId.equals("Аккаунт ХХХ")) {
+                if (itemId.equals("Просмотров") || itemId.equals("Аккаунт XXX")) {
                     break;
                 }
 
