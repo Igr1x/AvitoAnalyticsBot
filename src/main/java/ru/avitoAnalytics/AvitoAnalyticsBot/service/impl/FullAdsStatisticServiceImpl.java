@@ -167,7 +167,7 @@ public class FullAdsStatisticServiceImpl implements FullAdsStatisticService {
                     }
                 }
             }
-            oldestDate = oldestDate.plusDays(29);
+            oldestDate = oldestDate.plusDays(30);
         }
         System.out.println(i);
         List<Stats> summaryStats = new ArrayList<>(mapStats.values());
